@@ -12,40 +12,19 @@ const CooperativaPainel = () => {
   const { data: entradas, isLoading: loadingEnt } = useLotesEntrada();
   const { data: saidas, isLoading: loadingSai } = useLotesSaida();
 
-  if (loadingCoop || loadingEnt || loadingSai) {
-    return (
-      <div className="space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
-        </div>
-        <Skeleton className="h-64 rounded-xl" />
-      </div>
-    );
-  }
-
-  const totalEntrada = entradas?.reduce((s, e) => s + Number(e.peso_bruto_kg || 0), 0) ?? 0;
-  const totalSaida = saidas?.reduce((s, e) => s + Number(e.peso_liquido_kg || 0), 0) ?? 0;
-  const totalFaturamento = saidas?.reduce((s, e) => s + Number(e.valor_venda || 0), 0) ?? 0;
+  const totalEntrada = useMemo(() => entradas?.reduce((s, e) => s + Number(e.peso_bruto_kg || 0), 0) ?? 0, [entradas]);
+  const totalSaida = useMemo(() => saidas?.reduce((s, e) => s + Number(e.peso_liquido_kg || 0), 0) ?? 0, [saidas]);
+  const totalFaturamento = useMemo(() => saidas?.reduce((s, e) => s + Number(e.valor_venda || 0), 0) ?? 0, [saidas]);
   const balanco = totalEntrada - totalSaida;
 
-  const kpis = [
-    { label: "Total Entrada", value: `${totalEntrada.toLocaleString("pt-BR")} kg`, icon: TrendingUp, color: "text-primary" },
-    { label: "Total Saída", value: `${totalSaida.toLocaleString("pt-BR")} kg`, icon: TrendingDown, color: "text-success" },
-    { label: "Balanço de Massa", value: `${balanco.toLocaleString("pt-BR")} kg`, icon: Scale, color: "text-warning" },
-    { label: "Faturamento Total", value: `R$ ${totalFaturamento.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, icon: Boxes, color: "text-accent" },
-  ];
-
-  // Monthly evolution chart data
   const monthlyData = useMemo(() => {
     const months: Record<string, { entrada: number; saida: number; faturamento: number }> = {};
-
     entradas?.forEach((e: any) => {
       const d = new Date(e.data_recebimento);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       if (!months[key]) months[key] = { entrada: 0, saida: 0, faturamento: 0 };
       months[key].entrada += Number(e.peso_bruto_kg || 0);
     });
-
     saidas?.forEach((e: any) => {
       const d = new Date(e.data_despacho);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -53,7 +32,6 @@ const CooperativaPainel = () => {
       months[key].saida += Number(e.peso_liquido_kg || 0);
       months[key].faturamento += Number(e.valor_venda || 0);
     });
-
     return Object.entries(months)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, v]) => {
@@ -63,7 +41,6 @@ const CooperativaPainel = () => {
       });
   }, [entradas, saidas]);
 
-  // Material breakdown
   const materialData = useMemo(() => {
     const mats: Record<string, number> = {};
     entradas?.forEach((e: any) => {
@@ -74,6 +51,27 @@ const CooperativaPainel = () => {
       .sort(([, a], [, b]) => b - a)
       .map(([material, peso]) => ({ material, peso: Math.round(peso) }));
   }, [entradas]);
+
+  const isLoading = loadingCoop || loadingEnt || loadingSai;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-64 rounded-xl" />
+        <Skeleton className="h-64 rounded-xl" />
+      </div>
+    );
+  }
+
+  const kpis = [
+    { label: "Total Entrada", value: `${totalEntrada.toLocaleString("pt-BR")} kg`, icon: TrendingUp, color: "text-primary" },
+    { label: "Total Saída", value: `${totalSaida.toLocaleString("pt-BR")} kg`, icon: TrendingDown, color: "text-success" },
+    { label: "Balanço de Massa", value: `${balanco.toLocaleString("pt-BR")} kg`, icon: Scale, color: "text-warning" },
+    { label: "Faturamento Total", value: `R$ ${totalFaturamento.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, icon: Boxes, color: "text-accent" },
+  ];
 
   return (
     <div className="space-y-5">
@@ -93,6 +91,77 @@ const CooperativaPainel = () => {
           </Card>
         ))}
       </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Evolução Mensal - Peso */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Evolução Mensal — Peso Coletado vs Faturado (kg)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                <XAxis dataKey="mes" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                  formatter={(value: number) => `${value.toLocaleString("pt-BR")} kg`}
+                />
+                <Legend />
+                <Bar dataKey="Entrada" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Saída" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Evolução Mensal - Faturamento */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Evolução Mensal — Faturamento (R$)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                <XAxis dataKey="mes" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                  labelStyle={{ color: "hsl(var(--foreground))" }}
+                  formatter={(value: number) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                />
+                <Legend />
+                <Line type="monotone" dataKey="Faturamento" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Material breakdown */}
+      <Card className="shadow-card">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Peso Coletado por Material (kg)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={materialData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+              <XAxis type="number" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+              <YAxis dataKey="material" type="category" width={90} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+              <Tooltip
+                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                formatter={(value: number) => `${value.toLocaleString("pt-BR")} kg`}
+              />
+              <Bar dataKey="peso" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Peso (kg)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
       {/* Últimos lotes de entrada */}
       <Card className="shadow-card">
