@@ -9,6 +9,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/dashboard/rastreabilidade": { title: "Rastreabilidade", subtitle: "Cadeia de custódia e rastreio de materiais recicláveis" },
   "/dashboard/auditoria": { title: "Auditoria", subtitle: "Registos de conformidade e verificações do sistema" },
   "/dashboard/alertas": { title: "Alertas", subtitle: "Notificações, anomalias e eventos críticos" },
+  "/dashboard/usuarios": { title: "Gestão de Usuários", subtitle: "Administração de perfis de acesso e permissões" },
 };
 
 const DashboardLayout = () => {

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Route, ClipboardCheck, AlertTriangle, Recycle, LogOut, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
+import { LayoutDashboard, Route, ClipboardCheck, AlertTriangle, Recycle, LogOut, ChevronLeft, ChevronRight, Menu, X, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -9,6 +9,7 @@ const menuItems = [
   { title: "Rastreabilidade", icon: Route, url: "/dashboard/rastreabilidade" },
   { title: "Auditoria", icon: ClipboardCheck, url: "/dashboard/auditoria" },
   { title: "Alertas", icon: AlertTriangle, url: "/dashboard/alertas" },
+  { title: "Usuários", icon: Users, url: "/dashboard/usuarios" },
 ];
 
 interface DashboardSidebarProps {

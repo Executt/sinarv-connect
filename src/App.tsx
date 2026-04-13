@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import DashboardUsuarios from "./pages/DashboardUsuarios";
 import ResetPassword from "./pages/ResetPassword";
 import SelecionarPerfil from "./pages/SelecionarPerfil";
 import NotFound from "./pages/NotFound";
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="rastreabilidade" element={<Rastreabilidade />} />
               <Route path="auditoria" element={<Auditoria />} />
               <Route path="alertas" element={<Alertas />} />
+              <Route path="usuarios" element={<DashboardUsuarios />} />
             </Route>
 
             {/* Cooperativa - requires 'cooperativa' role */}
