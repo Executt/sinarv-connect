@@ -215,6 +215,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transacoes: {
         Row: {
           codigo: string
@@ -271,6 +298,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -858,11 +903,18 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       alert_severity: "critical" | "high" | "medium" | "low"
       alert_status: "active" | "acknowledged" | "resolved"
+      app_role: "gov" | "cooperativa" | "industria" | "ponto_coleta"
       audit_status: "Conforme" | "Não Conforme" | "Pendente" | "Em Análise"
       lote_status: "Coletado" | "Em Processamento" | "Em Trânsito" | "Entregue"
       transaction_status: "Concluída" | "Em Trânsito" | "Pendente" | "Auditoria"
@@ -995,6 +1047,7 @@ export const Constants = {
     Enums: {
       alert_severity: ["critical", "high", "medium", "low"],
       alert_status: ["active", "acknowledged", "resolved"],
+      app_role: ["gov", "cooperativa", "industria", "ponto_coleta"],
       audit_status: ["Conforme", "Não Conforme", "Pendente", "Em Análise"],
       lote_status: ["Coletado", "Em Processamento", "Em Trânsito", "Entregue"],
       transaction_status: ["Concluída", "Em Trânsito", "Pendente", "Auditoria"],
