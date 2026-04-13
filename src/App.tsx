@@ -39,6 +39,8 @@ import IndustriaCertificados from "./pages/industria/IndustriaCertificados";
 import PontoColetaDashboard from "./pages/ponto-coleta/PontoColetaDashboard";
 import PontoColetaNovoRecebimento from "./pages/ponto-coleta/PontoColetaNovoRecebimento";
 import PontoColetaMetas from "./pages/ponto-coleta/PontoColetaMetas";
+import PontoColetaHistorico from "./pages/ponto-coleta/PontoColetaHistorico";
+import PontoColetaCredenciamento from "./pages/ponto-coleta/PontoColetaCredenciamento";
 
 const queryClient = new QueryClient();
 
@@ -102,7 +104,9 @@ const App = () => (
               <Route index element={<Navigate to="/ponto-coleta/dashboard" replace />} />
               <Route path="dashboard" element={<PontoColetaDashboard />} />
               <Route path="novo-recebimento" element={<PontoColetaNovoRecebimento />} />
+              <Route path="historico" element={<PontoColetaHistorico />} />
               <Route path="metas" element={<PontoColetaMetas />} />
+              <Route path="credenciamento" element={<PontoColetaCredenciamento />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

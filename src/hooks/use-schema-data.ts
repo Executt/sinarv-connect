@@ -172,3 +172,34 @@ export const useAuditoriaInfracoes = () =>
       return data as any[];
     },
   });
+
+// ─── sch_ponto_coleta: registro_entrada & despacho_lote ───
+export const useRegistrosEntrada = (entidadeId?: string) =>
+  useQuery({
+    queryKey: ["v_registro_entrada", entidadeId],
+    queryFn: async () => {
+      let q = supabase
+        .from("v_registro_entrada" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (entidadeId) q = q.eq("entidade_id", entidadeId);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data as any[];
+    },
+  });
+
+export const useDespachosLote = (entidadeId?: string) =>
+  useQuery({
+    queryKey: ["v_despacho_lote", entidadeId],
+    queryFn: async () => {
+      let q = supabase
+        .from("v_despacho_lote" as any)
+        .select("*")
+        .order("data_despacho", { ascending: false });
+      if (entidadeId) q = q.eq("entidade_id", entidadeId);
+      const { data, error } = await q;
+      if (error) throw error;
+      return data as any[];
+    },
+  });
