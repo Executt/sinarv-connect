@@ -242,7 +242,7 @@ const DashboardBenchmarks = () => {
                         innerRadius={50}
                         dataKey="percentual"
                         nameKey="material"
-                        label={({ material, percentual }) => `${material.split(" ")[0]} ${percentual}%`}
+                        label={({ name, value }: any) => `${String(name).split(" ")[0]} ${value}%`}
                         labelLine
                       >
                         {materiaisARP.map((_, i) => (
