@@ -33,6 +33,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Auditoria", to: "/dashboard/auditoria" },
       { label: "Alertas", to: "/dashboard/alertas" },
       { label: "Usuários", to: "/dashboard/usuarios" },
+      { label: "Benchmarks", to: "/dashboard/benchmarks" },
     ],
   },
   "/cooperativa": {
