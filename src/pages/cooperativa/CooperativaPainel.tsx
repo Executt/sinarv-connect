@@ -1,9 +1,11 @@
+import { useMemo } from "react";
 import { useCooperativas, useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Boxes, TrendingUp, TrendingDown, Scale } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const CooperativaPainel = () => {
   const { data: cooperativas, isLoading: loadingCoop } = useCooperativas();
