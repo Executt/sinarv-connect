@@ -1,13 +1,4 @@
-import { Factory, Award, LayoutDashboard, BarChart3, Link2, Building2 } from "lucide-react";
-import ModuleLayout from "@/components/modules/ModuleLayout";
-
-const menuItems = [
-  { title: "Dashboard ESG", icon: LayoutDashboard, url: "/industria/dashboard" },
-  { title: "Metas Logísticas", icon: BarChart3, url: "/industria/metas-logisticas" },
-  { title: "Integração / API", icon: Link2, url: "/industria/integracao" },
-  { title: "Certificados", icon: Award, url: "/industria/certificados" },
-  { title: "Cadastro", icon: Building2, url: "/industria/cadastro" },
-];
+import ModuleShell from "@/components/layout/ModuleShell";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/industria/dashboard": { title: "Dashboard Executivo ESG", subtitle: "Visão consolidada de metas PNRS, volumes e emissões evitadas" },
@@ -18,14 +9,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
 };
 
 const IndustriaLayout = () => (
-  <ModuleLayout
-    title="Indústria"
-    subtitle="Economia Circular"
-    icon={Factory}
-    accentColor="bg-accent"
-    menuItems={menuItems}
-    pageTitles={pageTitles}
-  />
+  <ModuleShell pageTitles={pageTitles} defaultTitle="Indústria" defaultSubtitle="Economia Circular" />
 );
 
 export default IndustriaLayout;

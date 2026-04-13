@@ -1,13 +1,4 @@
-import { MapPin, LayoutDashboard, PlusCircle, Target, ClipboardList, Building2 } from "lucide-react";
-import ModuleLayout from "@/components/modules/ModuleLayout";
-
-const menuItems = [
-  { title: "Dashboard", icon: LayoutDashboard, url: "/ponto-coleta/dashboard" },
-  { title: "Nova Entrada", icon: PlusCircle, url: "/ponto-coleta/novo-recebimento" },
-  { title: "Histórico", icon: ClipboardList, url: "/ponto-coleta/historico" },
-  { title: "Metas", icon: Target, url: "/ponto-coleta/metas" },
-  { title: "Credenciamento", icon: Building2, url: "/ponto-coleta/credenciamento" },
-];
+import ModuleShell from "@/components/layout/ModuleShell";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/ponto-coleta/dashboard": { title: "Dashboard do Ponto de Coleta", subtitle: "Volume arrecadado, capacidade e créditos fiscais" },
@@ -18,14 +9,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
 };
 
 const PontoColetaLayout = () => (
-  <ModuleLayout
-    title="Ponto de Coleta"
-    subtitle="Infraestrutura de Recebimento"
-    icon={MapPin}
-    accentColor="bg-success"
-    menuItems={menuItems}
-    pageTitles={pageTitles}
-  />
+  <ModuleShell pageTitles={pageTitles} defaultTitle="Ponto de Coleta" defaultSubtitle="Infraestrutura de Recebimento" />
 );
 
 export default PontoColetaLayout;
