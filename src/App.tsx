@@ -124,7 +124,6 @@ const App = () => (
               <Route path="credenciamento" element={<PontoColetaCredenciamento />} />
               <Route path="servicos" element={<PontoColetaServicos />} />
             </Route>
-            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
