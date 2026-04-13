@@ -1,27 +1,9 @@
-import { ClipboardCheck, ShieldCheck, ShieldAlert, Search, ChevronDown, Eye } from "lucide-react";
+import { ClipboardCheck, ShieldCheck, ShieldAlert, Search, Eye } from "lucide-react";
 import { useState } from "react";
+import { useAuditorias } from "@/hooks/use-sinarv-data";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type AuditStatus = "Conforme" | "Não Conforme" | "Pendente" | "Em Análise";
-
-interface AuditRecord {
-  id: string;
-  entidade: string;
-  tipo: string;
-  data: string;
-  auditor: string;
-  status: AuditStatus;
-  pontuacao: number;
-}
-
-const auditorias: AuditRecord[] = [
-  { id: "AUD-2026-0312", entidade: "Ind. PlastBR Ltda", tipo: "Conformidade Ambiental", data: "12/04/2026", auditor: "Carlos M. Silva", status: "Conforme", pontuacao: 96 },
-  { id: "AUD-2026-0311", entidade: "MetalSul S.A.", tipo: "Rastreabilidade", data: "11/04/2026", auditor: "Ana P. Santos", status: "Conforme", pontuacao: 91 },
-  { id: "AUD-2026-0310", entidade: "Coop. Verde Vida BA", tipo: "Operacional", data: "10/04/2026", auditor: "Roberto L. Costa", status: "Pendente", pontuacao: 0 },
-  { id: "AUD-2026-0309", entidade: "VidroClear Ltda", tipo: "Conformidade Ambiental", data: "09/04/2026", auditor: "Mariana F. Oliveira", status: "Não Conforme", pontuacao: 62 },
-  { id: "AUD-2026-0308", entidade: "PapelNorte Ind.", tipo: "Rastreabilidade", data: "08/04/2026", auditor: "Carlos M. Silva", status: "Conforme", pontuacao: 88 },
-  { id: "AUD-2026-0307", entidade: "PlastRecicla PR", tipo: "Operacional", data: "07/04/2026", auditor: "Ana P. Santos", status: "Em Análise", pontuacao: 74 },
-  { id: "AUD-2026-0306", entidade: "AluBrasil S.A.", tipo: "Conformidade Ambiental", data: "06/04/2026", auditor: "Roberto L. Costa", status: "Conforme", pontuacao: 93 },
-];
 
 const statusConfig: Record<AuditStatus, string> = {
   "Conforme": "bg-success/10 text-success",
@@ -43,35 +25,42 @@ const ScoreBar = ({ score }: { score: number }) => {
   );
 };
 
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("pt-BR");
+};
+
 const Auditoria = () => {
   const [search, setSearch] = useState("");
-  const filtered = auditorias.filter(a =>
+  const { data: auditorias, isLoading } = useAuditorias();
+
+  const list = auditorias ?? [];
+  const filtered = list.filter(a =>
     a.entidade.toLowerCase().includes(search.toLowerCase()) ||
-    a.id.toLowerCase().includes(search.toLowerCase())
+    a.codigo.toLowerCase().includes(search.toLowerCase())
   );
 
-  const conformes = auditorias.filter(a => a.status === "Conforme").length;
-  const naoConformes = auditorias.filter(a => a.status === "Não Conforme").length;
-  const pendentes = auditorias.filter(a => a.status === "Pendente" || a.status === "Em Análise").length;
+  const conformes = list.filter(a => a.status === "Conforme").length;
+  const naoConformes = list.filter(a => a.status === "Não Conforme").length;
+  const pendentes = list.filter(a => a.status === "Pendente" || a.status === "Em Análise").length;
 
   return (
     <div className="space-y-5">
-      {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-card rounded-lg p-5 shadow-card border border-border">
           <div className="flex items-center gap-2 mb-2">
             <ShieldCheck className="h-5 w-5 text-success" />
             <span className="text-sm text-muted-foreground">Conformes</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{conformes}</p>
-          <p className="text-xs text-success mt-1">Taxa: {((conformes / auditorias.length) * 100).toFixed(0)}%</p>
+          <p className="text-2xl font-bold text-foreground">{isLoading ? <Skeleton className="h-7 w-8" /> : conformes}</p>
+          {!isLoading && list.length > 0 && <p className="text-xs text-success mt-1">Taxa: {((conformes / list.length) * 100).toFixed(0)}%</p>}
         </div>
         <div className="bg-card rounded-lg p-5 shadow-card border border-border">
           <div className="flex items-center gap-2 mb-2">
             <ShieldAlert className="h-5 w-5 text-destructive" />
             <span className="text-sm text-muted-foreground">Não Conformes</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{naoConformes}</p>
+          <p className="text-2xl font-bold text-foreground">{isLoading ? <Skeleton className="h-7 w-8" /> : naoConformes}</p>
           <p className="text-xs text-destructive mt-1">Requerem ação imediata</p>
         </div>
         <div className="bg-card rounded-lg p-5 shadow-card border border-border">
@@ -79,12 +68,11 @@ const Auditoria = () => {
             <ClipboardCheck className="h-5 w-5 text-warning" />
             <span className="text-sm text-muted-foreground">Pendentes / Em Análise</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{pendentes}</p>
+          <p className="text-2xl font-bold text-foreground">{isLoading ? <Skeleton className="h-7 w-8" /> : pendentes}</p>
           <p className="text-xs text-warning mt-1">Aguardando conclusão</p>
         </div>
       </div>
 
-      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
@@ -96,7 +84,6 @@ const Auditoria = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-card rounded-lg shadow-card border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -113,24 +100,34 @@ const Auditoria = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((a) => (
-                <tr key={a.id} className="border-t border-border hover:bg-surface/50 transition-colors">
-                  <td className="px-5 py-3 font-mono text-xs text-primary">{a.id}</td>
-                  <td className="px-5 py-3 text-foreground font-medium">{a.entidade}</td>
-                  <td className="px-5 py-3 text-muted-foreground">{a.tipo}</td>
-                  <td className="px-5 py-3 text-muted-foreground">{a.data}</td>
-                  <td className="px-5 py-3 text-foreground">{a.auditor}</td>
-                  <td className="px-5 py-3"><ScoreBar score={a.pontuacao} /></td>
-                  <td className="px-5 py-3">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[a.status]}`}>{a.status}</span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <button className="p-1.5 rounded hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground">
-                      <Eye className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-t border-border">
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <td key={j} className="px-5 py-3"><Skeleton className="h-4 w-16" /></td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                filtered.map((a) => (
+                  <tr key={a.id} className="border-t border-border hover:bg-surface/50 transition-colors">
+                    <td className="px-5 py-3 font-mono text-xs text-primary">{a.codigo}</td>
+                    <td className="px-5 py-3 text-foreground font-medium">{a.entidade}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{a.tipo}</td>
+                    <td className="px-5 py-3 text-muted-foreground">{formatDate(a.data)}</td>
+                    <td className="px-5 py-3 text-foreground">{a.auditor}</td>
+                    <td className="px-5 py-3"><ScoreBar score={a.pontuacao} /></td>
+                    <td className="px-5 py-3">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[a.status as AuditStatus] || "bg-muted text-muted-foreground"}`}>{a.status}</span>
+                    </td>
+                    <td className="px-5 py-3">
+                      <button className="p-1.5 rounded hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground">
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

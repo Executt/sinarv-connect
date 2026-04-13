@@ -1,17 +1,26 @@
 import { TrendingUp, Recycle, Scale, Leaf } from "lucide-react";
 import { useInView, useCountUp } from "@/hooks/use-in-view";
+import { useIndicadores } from "@/hooks/use-sinarv-data";
 
-const indicators = [
-  { label: "Toneladas Recicladas Hoje", numericValue: 1247, displayPrefix: "", icon: Recycle, suffix: "t" },
-  { label: "Materiais Rastreados (mês)", numericValue: 38920, displayPrefix: "", icon: Scale, suffix: "t" },
-  { label: "Cooperativas Ativas", numericValue: 2841, displayPrefix: "", icon: TrendingUp, suffix: "" },
-  { label: "CO₂ Evitado (ano)", numericValue: 124500, displayPrefix: "", icon: Leaf, suffix: "t" },
+const iconMap: Record<string, typeof Recycle> = {
+  "Toneladas Recicladas Hoje": Recycle,
+  "CO₂ Evitado (mês)": Leaf,
+  "Cooperativas Ativas": TrendingUp,
+  "Empregos Gerados": Scale,
+};
+
+const fallbackIndicators = [
+  { label: "Toneladas Recicladas Hoje", value: 1247, suffix: "t" },
+  { label: "CO₂ Evitado (mês)", value: 3842, suffix: "t" },
+  { label: "Cooperativas Ativas", value: 1893, suffix: "" },
+  { label: "Empregos Gerados", value: 24500, suffix: "" },
 ];
 
 const formatNumber = (n: number) => n.toLocaleString("pt-BR");
 
-const CounterCard = ({ ind, index, inView }: { ind: typeof indicators[0]; index: number; inView: boolean }) => {
-  const count = useCountUp(ind.numericValue, 1800, inView);
+const CounterCard = ({ label, numericValue, suffix, index, inView }: { label: string; numericValue: number; suffix: string; index: number; inView: boolean }) => {
+  const count = useCountUp(numericValue, 1800, inView);
+  const Icon = iconMap[label] || Recycle;
 
   return (
     <div
@@ -23,18 +32,23 @@ const CounterCard = ({ ind, index, inView }: { ind: typeof indicators[0]; index:
       }}
     >
       <div className="w-12 h-12 rounded-full bg-primary-light flex items-center justify-center mx-auto mb-4">
-        <ind.icon className="h-6 w-6 text-primary" />
+        <Icon className="h-6 w-6 text-primary" />
       </div>
       <p className="text-3xl md:text-4xl font-bold text-primary mb-1">
-        {formatNumber(count)}<span className="text-lg text-muted-foreground ml-1">{ind.suffix}</span>
+        {formatNumber(count)}<span className="text-lg text-muted-foreground ml-1">{suffix}</span>
       </p>
-      <p className="text-sm text-muted-foreground">{ind.label}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );
 };
 
 const SustainabilityIndicators = () => {
   const { ref, inView } = useInView();
+  const { data: dbIndicators } = useIndicadores();
+
+  const indicators = dbIndicators && dbIndicators.length > 0
+    ? dbIndicators.map((ind) => ({ label: ind.label, value: Number(ind.value), suffix: ind.suffix }))
+    : fallbackIndicators;
 
   return (
     <section id="indicadores" className="bg-background py-16 md:py-20">
@@ -47,7 +61,7 @@ const SustainabilityIndicators = () => {
         </div>
         <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {indicators.map((ind, i) => (
-            <CounterCard key={ind.label} ind={ind} index={i} inView={inView} />
+            <CounterCard key={ind.label} label={ind.label} numericValue={ind.value} suffix={ind.suffix} index={i} inView={inView} />
           ))}
         </div>
       </div>

@@ -1,12 +1,16 @@
-const transactions = [
-  { id: "TRX-001847", origem: "Cooperativa Recicla SP", destino: "Ind. PlastBR Ltda", material: "Plástico PET", peso: "2.450 kg", status: "Concluída", statusColor: "bg-success/10 text-success" },
-  { id: "TRX-001846", origem: "Assoc. Catadores RJ", destino: "MetalSul S.A.", material: "Alumínio", peso: "890 kg", status: "Em Trânsito", statusColor: "bg-info/10 text-info" },
-  { id: "TRX-001845", origem: "Coop. Verde Vida BA", destino: "PapelNorte Ind.", material: "Papelão", peso: "3.200 kg", status: "Concluída", statusColor: "bg-success/10 text-success" },
-  { id: "TRX-001844", origem: "EcoPonto Curitiba", destino: "VidroClear Ltda", material: "Vidro", peso: "1.100 kg", status: "Pendente", statusColor: "bg-warning/10 text-warning" },
-  { id: "TRX-001843", origem: "Reciclagem Manaus", destino: "Ind. PlastBR Ltda", material: "Plástico HDPE", peso: "1.780 kg", status: "Auditoria", statusColor: "bg-destructive/10 text-destructive" },
-];
+import { useTransacoes } from "@/hooks/use-sinarv-data";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const statusColorMap: Record<string, string> = {
+  "Concluída": "bg-success/10 text-success",
+  "Em Trânsito": "bg-info/10 text-info",
+  "Pendente": "bg-warning/10 text-warning",
+  "Auditoria": "bg-destructive/10 text-destructive",
+};
 
 const TransactionsTable = () => {
+  const { data: transactions, isLoading } = useTransacoes();
+
   return (
     <div className="bg-card rounded-lg shadow-card border border-border overflow-hidden">
       <div className="p-5 border-b border-border">
@@ -25,20 +29,30 @@ const TransactionsTable = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id} className="border-t border-border hover:bg-surface/50 transition-colors">
-                <td className="px-5 py-3 font-mono text-xs text-primary">{tx.id}</td>
-                <td className="px-5 py-3 text-foreground">{tx.origem}</td>
-                <td className="px-5 py-3 text-foreground">{tx.destino}</td>
-                <td className="px-5 py-3 text-muted-foreground">{tx.material}</td>
-                <td className="px-5 py-3 text-foreground font-medium">{tx.peso}</td>
-                <td className="px-5 py-3">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${tx.statusColor}`}>
-                    {tx.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-t border-border">
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <td key={j} className="px-5 py-3"><Skeleton className="h-4 w-20" /></td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              transactions?.map((tx) => (
+                <tr key={tx.id} className="border-t border-border hover:bg-surface/50 transition-colors">
+                  <td className="px-5 py-3 font-mono text-xs text-primary">{tx.codigo}</td>
+                  <td className="px-5 py-3 text-foreground">{tx.origem}</td>
+                  <td className="px-5 py-3 text-foreground">{tx.destino}</td>
+                  <td className="px-5 py-3 text-muted-foreground">{tx.material}</td>
+                  <td className="px-5 py-3 text-foreground font-medium">{tx.peso}</td>
+                  <td className="px-5 py-3">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColorMap[tx.status] || "bg-muted text-muted-foreground"}`}>
+                      {tx.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
