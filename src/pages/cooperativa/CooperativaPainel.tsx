@@ -35,6 +35,46 @@ const CooperativaPainel = () => {
     { label: "Faturamento Total", value: `R$ ${totalFaturamento.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, icon: Boxes, color: "text-accent" },
   ];
 
+  // Monthly evolution chart data
+  const monthlyData = useMemo(() => {
+    const months: Record<string, { entrada: number; saida: number; faturamento: number }> = {};
+
+    entradas?.forEach((e: any) => {
+      const d = new Date(e.data_recebimento);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (!months[key]) months[key] = { entrada: 0, saida: 0, faturamento: 0 };
+      months[key].entrada += Number(e.peso_bruto_kg || 0);
+    });
+
+    saidas?.forEach((e: any) => {
+      const d = new Date(e.data_despacho);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (!months[key]) months[key] = { entrada: 0, saida: 0, faturamento: 0 };
+      months[key].saida += Number(e.peso_liquido_kg || 0);
+      months[key].faturamento += Number(e.valor_venda || 0);
+    });
+
+    return Object.entries(months)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, v]) => {
+        const [y, m] = key.split("-");
+        const label = new Date(Number(y), Number(m) - 1).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
+        return { mes: label, Entrada: Math.round(v.entrada), Saída: Math.round(v.saida), Faturamento: v.faturamento };
+      });
+  }, [entradas, saidas]);
+
+  // Material breakdown
+  const materialData = useMemo(() => {
+    const mats: Record<string, number> = {};
+    entradas?.forEach((e: any) => {
+      const m = e.tipo_material || "Outros";
+      mats[m] = (mats[m] || 0) + Number(e.peso_bruto_kg || 0);
+    });
+    return Object.entries(mats)
+      .sort(([, a], [, b]) => b - a)
+      .map(([material, peso]) => ({ material, peso: Math.round(peso) }));
+  }, [entradas]);
+
   return (
     <div className="space-y-5">
       {/* KPIs */}
