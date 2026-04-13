@@ -415,6 +415,39 @@ export type Database = {
         }
         Relationships: []
       }
+      v_catador_associado: {
+        Row: {
+          cooperativa_id: string | null
+          cpf_hash: string | null
+          created_at: string | null
+          data_associacao: string | null
+          id: string | null
+          nome: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cooperativa_id?: string | null
+          cpf_hash?: string | null
+          created_at?: string | null
+          data_associacao?: string | null
+          id?: string | null
+          nome?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cooperativa_id?: string | null
+          cpf_hash?: string | null
+          created_at?: string | null
+          data_associacao?: string | null
+          id?: string | null
+          nome?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       v_certificado_logistica_reversa: {
         Row: {
           ano_referencia: number | null
@@ -559,6 +592,54 @@ export type Database = {
         }
         Relationships: []
       }
+      v_despacho_industria: {
+        Row: {
+          chave_nfe: string | null
+          cooperativa_id: string | null
+          created_at: string | null
+          data_despacho: string | null
+          id: string | null
+          industria_destino_cnpj: string | null
+          industria_destino_nome: string | null
+          numero_nota_fiscal: string | null
+          peso_despachado_kg: number | null
+          status: string | null
+          tipo_material: string | null
+          token_rastreabilidade: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          chave_nfe?: string | null
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_despacho?: string | null
+          id?: string | null
+          industria_destino_cnpj?: string | null
+          industria_destino_nome?: string | null
+          numero_nota_fiscal?: string | null
+          peso_despachado_kg?: number | null
+          status?: string | null
+          tipo_material?: string | null
+          token_rastreabilidade?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          chave_nfe?: string | null
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_despacho?: string | null
+          id?: string | null
+          industria_destino_cnpj?: string | null
+          industria_destino_nome?: string | null
+          numero_nota_fiscal?: string | null
+          peso_despachado_kg?: number | null
+          status?: string | null
+          tipo_material?: string | null
+          token_rastreabilidade?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       v_despacho_lote: {
         Row: {
           cooperativa_destino_cnpj: string | null
@@ -682,6 +763,30 @@ export type Database = {
         }
         Relationships: []
       }
+      v_estoque_cooperativa: {
+        Row: {
+          cooperativa_id: string | null
+          id: string | null
+          saldo_kg: number | null
+          tipo_material: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cooperativa_id?: string | null
+          id?: string | null
+          saldo_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cooperativa_id?: string | null
+          id?: string | null
+          saldo_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       v_industria: {
         Row: {
           cidade: string | null
@@ -714,6 +819,45 @@ export type Database = {
           id?: string | null
           licenca_operacao?: string | null
           razao_social?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_licenca_cooperativa: {
+        Row: {
+          arquivo_url: string | null
+          cooperativa_id: string | null
+          created_at: string | null
+          data_emissao: string | null
+          data_validade: string | null
+          id: string | null
+          numero: string | null
+          status: string | null
+          tipo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          arquivo_url?: string | null
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_emissao?: string | null
+          data_validade?: string | null
+          id?: string | null
+          numero?: string | null
+          status?: string | null
+          tipo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          arquivo_url?: string | null
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_emissao?: string | null
+          data_validade?: string | null
+          id?: string | null
+          numero?: string | null
+          status?: string | null
+          tipo?: string | null
           updated_at?: string | null
         }
         Relationships: []

@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { useCooperativas, useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
+import { useEstoqueCooperativa, useLicencasCooperativa } from "@/hooks/use-cooperativa-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Boxes, TrendingUp, TrendingDown, Scale, Filter } from "lucide-react";
+import { Boxes, TrendingUp, TrendingDown, Scale, Filter, AlertTriangle, Package } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const CooperativaPainel = () => {
@@ -13,6 +14,8 @@ const CooperativaPainel = () => {
   const { data: cooperativas, isLoading: loadingCoop } = useCooperativas();
   const { data: allEntradas, isLoading: loadingEnt } = useLotesEntrada();
   const { data: allSaidas, isLoading: loadingSai } = useLotesSaida();
+  const { data: estoque } = useEstoqueCooperativa(selectedCoop === "all" ? undefined : selectedCoop);
+  const { data: licencas } = useLicencasCooperativa(selectedCoop === "all" ? undefined : selectedCoop);
 
   const entradas = useMemo(() => {
     if (selectedCoop === "all" || !allEntradas) return allEntradas;
@@ -125,6 +128,72 @@ const CooperativaPainel = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Alertas de licenças + Estoque */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Estoque atual */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary opacity-60" />
+              <CardTitle className="text-base">Estoque Atual por Material</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {estoque && estoque.length > 0 ? (
+              <div className="space-y-2">
+                {estoque.map((e: any) => (
+                  <div key={e.id} className="flex justify-between items-center py-1.5 border-b last:border-0">
+                    <span className="text-sm font-medium">{e.tipo_material}</span>
+                    <span className="font-mono text-sm font-bold">
+                      {Number(e.saldo_kg).toLocaleString("pt-BR")} kg
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">Sem dados de estoque</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Licenças */}
+        <Card className="shadow-card">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-warning opacity-60" />
+              <CardTitle className="text-base">Status de Licenças</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {licencas && licencas.length > 0 ? (
+              <div className="space-y-2">
+                {licencas.map((l: any) => {
+                  const dias = Math.ceil(
+                    (new Date(l.data_validade).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                  );
+                  return (
+                    <div key={l.id} className="flex justify-between items-center py-1.5 border-b last:border-0">
+                      <div>
+                        <p className="text-sm font-medium">{l.tipo}</p>
+                        <p className="text-xs text-muted-foreground">Nº {l.numero}</p>
+                      </div>
+                      <Badge
+                        variant={dias <= 30 ? "destructive" : dias <= 90 ? "secondary" : "default"}
+                        className="text-xs"
+                      >
+                        {dias <= 0 ? "Vencida" : `${dias}d restantes`}
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-6">Sem licenças cadastradas</p>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Charts */}

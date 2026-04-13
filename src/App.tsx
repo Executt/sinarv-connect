@@ -30,6 +30,9 @@ import PontoColetaLayout from "./components/modules/PontoColetaLayout";
 import CooperativaPainel from "./pages/cooperativa/CooperativaPainel";
 import CooperativaLotesEntrada from "./pages/cooperativa/CooperativaLotesEntrada";
 import CooperativaFaturamento from "./pages/cooperativa/CooperativaFaturamento";
+import CooperativaRecepcao from "./pages/cooperativa/CooperativaRecepcao";
+import CooperativaDespacho from "./pages/cooperativa/CooperativaDespacho";
+import CooperativaCadastro from "./pages/cooperativa/CooperativaCadastro";
 
 // Indústria pages
 import IndustriaMetasLogisticas from "./pages/industria/IndustriaMetasLogisticas";
@@ -80,8 +83,11 @@ const App = () => (
             }>
               <Route index element={<Navigate to="/cooperativa/painel" replace />} />
               <Route path="painel" element={<CooperativaPainel />} />
+              <Route path="recepcao" element={<CooperativaRecepcao />} />
               <Route path="lotes-entrada" element={<CooperativaLotesEntrada />} />
+              <Route path="despacho" element={<CooperativaDespacho />} />
               <Route path="faturamento" element={<CooperativaFaturamento />} />
+              <Route path="cadastro" element={<CooperativaCadastro />} />
             </Route>
 
             {/* Indústria - requires 'industria' role */}
