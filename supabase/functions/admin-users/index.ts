@@ -13,7 +13,6 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-  // Validate caller JWT
   const authHeader = req.headers.get("authorization");
   if (!authHeader) {
     return new Response(JSON.stringify({ error: "Missing authorization" }), { status: 401, headers: corsHeaders });
@@ -29,7 +28,6 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: "Invalid token" }), { status: 401, headers: corsHeaders });
   }
 
-  // Check caller has gov role
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
@@ -43,8 +41,12 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action");
 
+  // Get caller IP
+  const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") || "unknown";
+
   // LIST USERS
-  if (req.method === "GET" || action === "list") {
+  if (req.method === "GET" && (!action || action === "list")) {
     const { data: authUsers } = await adminClient.auth.admin.listUsers({ perPage: 500 });
     const { data: allRoles } = await adminClient.from("user_roles").select("*");
     const { data: profiles } = await adminClient.from("profiles").select("*");
@@ -62,6 +64,36 @@ Deno.serve(async (req) => {
     });
 
     return new Response(JSON.stringify({ users }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
+  // GET AUDIT LOGS
+  if (req.method === "GET" && action === "audit-logs") {
+    const { data: logs, error } = await adminClient
+      .from("role_audit_logs")
+      .select("*")
+      .order("performed_at", { ascending: false })
+      .limit(200);
+
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
+    }
+
+    // Enrich with user emails
+    const userIds = [...new Set([
+      ...(logs || []).map((l: any) => l.user_id),
+      ...(logs || []).map((l: any) => l.performed_by),
+    ])];
+
+    const { data: profiles } = await adminClient.from("profiles").select("user_id, email, display_name");
+    const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+
+    const enriched = (logs || []).map((l: any) => ({
+      ...l,
+      user_email: profileMap.get(l.user_id)?.email || l.user_id,
+      performed_by_email: profileMap.get(l.performed_by)?.email || l.performed_by,
+    }));
+
+    return new Response(JSON.stringify({ logs: enriched }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
   // MANAGE ROLES (POST)
@@ -85,6 +117,15 @@ Deno.serve(async (req) => {
       const { error } = await adminClient.from("user_roles").delete().eq("user_id", user_id).eq("role", role);
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
     }
+
+    // Log the audit entry
+    await adminClient.from("role_audit_logs").insert({
+      user_id,
+      role,
+      action: roleAction,
+      performed_by: caller.id,
+      ip_address: clientIp,
+    });
 
     return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
