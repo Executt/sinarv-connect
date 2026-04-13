@@ -65,6 +65,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Histórico", to: "/ponto-coleta/historico" },
       { label: "Metas", to: "/ponto-coleta/metas" },
       { label: "Serviços", to: "/ponto-coleta/servicos" },
+      { label: "Configurações", to: "/ponto-coleta/configuracoes" },
       { label: "Credenciamento", to: "/ponto-coleta/credenciamento" },
     ],
   },
