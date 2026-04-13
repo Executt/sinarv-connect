@@ -51,6 +51,14 @@ import PontoColetaCredenciamento from "./pages/ponto-coleta/PontoColetaCredencia
 import PontoColetaServicos from "./pages/ponto-coleta/PontoColetaServicos";
 import PontoColetaConfiguracoes from "./pages/ponto-coleta/PontoColetaConfiguracoes";
 
+// Admin pages
+import AdminLayout from "./components/modules/AdminLayout";
+import AdminPainel from "./pages/admin/AdminPainel";
+import AdminContenedores from "./pages/admin/AdminContenedores";
+import AdminLocalizacoes from "./pages/admin/AdminLocalizacoes";
+import AdminIntegracoes from "./pages/admin/AdminIntegracoes";
+import AdminParametros from "./pages/admin/AdminParametros";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -125,6 +133,20 @@ const App = () => (
               <Route path="credenciamento" element={<PontoColetaCredenciamento />} />
               <Route path="servicos" element={<PontoColetaServicos />} />
               <Route path="configuracoes" element={<PontoColetaConfiguracoes />} />
+            </Route>
+
+            {/* Admin - requires 'super_admin' role */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="super_admin">
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Navigate to="/admin/painel" replace />} />
+              <Route path="painel" element={<AdminPainel />} />
+              <Route path="contenedores" element={<AdminContenedores />} />
+              <Route path="localizacoes" element={<AdminLocalizacoes />} />
+              <Route path="integracoes" element={<AdminIntegracoes />} />
+              <Route path="parametros" element={<AdminParametros />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
