@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// ─── sch_cooperativa ───
+// ─── sch_cooperativa (via public views) ───
 export const useCooperativas = () =>
   useQuery({
-    queryKey: ["sch_cooperativa", "cooperativa"],
+    queryKey: ["v_cooperativa"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).schema("sch_cooperativa")
-        .from("cooperativa")
+      const { data, error } = await supabase
+        .from("v_cooperativa" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -17,10 +17,10 @@ export const useCooperativas = () =>
 
 export const useLotesEntrada = (cooperativaId?: string) =>
   useQuery({
-    queryKey: ["sch_cooperativa", "lote_entrada", cooperativaId],
+    queryKey: ["v_lote_entrada", cooperativaId],
     queryFn: async () => {
-      let q = (supabase as any).schema("sch_cooperativa")
-        .from("lote_entrada")
+      let q = supabase
+        .from("v_lote_entrada" as any)
         .select("*")
         .order("data_recebimento", { ascending: false });
       if (cooperativaId) q = q.eq("cooperativa_id", cooperativaId);
@@ -32,10 +32,10 @@ export const useLotesEntrada = (cooperativaId?: string) =>
 
 export const useLotesSaida = (cooperativaId?: string) =>
   useQuery({
-    queryKey: ["sch_cooperativa", "lote_saida_faturado", cooperativaId],
+    queryKey: ["v_lote_saida_faturado", cooperativaId],
     queryFn: async () => {
-      let q = (supabase as any).schema("sch_cooperativa")
-        .from("lote_saida_faturado")
+      let q = supabase
+        .from("v_lote_saida_faturado" as any)
         .select("*")
         .order("data_despacho", { ascending: false });
       if (cooperativaId) q = q.eq("cooperativa_id", cooperativaId);
@@ -45,13 +45,13 @@ export const useLotesSaida = (cooperativaId?: string) =>
     },
   });
 
-// ─── sch_industria ───
+// ─── sch_industria (via public views) ───
 export const useIndustrias = () =>
   useQuery({
-    queryKey: ["sch_industria", "industria"],
+    queryKey: ["v_industria"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).schema("sch_industria")
-        .from("industria")
+      const { data, error } = await supabase
+        .from("v_industria" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -61,10 +61,10 @@ export const useIndustrias = () =>
 
 export const useMateriaPrima = (industriaId?: string) =>
   useQuery({
-    queryKey: ["sch_industria", "materia_prima_reciclada", industriaId],
+    queryKey: ["v_materia_prima_reciclada", industriaId],
     queryFn: async () => {
-      let q = (supabase as any).schema("sch_industria")
-        .from("materia_prima_reciclada")
+      let q = supabase
+        .from("v_materia_prima_reciclada" as any)
         .select("*")
         .order("data_registro", { ascending: false });
       if (industriaId) q = q.eq("industria_id", industriaId);
@@ -76,10 +76,10 @@ export const useMateriaPrima = (industriaId?: string) =>
 
 export const useCertificados = (industriaId?: string) =>
   useQuery({
-    queryKey: ["sch_industria", "certificado_logistica_reversa", industriaId],
+    queryKey: ["v_certificado_logistica_reversa", industriaId],
     queryFn: async () => {
-      let q = (supabase as any).schema("sch_industria")
-        .from("certificado_logistica_reversa")
+      let q = supabase
+        .from("v_certificado_logistica_reversa" as any)
         .select("*")
         .order("data_emissao", { ascending: false });
       if (industriaId) q = q.eq("industria_id", industriaId);
@@ -89,13 +89,13 @@ export const useCertificados = (industriaId?: string) =>
     },
   });
 
-// ─── sch_ponto_coleta ───
+// ─── sch_ponto_coleta (via public views) ───
 export const useEntidadesCredenciadas = () =>
   useQuery({
-    queryKey: ["sch_ponto_coleta", "entidade_credenciada"],
+    queryKey: ["v_entidade_credenciada"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).schema("sch_ponto_coleta")
-        .from("entidade_credenciada")
+      const { data, error } = await supabase
+        .from("v_entidade_credenciada" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -105,10 +105,10 @@ export const useEntidadesCredenciadas = () =>
 
 export const useEstacoesColeta = (entidadeId?: string) =>
   useQuery({
-    queryKey: ["sch_ponto_coleta", "estacao_coleta", entidadeId],
+    queryKey: ["v_estacao_coleta", entidadeId],
     queryFn: async () => {
-      let q = (supabase as any).schema("sch_ponto_coleta")
-        .from("estacao_coleta")
+      let q = supabase
+        .from("v_estacao_coleta" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (entidadeId) q = q.eq("entidade_id", entidadeId);
@@ -120,10 +120,10 @@ export const useEstacoesColeta = (entidadeId?: string) =>
 
 export const useMetasOrgao = (entidadeId?: string) =>
   useQuery({
-    queryKey: ["sch_ponto_coleta", "metas_orgao_publico", entidadeId],
+    queryKey: ["v_metas_orgao_publico", entidadeId],
     queryFn: async () => {
-      let q = (supabase as any).schema("sch_ponto_coleta")
-        .from("metas_orgao_publico")
+      let q = supabase
+        .from("v_metas_orgao_publico" as any)
         .select("*")
         .order("ano_vigencia", { ascending: false });
       if (entidadeId) q = q.eq("entidade_id", entidadeId);
@@ -133,13 +133,13 @@ export const useMetasOrgao = (entidadeId?: string) =>
     },
   });
 
-// ─── sch_governo ───
+// ─── sch_governo (via public views) ───
 export const useMetricasPlanares = () =>
   useQuery({
-    queryKey: ["sch_governo", "metrica_planares"],
+    queryKey: ["v_metrica_planares"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).schema("sch_governo")
-        .from("metrica_planares")
+      const { data, error } = await supabase
+        .from("v_metrica_planares" as any)
         .select("*")
         .order("ano_referencia", { ascending: false });
       if (error) throw error;
@@ -149,10 +149,10 @@ export const useMetricasPlanares = () =>
 
 export const useTelemetriaConsolidada = () =>
   useQuery({
-    queryKey: ["sch_governo", "telemetria_consolidada"],
+    queryKey: ["v_telemetria_consolidada"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).schema("sch_governo")
-        .from("telemetria_consolidada")
+      const { data, error } = await supabase
+        .from("v_telemetria_consolidada" as any)
         .select("*")
         .order("data_referencia", { ascending: false });
       if (error) throw error;
@@ -162,10 +162,10 @@ export const useTelemetriaConsolidada = () =>
 
 export const useAuditoriaInfracoes = () =>
   useQuery({
-    queryKey: ["sch_governo", "auditoria_infracoes"],
+    queryKey: ["v_auditoria_infracoes"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).schema("sch_governo")
-        .from("auditoria_infracoes")
+      const { data, error } = await supabase
+        .from("v_auditoria_infracoes" as any)
         .select("*")
         .order("data_autuacao", { ascending: false });
       if (error) throw error;
