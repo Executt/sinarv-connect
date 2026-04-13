@@ -17,7 +17,7 @@ const portals = [
     icon: Building2,
     color: "bg-info/10 text-info",
     action: "Acesso Cooperativas",
-    href: "#",
+    href: "/cooperativa/painel",
   },
   {
     title: "Para Indústrias",
@@ -25,7 +25,7 @@ const portals = [
     icon: Factory,
     color: "bg-warning/10 text-warning",
     action: "Portal Industrial",
-    href: "#",
+    href: "/industria/metas-logisticas",
   },
   {
     title: "Acesso Governamental",
