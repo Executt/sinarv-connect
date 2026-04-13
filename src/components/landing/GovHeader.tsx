@@ -31,6 +31,7 @@ const GovHeader = () => {
           <a href="#sobre" className="hover:text-primary-foreground transition-colors">Sobre</a>
           <a href="#acesso" className="hover:text-primary-foreground transition-colors">Acesso</a>
           <a href="#indicadores" className="hover:text-primary-foreground transition-colors">Indicadores</a>
+          <Link to="/transparencia/mapa-reciclagem" className="hover:text-primary-foreground transition-colors">Transparência</Link>
           <Link to="/dashboard" className="bg-primary-glow hover:bg-accent text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors">
             Painel Gov
           </Link>
