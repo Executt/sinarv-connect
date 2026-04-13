@@ -242,6 +242,36 @@ export type Database = {
         }
         Relationships: []
       }
+      role_audit_logs: {
+        Row: {
+          action: string
+          id: string
+          ip_address: string | null
+          performed_at: string
+          performed_by: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          id?: string
+          ip_address?: string | null
+          performed_at?: string
+          performed_by: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          id?: string
+          ip_address?: string | null
+          performed_at?: string
+          performed_by?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       transacoes: {
         Row: {
           codigo: string
