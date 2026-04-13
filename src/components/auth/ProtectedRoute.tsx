@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 
-type AppRole = "gov" | "cooperativa" | "industria" | "ponto_coleta";
+type AppRole = "gov" | "cooperativa" | "industria" | "ponto_coleta" | "super_admin";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -25,7 +25,6 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   }
 
   if (requiredRole && !hasRole(requiredRole)) {
-    // If user has no roles at all, send to role selection
     if (roles.length === 0) {
       return <Navigate to="/selecionar-perfil" replace />;
     }
