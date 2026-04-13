@@ -1,20 +1,32 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCooperativas, useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Boxes, TrendingUp, TrendingDown, Scale } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Boxes, TrendingUp, TrendingDown, Scale, Filter } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const CooperativaPainel = () => {
+  const [selectedCoop, setSelectedCoop] = useState<string>("all");
   const { data: cooperativas, isLoading: loadingCoop } = useCooperativas();
-  const { data: entradas, isLoading: loadingEnt } = useLotesEntrada();
-  const { data: saidas, isLoading: loadingSai } = useLotesSaida();
+  const { data: allEntradas, isLoading: loadingEnt } = useLotesEntrada();
+  const { data: allSaidas, isLoading: loadingSai } = useLotesSaida();
 
-  const totalEntrada = useMemo(() => entradas?.reduce((s, e) => s + Number(e.peso_bruto_kg || 0), 0) ?? 0, [entradas]);
-  const totalSaida = useMemo(() => saidas?.reduce((s, e) => s + Number(e.peso_liquido_kg || 0), 0) ?? 0, [saidas]);
-  const totalFaturamento = useMemo(() => saidas?.reduce((s, e) => s + Number(e.valor_venda || 0), 0) ?? 0, [saidas]);
+  const entradas = useMemo(() => {
+    if (selectedCoop === "all" || !allEntradas) return allEntradas;
+    return allEntradas.filter((e: any) => e.cooperativa_id === selectedCoop);
+  }, [allEntradas, selectedCoop]);
+
+  const saidas = useMemo(() => {
+    if (selectedCoop === "all" || !allSaidas) return allSaidas;
+    return allSaidas.filter((e: any) => e.cooperativa_id === selectedCoop);
+  }, [allSaidas, selectedCoop]);
+
+  const totalEntrada = useMemo(() => entradas?.reduce((s: number, e: any) => s + Number(e.peso_bruto_kg || 0), 0) ?? 0, [entradas]);
+  const totalSaida = useMemo(() => saidas?.reduce((s: number, e: any) => s + Number(e.peso_liquido_kg || 0), 0) ?? 0, [saidas]);
+  const totalFaturamento = useMemo(() => saidas?.reduce((s: number, e: any) => s + Number(e.valor_venda || 0), 0) ?? 0, [saidas]);
   const balanco = totalEntrada - totalSaida;
 
   const monthlyData = useMemo(() => {
@@ -73,8 +85,31 @@ const CooperativaPainel = () => {
     { label: "Faturamento Total", value: `R$ ${totalFaturamento.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, icon: Boxes, color: "text-accent" },
   ];
 
+  const selectedLabel = selectedCoop === "all"
+    ? "Todas as Cooperativas"
+    : cooperativas?.find((c: any) => c.id === selectedCoop)?.nome || "—";
+
   return (
     <div className="space-y-5">
+      {/* Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-foreground">Painel de Operações</h2>
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <Select value={selectedCoop} onValueChange={setSelectedCoop}>
+            <SelectTrigger className="w-[240px]">
+              <SelectValue placeholder="Filtrar por cooperativa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as Cooperativas</SelectItem>
+              {cooperativas?.map((c: any) => (
+                <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi) => (
@@ -94,50 +129,58 @@ const CooperativaPainel = () => {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Evolução Mensal - Peso */}
         <Card className="shadow-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Evolução Mensal — Peso Coletado vs Faturado (kg)</CardTitle>
+            <p className="text-xs text-muted-foreground">{selectedLabel}</p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                <XAxis dataKey="mes" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-                <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                  labelStyle={{ color: "hsl(var(--foreground))" }}
-                  formatter={(value: number) => `${value.toLocaleString("pt-BR")} kg`}
-                />
-                <Legend />
-                <Bar dataKey="Entrada" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Saída" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {monthlyData.length === 0 ? (
+              <p className="text-center text-muted-foreground py-12">Sem dados para o filtro selecionado</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                  <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                    labelStyle={{ color: "hsl(var(--foreground))" }}
+                    formatter={(value: number) => `${value.toLocaleString("pt-BR")} kg`}
+                  />
+                  <Legend />
+                  <Bar dataKey="Entrada" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="Saída" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
-        {/* Evolução Mensal - Faturamento */}
         <Card className="shadow-card">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Evolução Mensal — Faturamento (R$)</CardTitle>
+            <p className="text-xs text-muted-foreground">{selectedLabel}</p>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-                <XAxis dataKey="mes" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-                <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                  labelStyle={{ color: "hsl(var(--foreground))" }}
-                  formatter={(value: number) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
-                />
-                <Legend />
-                <Line type="monotone" dataKey="Faturamento" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 4 }} />
-              </LineChart>
-            </ResponsiveContainer>
+            {monthlyData.length === 0 ? (
+              <p className="text-center text-muted-foreground py-12">Sem dados para o filtro selecionado</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={monthlyData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                  <XAxis dataKey="mes" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                  <YAxis tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                    labelStyle={{ color: "hsl(var(--foreground))" }}
+                    formatter={(value: number) => `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="Faturamento" stroke="hsl(var(--accent))" strokeWidth={2} dot={{ r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -146,20 +189,25 @@ const CooperativaPainel = () => {
       <Card className="shadow-card">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Peso Coletado por Material (kg)</CardTitle>
+          <p className="text-xs text-muted-foreground">{selectedLabel}</p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={materialData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
-              <XAxis type="number" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-              <YAxis dataKey="material" type="category" width={90} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
-              <Tooltip
-                contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                formatter={(value: number) => `${value.toLocaleString("pt-BR")} kg`}
-              />
-              <Bar dataKey="peso" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Peso (kg)" />
-            </BarChart>
-          </ResponsiveContainer>
+          {materialData.length === 0 ? (
+            <p className="text-center text-muted-foreground py-12">Sem dados para o filtro selecionado</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={260}>
+              <BarChart data={materialData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                <XAxis type="number" tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <YAxis dataKey="material" type="category" width={90} tick={{ fontSize: 12 }} className="fill-muted-foreground" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                  formatter={(value: number) => `${value.toLocaleString("pt-BR")} kg`}
+                />
+                <Bar dataKey="peso" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Peso (kg)" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </CardContent>
       </Card>
 
@@ -191,6 +239,13 @@ const CooperativaPainel = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              {(!entradas || entradas.length === 0) && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                    Nenhum lote encontrado para o filtro selecionado
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
