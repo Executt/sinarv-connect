@@ -349,6 +349,84 @@ export type Database = {
       }
     }
     Views: {
+      v_api_credential: {
+        Row: {
+          api_key_prefix: string | null
+          created_at: string | null
+          data_expiracao: string | null
+          id: string | null
+          industria_id: string | null
+          nome: string | null
+          scopes: string[] | null
+          status: string | null
+          ultimo_uso: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_key_prefix?: string | null
+          created_at?: string | null
+          data_expiracao?: string | null
+          id?: string | null
+          industria_id?: string | null
+          nome?: string | null
+          scopes?: string[] | null
+          status?: string | null
+          ultimo_uso?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_key_prefix?: string | null
+          created_at?: string | null
+          data_expiracao?: string | null
+          id?: string | null
+          industria_id?: string | null
+          nome?: string | null
+          scopes?: string[] | null
+          status?: string | null
+          ultimo_uso?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_api_log: {
+        Row: {
+          created_at: string | null
+          credential_id: string | null
+          endpoint: string | null
+          id: string | null
+          industria_id: string | null
+          ip_address: string | null
+          method: string | null
+          request_summary: string | null
+          response_summary: string | null
+          status_code: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          credential_id?: string | null
+          endpoint?: string | null
+          id?: string | null
+          industria_id?: string | null
+          ip_address?: string | null
+          method?: string | null
+          request_summary?: string | null
+          response_summary?: string | null
+          status_code?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          credential_id?: string | null
+          endpoint?: string | null
+          id?: string | null
+          industria_id?: string | null
+          ip_address?: string | null
+          method?: string | null
+          request_summary?: string | null
+          response_summary?: string | null
+          status_code?: number | null
+        }
+        Relationships: []
+      }
       v_auditoria_infracoes: {
         Row: {
           artigo_pnrs_violado: string | null
@@ -898,6 +976,60 @@ export type Database = {
         }
         Relationships: []
       }
+      v_lote_recebido: {
+        Row: {
+          chave_nfe: string | null
+          cooperativa_cnpj: string | null
+          cooperativa_nome: string | null
+          created_at: string | null
+          data_recebimento: string | null
+          id: string | null
+          industria_id: string | null
+          numero_nota_fiscal: string | null
+          origem_importacao: string | null
+          peso_kg: number | null
+          status: string | null
+          tipo_material: string | null
+          token_rastreabilidade: string | null
+          token_validado: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          chave_nfe?: string | null
+          cooperativa_cnpj?: string | null
+          cooperativa_nome?: string | null
+          created_at?: string | null
+          data_recebimento?: string | null
+          id?: string | null
+          industria_id?: string | null
+          numero_nota_fiscal?: string | null
+          origem_importacao?: string | null
+          peso_kg?: number | null
+          status?: string | null
+          tipo_material?: string | null
+          token_rastreabilidade?: string | null
+          token_validado?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          chave_nfe?: string | null
+          cooperativa_cnpj?: string | null
+          cooperativa_nome?: string | null
+          created_at?: string | null
+          data_recebimento?: string | null
+          id?: string | null
+          industria_id?: string | null
+          numero_nota_fiscal?: string | null
+          origem_importacao?: string | null
+          peso_kg?: number | null
+          status?: string | null
+          tipo_material?: string | null
+          token_rastreabilidade?: string | null
+          token_validado?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       v_lote_saida_faturado: {
         Row: {
           cooperativa_id: string | null
@@ -969,6 +1101,39 @@ export type Database = {
           lote_saida_id?: string | null
           peso_kg?: number | null
           tipo_insumo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_meta_pnrs: {
+        Row: {
+          ano_referencia: number | null
+          atingido_peso_kg: number | null
+          created_at: string | null
+          id: string | null
+          industria_id: string | null
+          meta_peso_kg: number | null
+          tipo_material: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          ano_referencia?: number | null
+          atingido_peso_kg?: number | null
+          created_at?: string | null
+          id?: string | null
+          industria_id?: string | null
+          meta_peso_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          ano_referencia?: number | null
+          atingido_peso_kg?: number | null
+          created_at?: string | null
+          id?: string | null
+          industria_id?: string | null
+          meta_peso_kg?: number | null
+          tipo_material?: string | null
           updated_at?: string | null
         }
         Relationships: []
