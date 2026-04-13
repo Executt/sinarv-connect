@@ -99,9 +99,12 @@ const App = () => (
                 <IndustriaLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/industria/metas-logisticas" replace />} />
+              <Route index element={<Navigate to="/industria/dashboard" replace />} />
+              <Route path="dashboard" element={<IndustriaDashboardESG />} />
               <Route path="metas-logisticas" element={<IndustriaMetasLogisticas />} />
+              <Route path="integracao" element={<IndustriaIntegracao />} />
               <Route path="certificados" element={<IndustriaCertificados />} />
+              <Route path="cadastro" element={<IndustriaCadastro />} />
             </Route>
 
             {/* Ponto de Coleta - requires 'ponto_coleta' role */}
