@@ -37,7 +37,7 @@ const REGIOES: Record<string, string[]> = {
 const getRegiao = (uf: string) =>
   Object.entries(REGIOES).find(([, ufs]) => ufs.includes(uf))?.[0] || "—";
 
-
+const SEAL_ICONS: Record<string, typeof Trophy> = {
   "Selo Lixão Zero": Shield,
   "Selo 100% Rastreabilidade": Search,
   "Selo Engajamento Cidadão": Users,
