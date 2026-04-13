@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_session_logs: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string | null
+          module_accessed: string
+          session_start: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          module_accessed: string
+          session_start?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          module_accessed?: string
+          session_start?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       alertas: {
         Row: {
           codigo: string
