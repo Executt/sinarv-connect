@@ -26,8 +26,18 @@ const FIORI_GREEN = "#107E3E";
 const FIORI_ORANGE = "#E9730C";
 const FIORI_RED = "#BB0000";
 const FIORI_TEAL = "#0A8A8A";
+const REGIOES: Record<string, string[]> = {
+  Norte: ["AC", "AM", "AP", "PA", "RO", "RR", "TO"],
+  Nordeste: ["AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"],
+  "Centro-Oeste": ["DF", "GO", "MS", "MT"],
+  Sudeste: ["ES", "MG", "RJ", "SP"],
+  Sul: ["PR", "RS", "SC"],
+};
 
-const SEAL_ICONS: Record<string, typeof Trophy> = {
+const getRegiao = (uf: string) =>
+  Object.entries(REGIOES).find(([, ufs]) => ufs.includes(uf))?.[0] || "—";
+
+
   "Selo Lixão Zero": Shield,
   "Selo 100% Rastreabilidade": Search,
   "Selo Engajamento Cidadão": Users,
