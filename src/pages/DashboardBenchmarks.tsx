@@ -111,6 +111,8 @@ const DashboardBenchmarks = () => {
   const [mun1, setMun1] = useState<string>("");
   const [mun2, setMun2] = useState<string>("");
   const [mun3, setMun3] = useState<string>("");
+  const [filtroRegiao, setFiltroRegiao] = useState<string>("todas");
+  const [filtroUF, setFiltroUF] = useState<string>("todas");
 
   // Chart data for top 10 estados
   const barData = useMemo(() => {
