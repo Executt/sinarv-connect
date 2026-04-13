@@ -17,7 +17,7 @@ const portals = [
     icon: Building2,
     color: "bg-info/10 text-info",
     action: "Acesso Cooperativas",
-    href: "#",
+    href: "/cooperativa/painel",
   },
   {
     title: "Para Indústrias",
