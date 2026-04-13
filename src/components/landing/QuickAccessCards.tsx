@@ -25,7 +25,7 @@ const portals = [
     icon: Factory,
     color: "bg-warning/10 text-warning",
     action: "Portal Industrial",
-    href: "#",
+    href: "/industria/metas-logisticas",
   },
   {
     title: "Acesso Governamental",
