@@ -257,6 +257,161 @@ export type Database = {
         }
         Relationships: []
       }
+      configuracoes_integracoes: {
+        Row: {
+          auth_header: string | null
+          auth_type: string
+          created_at: string
+          descricao: string
+          id: string
+          intervalo_sync_min: number
+          metadados: Json
+          modulo: string
+          nome: string
+          status: string
+          tipo: string
+          ultimo_sync: string | null
+          updated_at: string
+          url_base: string
+        }
+        Insert: {
+          auth_header?: string | null
+          auth_type?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          intervalo_sync_min?: number
+          metadados?: Json
+          modulo?: string
+          nome: string
+          status?: string
+          tipo?: string
+          ultimo_sync?: string | null
+          updated_at?: string
+          url_base?: string
+        }
+        Update: {
+          auth_header?: string | null
+          auth_type?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          intervalo_sync_min?: number
+          metadados?: Json
+          modulo?: string
+          nome?: string
+          status?: string
+          tipo?: string
+          ultimo_sync?: string | null
+          updated_at?: string
+          url_base?: string
+        }
+        Relationships: []
+      }
+      contenedor_localizacoes: {
+        Row: {
+          capacidade_litros: number
+          cep: string | null
+          cidade: string
+          contenedor_id: string
+          created_at: string
+          endereco: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          nivel_preenchimento: number
+          nome_local: string
+          status_operacional: string
+          uf: string
+          ultima_coleta: string | null
+          updated_at: string
+        }
+        Insert: {
+          capacidade_litros?: number
+          cep?: string | null
+          cidade: string
+          contenedor_id: string
+          created_at?: string
+          endereco?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nivel_preenchimento?: number
+          nome_local: string
+          status_operacional?: string
+          uf: string
+          ultima_coleta?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capacidade_litros?: number
+          cep?: string | null
+          cidade?: string
+          contenedor_id?: string
+          created_at?: string
+          endereco?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          nivel_preenchimento?: number
+          nome_local?: string
+          status_operacional?: string
+          uf?: string
+          ultima_coleta?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contenedor_localizacoes_contenedor_id_fkey"
+            columns: ["contenedor_id"]
+            isOneToOne: false
+            referencedRelation: "contenedores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contenedores: {
+        Row: {
+          ativo: boolean
+          boas_praticas: string[]
+          cor: string
+          created_at: string
+          descricao: string
+          icone: string
+          id: string
+          material: string
+          nome: string
+          updated_at: string
+          volumes: string[]
+        }
+        Insert: {
+          ativo?: boolean
+          boas_praticas?: string[]
+          cor: string
+          created_at?: string
+          descricao?: string
+          icone?: string
+          id?: string
+          material: string
+          nome: string
+          updated_at?: string
+          volumes?: string[]
+        }
+        Update: {
+          ativo?: boolean
+          boas_praticas?: string[]
+          cor?: string
+          created_at?: string
+          descricao?: string
+          icone?: string
+          id?: string
+          material?: string
+          nome?: string
+          updated_at?: string
+          volumes?: string[]
+        }
+        Relationships: []
+      }
       cooperativas: {
         Row: {
           cidade: string

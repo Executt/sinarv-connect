@@ -1,47 +1,21 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Recycle, Box, Truck, Calendar, ClipboardCheck, AlertTriangle,
-  Leaf, Zap, Beaker, HardHat, Package, Info,
+  Leaf, Zap, Beaker, HardHat, Package, Info, MapPin,
 } from "lucide-react";
 
-/* ── Modelo ARP-GAN adaptado ao SINARV ─────────────────── */
-
-const CONTENEDORES = [
-  {
-    cor: "bg-blue-500", nome: "Contenedor Azul", material: "PMC (Plástico / Metal / Cartonados)",
-    volumes: ["240L", "660L", "1100L"], icone: Recycle,
-    descricao: "Embalagens plásticas, latas de alumínio, embalagens tetra pak e embalagens de metal.",
-    boas_praticas: ["Esvaziar e enxaguar embalagens", "Não amassar latas", "Remover tampas plásticas grandes"],
-  },
-  {
-    cor: "bg-yellow-400", nome: "Contenedor Amarelo", material: "Papel e Papelão",
-    volumes: ["240L", "660L", "1100L"], icone: Box,
-    descricao: "Jornais, revistas, papelão ondulado, caixas de papel, papel de escritório.",
-    boas_praticas: ["Remover fitas adesivas", "Dobrar caixas de papelão", "Não incluir papel plastificado ou engordurado"],
-  },
-  {
-    cor: "bg-green-600", nome: "Contenedor Verde", material: "Vidro",
-    volumes: ["240L", "660L"], icone: Beaker,
-    descricao: "Garrafas de vidro, frascos, potes de conserva. Sem cerâmica ou espelhos.",
-    boas_praticas: ["Remover tampas metálicas", "Não incluir vidro temperado", "Separar por cor quando possível"],
-  },
-  {
-    cor: "bg-orange-500", nome: "Contenedor Laranja", material: "Resíduos Alimentares / Orgânicos",
-    volumes: ["25L", "120L", "240L"], icone: Leaf,
-    descricao: "Restos de alimentos, cascas de frutas/legumes, borra de café, sachês de chá.",
-    boas_praticas: ["Usar sacola biodegradável", "Não incluir óleos de cozinha", "Evitar ossos grandes"],
-  },
-  {
-    cor: "bg-gray-700", nome: "Contenedor Cinza/Preto", material: "Resíduos Residuais (Rejeito)",
-    volumes: ["120L", "240L", "660L", "1100L"], icone: Package,
-    descricao: "Materiais não recicláveis que não se enquadram nas demais categorias.",
-    boas_praticas: ["Último recurso — priorizar triagem", "Fraldas e absorventes", "Resíduos sanitários"],
-  },
-];
+const ICON_MAP: Record<string, any> = { Recycle, Box, Beaker, Leaf, Package, Zap, AlertTriangle, HardHat };
+const COR_CLASS: Record<string, string> = {
+  blue: "bg-blue-500", yellow: "bg-yellow-400", green: "bg-green-600",
+  orange: "bg-orange-500", gray: "bg-gray-700", red: "bg-red-500",
+};
 
 const COLETA_ESPECIFICA = [
   { tipo: "REEE (Resíduos Eletroeletrônicos)", icone: Zap, exemplos: "Computadores, celulares, TVs, impressoras, cabos", procedimento: "Depositar em Ecoponto especializado ou solicitar coleta agendada", regulamentacao: "PNRS Art. 33 — Logística reversa obrigatória" },
@@ -60,20 +34,39 @@ const SERVICOS_COMPLEMENTARES = [
 ];
 
 const RESIDUOS_PROIBIDOS = [
-  "Resíduos hospitalares/infectantes (Grupo A)",
-  "Substâncias radioativas",
-  "Explosivos, munições e fogos de artifício",
-  "Peças automotivas com fluidos (motor, câmbio)",
-  "Amianto e materiais friáveis",
-  "Medicamentos controlados (devolver na farmácia)",
-  "Animais mortos",
-  "Resíduos industriais Classe I (alta periculosidade)",
+  "Resíduos hospitalares/infectantes (Grupo A)", "Substâncias radioativas",
+  "Explosivos, munições e fogos de artifício", "Peças automotivas com fluidos (motor, câmbio)",
+  "Amianto e materiais friáveis", "Medicamentos controlados (devolver na farmácia)",
+  "Animais mortos", "Resíduos industriais Classe I (alta periculosidade)",
 ];
 
 const PontoColetaServicos = () => {
+  const { data: contenedores = [], isLoading: loadingCont } = useQuery({
+    queryKey: ["contenedores-servicos"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("contenedores").select("*").eq("ativo", true).order("created_at");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: localizacoes = [], isLoading: loadingLoc } = useQuery({
+    queryKey: ["localizacoes-servicos"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("contenedor_localizacoes").select("*, contenedores(nome, cor)").eq("status_operacional", "Ativo").order("cidade");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const locByCity = localizacoes.reduce((acc: Record<string, any[]>, l: any) => {
+    const key = `${l.cidade}/${l.uf}`;
+    (acc[key] = acc[key] || []).push(l);
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <Card className="shadow-sm border-l-4 border-l-[hsl(var(--primary))]">
         <CardContent className="pt-4 pb-3">
           <div className="flex items-start gap-3">
@@ -83,9 +76,8 @@ const PontoColetaServicos = () => {
             <div>
               <h3 className="text-sm font-bold text-foreground">Catálogo de Serviços — Modelo ARP-GAN / SINARV</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                Referência baseada no modelo europeu da <strong>Bruxelles-Propreté Pro (ARP-GAN)</strong>, adaptado às diretrizes 
-                da <strong>PNRS (Lei 12.305/2010)</strong> e do <strong>PLANARES</strong>. Este catálogo orienta os pontos de 
-                coleta credenciados sobre as melhores práticas de triagem, contenedores e serviços disponíveis.
+                Referência baseada no modelo europeu da <strong>Bruxelles-Propreté Pro (ARP-GAN)</strong>, adaptado às diretrizes
+                da <strong>PNRS (Lei 12.305/2010)</strong> e do <strong>PLANARES</strong>. Dados carregados dinamicamente do banco de dados.
               </p>
             </div>
           </div>
@@ -94,59 +86,58 @@ const PontoColetaServicos = () => {
 
       <Tabs defaultValue="contenedores" className="w-full">
         <TabsList className="flex flex-wrap h-auto gap-1">
-          <TabsTrigger value="contenedores" className="text-xs gap-1.5">
-            <Box className="h-3.5 w-3.5" /> Contenedores
-          </TabsTrigger>
-          <TabsTrigger value="especifica" className="text-xs gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5" /> Coleta Específica
-          </TabsTrigger>
-          <TabsTrigger value="servicos" className="text-xs gap-1.5">
-            <Truck className="h-3.5 w-3.5" /> Serviços
-          </TabsTrigger>
-          <TabsTrigger value="proibidos" className="text-xs gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5" /> Itens Proibidos
-          </TabsTrigger>
+          <TabsTrigger value="contenedores" className="text-xs gap-1.5"><Box className="h-3.5 w-3.5" /> Contenedores</TabsTrigger>
+          <TabsTrigger value="localizacoes" className="text-xs gap-1.5"><MapPin className="h-3.5 w-3.5" /> Ecopontos Ativos</TabsTrigger>
+          <TabsTrigger value="especifica" className="text-xs gap-1.5"><AlertTriangle className="h-3.5 w-3.5" /> Coleta Específica</TabsTrigger>
+          <TabsTrigger value="servicos" className="text-xs gap-1.5"><Truck className="h-3.5 w-3.5" /> Serviços</TabsTrigger>
+          <TabsTrigger value="proibidos" className="text-xs gap-1.5"><AlertTriangle className="h-3.5 w-3.5" /> Itens Proibidos</TabsTrigger>
         </TabsList>
 
-        {/* ── Tab: Contenedores ──────────────────────────── */}
+        {/* ── Contenedores (dinâmico) ── */}
         <TabsContent value="contenedores" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {CONTENEDORES.map((c) => (
-              <Card key={c.nome} className="shadow-sm overflow-hidden">
-                <div className={`h-2 ${c.cor}`} />
-                <CardHeader className="pb-2 pt-4">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <c.icone className="h-4 w-4 text-foreground/60" />
-                    {c.nome}
-                  </CardTitle>
-                  <CardDescription className="text-xs">{c.material}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-xs text-muted-foreground">{c.descricao}</p>
-                  <div>
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Volumes Disponíveis</p>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {c.volumes.map((v) => (
-                        <Badge key={v} variant="outline" className="text-[10px] px-2">{v}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Boas Práticas de Triagem</p>
-                    <ul className="space-y-1">
-                      {c.boas_praticas.map((bp) => (
-                        <li key={bp} className="text-[11px] text-muted-foreground flex items-start gap-1.5">
-                          <span className="text-[hsl(var(--success))] mt-0.5">✓</span> {bp}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {loadingCont ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-48 rounded-lg" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {contenedores.map((c: any) => {
+                const IconComp = ICON_MAP[c.icone] || Recycle;
+                return (
+                  <Card key={c.id} className="shadow-sm overflow-hidden">
+                    <div className={`h-2 ${COR_CLASS[c.cor] || "bg-muted"}`} />
+                    <CardHeader className="pb-2 pt-4">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <IconComp className="h-4 w-4 text-foreground/60" />
+                        {c.nome}
+                      </CardTitle>
+                      <CardDescription className="text-xs">{c.material}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="text-xs text-muted-foreground">{c.descricao}</p>
+                      <div>
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Volumes Disponíveis</p>
+                        <div className="flex gap-1.5 flex-wrap">
+                          {(c.volumes || []).map((v: string) => <Badge key={v} variant="outline" className="text-[10px] px-2">{v}</Badge>)}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Boas Práticas de Triagem</p>
+                        <ul className="space-y-1">
+                          {(c.boas_praticas || []).map((bp: string) => (
+                            <li key={bp} className="text-[11px] text-muted-foreground flex items-start gap-1.5">
+                              <span className="text-[hsl(var(--success))] mt-0.5">✓</span> {bp}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
 
-          {/* Escala de Capacidade */}
           <Card className="shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Escala de Capacidade — Contenedores Especiais</CardTitle>
@@ -164,9 +155,7 @@ const PontoColetaServicos = () => {
                       <p className="text-xs font-semibold text-foreground">{item.tipo}</p>
                       <p className="text-[10px] text-muted-foreground">{item.faixa}</p>
                     </div>
-                    <div className="flex-1">
-                      <Progress value={item.pct} className="h-2" />
-                    </div>
+                    <div className="flex-1"><Progress value={item.pct} className="h-2" /></div>
                     <p className="text-[10px] text-muted-foreground w-44 text-right shrink-0">{item.uso}</p>
                   </div>
                 ))}
@@ -175,7 +164,79 @@ const PontoColetaServicos = () => {
           </Card>
         </TabsContent>
 
-        {/* ── Tab: Coleta Específica ─────────────────────── */}
+        {/* ── Ecopontos Ativos (dinâmico) ── */}
+        <TabsContent value="localizacoes" className="space-y-4 mt-4">
+          {loadingLoc ? (
+            <Skeleton className="h-64 rounded-lg" />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Card className="shadow-sm"><CardContent className="pt-4 pb-3 text-center">
+                  <p className="text-2xl font-bold text-foreground">{localizacoes.length}</p>
+                  <p className="text-[10px] text-muted-foreground">Ecopontos Ativos</p>
+                </CardContent></Card>
+                <Card className="shadow-sm"><CardContent className="pt-4 pb-3 text-center">
+                  <p className="text-2xl font-bold text-foreground">{Object.keys(locByCity).length}</p>
+                  <p className="text-[10px] text-muted-foreground">Cidades Atendidas</p>
+                </CardContent></Card>
+                <Card className="shadow-sm"><CardContent className="pt-4 pb-3 text-center">
+                  <p className="text-2xl font-bold text-foreground">{[...new Set(localizacoes.map((l: any) => l.uf))].length}</p>
+                  <p className="text-[10px] text-muted-foreground">Estados</p>
+                </CardContent></Card>
+                <Card className="shadow-sm"><CardContent className="pt-4 pb-3 text-center">
+                  <p className="text-2xl font-bold text-foreground">
+                    {localizacoes.reduce((sum: number, l: any) => sum + (l.capacidade_litros || 0), 0).toLocaleString("pt-BR")}L
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Capacidade Total</p>
+                </CardContent></Card>
+              </div>
+
+              {Object.entries(locByCity).sort().map(([city, locs]) => (
+                <Card key={city} className="shadow-sm">
+                  <CardHeader className="pb-2 pt-3">
+                    <CardTitle className="text-xs flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-[hsl(var(--primary))]" /> {city}
+                      <Badge variant="outline" className="text-[9px] ml-1">{(locs as any[]).length} pontos</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="text-[10px] w-8">Tipo</TableHead>
+                          <TableHead className="text-[10px]">Local</TableHead>
+                          <TableHead className="text-[10px] hidden md:table-cell">Endereço</TableHead>
+                          <TableHead className="text-[10px]">Capacidade</TableHead>
+                          <TableHead className="text-[10px]">Nível</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(locs as any[]).map((l) => (
+                          <TableRow key={l.id}>
+                            <TableCell><div className={`w-3 h-3 rounded-full ${COR_CLASS[l.contenedores?.cor] || "bg-muted"}`} /></TableCell>
+                            <TableCell className="text-[11px] font-medium">{l.nome_local}</TableCell>
+                            <TableCell className="text-[11px] text-muted-foreground hidden md:table-cell">{l.endereco}</TableCell>
+                            <TableCell className="text-[11px]">{l.capacidade_litros}L</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1">
+                                <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden">
+                                  <div className={`h-full rounded-full ${l.nivel_preenchimento >= 80 ? "bg-red-500" : l.nivel_preenchimento >= 50 ? "bg-yellow-500" : "bg-green-500"}`} style={{ width: `${l.nivel_preenchimento}%` }} />
+                                </div>
+                                <span className="text-[9px] text-muted-foreground">{l.nivel_preenchimento}%</span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          )}
+        </TabsContent>
+
+        {/* ── Coleta Específica ── */}
         <TabsContent value="especifica" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {COLETA_ESPECIFICA.map((ce) => (
@@ -187,14 +248,8 @@ const PontoColetaServicos = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <div>
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase">Exemplos</p>
-                    <p className="text-xs text-foreground">{ce.exemplos}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-semibold text-muted-foreground uppercase">Procedimento</p>
-                    <p className="text-xs text-foreground">{ce.procedimento}</p>
-                  </div>
+                  <div><p className="text-[10px] font-semibold text-muted-foreground uppercase">Exemplos</p><p className="text-xs text-foreground">{ce.exemplos}</p></div>
+                  <div><p className="text-[10px] font-semibold text-muted-foreground uppercase">Procedimento</p><p className="text-xs text-foreground">{ce.procedimento}</p></div>
                   <Badge variant="outline" className="text-[9px] mt-1">{ce.regulamentacao}</Badge>
                 </CardContent>
               </Card>
@@ -202,24 +257,20 @@ const PontoColetaServicos = () => {
           </div>
         </TabsContent>
 
-        {/* ── Tab: Serviços Complementares ────────────────── */}
+        {/* ── Serviços ── */}
         <TabsContent value="servicos" className="space-y-4 mt-4">
           <Card className="shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Serviços Disponíveis para Pontos de Coleta Credenciados</CardTitle>
-              <CardDescription className="text-xs">
-                Baseados no catálogo de serviços da ARP-GAN (Bruxelles-Propreté Pro), adaptados ao contexto brasileiro.
-              </CardDescription>
+              <CardDescription className="text-xs">Baseados no catálogo da ARP-GAN (Bruxelles-Propreté Pro), adaptados ao contexto brasileiro.</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs font-semibold">Serviço</TableHead>
-                    <TableHead className="text-xs font-semibold">Descrição</TableHead>
-                    <TableHead className="text-xs font-semibold hidden md:table-cell">Referência</TableHead>
-                  </TableRow>
-                </TableHeader>
+                <TableHeader><TableRow>
+                  <TableHead className="text-xs font-semibold">Serviço</TableHead>
+                  <TableHead className="text-xs font-semibold">Descrição</TableHead>
+                  <TableHead className="text-xs font-semibold hidden md:table-cell">Referência</TableHead>
+                </TableRow></TableHeader>
                 <TableBody>
                   {SERVICOS_COMPLEMENTARES.map((s) => (
                     <TableRow key={s.nome}>
@@ -233,7 +284,6 @@ const PontoColetaServicos = () => {
             </CardContent>
           </Card>
 
-          {/* Fluxo Operacional */}
           <Card className="shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
@@ -256,11 +306,7 @@ const PontoColetaServicos = () => {
                       <p className="text-[10px] font-bold text-foreground">{e.etapa}</p>
                       <p className="text-[9px] text-muted-foreground mt-0.5">{e.desc}</p>
                     </div>
-                    {i < 4 && (
-                      <div className="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 text-muted-foreground/40 text-lg">
-                        →
-                      </div>
-                    )}
+                    {i < 4 && <div className="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 text-muted-foreground/40 text-lg">→</div>}
                   </div>
                 ))}
               </div>
@@ -268,17 +314,15 @@ const PontoColetaServicos = () => {
           </Card>
         </TabsContent>
 
-        {/* ── Tab: Itens Proibidos ────────────────────────── */}
+        {/* ── Itens Proibidos ── */}
         <TabsContent value="proibidos" className="space-y-4 mt-4">
           <Card className="shadow-sm border-l-4 border-l-[hsl(var(--destructive))]">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2 text-[hsl(var(--destructive))]">
-                <AlertTriangle className="h-4 w-4" />
-                Resíduos NÃO Aceitos em Pontos de Coleta
+                <AlertTriangle className="h-4 w-4" /> Resíduos NÃO Aceitos em Pontos de Coleta
               </CardTitle>
               <CardDescription className="text-xs">
-                Os materiais abaixo requerem destinação especializada e não podem ser recebidos em ecopontos regulares.
-                O descarte irregular está sujeito a multas conforme Lei 12.305/2010.
+                Os materiais abaixo requerem destinação especializada. Descarte irregular sujeito a multas (Lei 12.305/2010).
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -293,31 +337,26 @@ const PontoColetaServicos = () => {
             </CardContent>
           </Card>
 
-          {/* Sanções */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Penalidades por Descarte Irregular</CardTitle>
-            </CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm">Penalidades por Descarte Irregular</CardTitle></CardHeader>
             <CardContent>
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs font-semibold">Infração</TableHead>
-                    <TableHead className="text-xs font-semibold">Base Legal</TableHead>
-                    <TableHead className="text-xs font-semibold text-right">Multa</TableHead>
-                  </TableRow>
-                </TableHeader>
+                <TableHeader><TableRow>
+                  <TableHead className="text-xs font-semibold">Infração</TableHead>
+                  <TableHead className="text-xs font-semibold">Base Legal</TableHead>
+                  <TableHead className="text-xs font-semibold text-right">Multa</TableHead>
+                </TableRow></TableHeader>
                 <TableBody>
                   {[
                     { infracao: "Resíduo perigoso em contenedor comum", base: "PNRS Art. 51", multa: "R$ 5.000 — R$ 50.000.000" },
                     { infracao: "Resíduo hospitalar sem tratamento", base: "RDC ANVISA 222/2018", multa: "R$ 2.000 — R$ 1.500.000" },
                     { infracao: "Uso de sacolas comerciais não certificadas", base: "Decreto Municipal", multa: "R$ 500 — R$ 5.000" },
-                    { infracao: "Descarte de REEE em lixo comum", base: "PNRS Art. 33 §6º", multa: "R$ 500 — R$ 2.000.000" },
-                  ].map((p) => (
-                    <TableRow key={p.infracao}>
-                      <TableCell className="text-xs">{p.infracao}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">{p.base}</TableCell>
-                      <TableCell className="text-xs text-right font-semibold text-[hsl(var(--destructive))]">{p.multa}</TableCell>
+                    { infracao: "Descarte de eletrônicos em vias públicas", base: "PNRS Art. 33 §6º", multa: "R$ 500 — R$ 500.000" },
+                  ].map((s) => (
+                    <TableRow key={s.infracao}>
+                      <TableCell className="text-xs">{s.infracao}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{s.base}</TableCell>
+                      <TableCell className="text-xs text-right font-medium">{s.multa}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
