@@ -1337,7 +1337,12 @@ export type Database = {
     Enums: {
       alert_severity: "critical" | "high" | "medium" | "low"
       alert_status: "active" | "acknowledged" | "resolved"
-      app_role: "gov" | "cooperativa" | "industria" | "ponto_coleta"
+      app_role:
+        | "gov"
+        | "cooperativa"
+        | "industria"
+        | "ponto_coleta"
+        | "super_admin"
       audit_status: "Conforme" | "Não Conforme" | "Pendente" | "Em Análise"
       lote_status: "Coletado" | "Em Processamento" | "Em Trânsito" | "Entregue"
       transaction_status: "Concluída" | "Em Trânsito" | "Pendente" | "Auditoria"
@@ -1470,7 +1475,13 @@ export const Constants = {
     Enums: {
       alert_severity: ["critical", "high", "medium", "low"],
       alert_status: ["active", "acknowledged", "resolved"],
-      app_role: ["gov", "cooperativa", "industria", "ponto_coleta"],
+      app_role: [
+        "gov",
+        "cooperativa",
+        "industria",
+        "ponto_coleta",
+        "super_admin",
+      ],
       audit_status: ["Conforme", "Não Conforme", "Pendente", "Em Análise"],
       lote_status: ["Coletado", "Em Processamento", "Em Trânsito", "Entregue"],
       transaction_status: ["Concluída", "Em Trânsito", "Pendente", "Auditoria"],
