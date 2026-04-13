@@ -6,6 +6,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/ponto-coleta/historico": { title: "Histórico e Despachos", subtitle: "Recebimentos recentes e envio para cooperativas" },
   "/ponto-coleta/metas": { title: "Metas de Cumprimento", subtitle: "Progresso das metas obrigatórias de reciclagem" },
   "/ponto-coleta/credenciamento": { title: "Credenciamento", subtitle: "Cadastro de novo ponto de coleta no SINARV" },
+  "/ponto-coleta/servicos": { title: "Serviços e Contenedores", subtitle: "Catálogo de serviços baseado no modelo ARP-GAN / PNRS" },
 };
 
 const PontoColetaLayout = () => (

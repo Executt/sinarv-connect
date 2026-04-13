@@ -48,6 +48,7 @@ import PontoColetaNovoRecebimento from "./pages/ponto-coleta/PontoColetaNovoRece
 import PontoColetaMetas from "./pages/ponto-coleta/PontoColetaMetas";
 import PontoColetaHistorico from "./pages/ponto-coleta/PontoColetaHistorico";
 import PontoColetaCredenciamento from "./pages/ponto-coleta/PontoColetaCredenciamento";
+import PontoColetaServicos from "./pages/ponto-coleta/PontoColetaServicos";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,8 @@ const App = () => (
               <Route path="historico" element={<PontoColetaHistorico />} />
               <Route path="metas" element={<PontoColetaMetas />} />
               <Route path="credenciamento" element={<PontoColetaCredenciamento />} />
+              <Route path="servicos" element={<PontoColetaServicos />} />
+            </Route>
             </Route>
 
             <Route path="*" element={<NotFound />} />
