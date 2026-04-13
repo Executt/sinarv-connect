@@ -206,10 +206,47 @@ Actions:
 
 | Módulo | Rotas Principais |
 |--------|-----------------|
-| Governo | `GET /dashboard`, `GET /dashboard/rastreabilidade`, `GET /dashboard/auditoria`, `GET /dashboard/alertas`, `GET /dashboard/usuarios` |
+| Governo | `GET /dashboard`, `GET /dashboard/rastreabilidade`, `GET /dashboard/auditoria`, `GET /dashboard/alertas`, `GET /dashboard/usuarios`, `GET /dashboard/benchmarks` |
 | Cooperativa | `GET /cooperativa/painel`, `POST /cooperativa/recepcao`, `POST /cooperativa/despacho`, `GET /cooperativa/faturamento` |
 | Indústria | `GET /industria/dashboard`, `POST /industria/integracao`, `GET /industria/certificados`, `GET /industria/metas-logisticas` |
-| Ponto de Coleta | `GET /ponto-coleta/dashboard`, `POST /ponto-coleta/novo-recebimento`, `GET /ponto-coleta/historico`, `POST /ponto-coleta/despacho` |
+| Ponto de Coleta | `GET /ponto-coleta/dashboard`, `POST /ponto-coleta/novo-recebimento`, `GET /ponto-coleta/historico`, `POST /ponto-coleta/despacho`, `GET /ponto-coleta/metas`, `GET /ponto-coleta/servicos` |
+
+### 3.5 API Analítica — Benchmarks Municipais
+
+```
+GET /functions/v1/comparar-municipios?ibge_codes=3304557,3550308,4106902
+
+Response 200:
+{
+  "data": [
+    {
+      "municipio_ibge": "3304557",
+      "nome_municipio": "Rio de Janeiro",
+      "uf": "RJ",
+      "metricas": { "eficiencia_coleta_seletiva": 32.5, "engajamento_cidadao": 18.2, ... },
+      "selos": []
+    }
+  ],
+  "meta": { "total": 3, "codigos_nao_encontrados": [] }
+}
+```
+
+---
+
+## 7. Referência ARP-GAN no Módulo Ponto de Coleta
+
+A página **Serviços e Contenedores** (`/ponto-coleta/servicos`) implementa o modelo da ARP-GAN (Bruxelles-Propreté Pro), extraído de `https://www.pro.arp-gan.be/fr/nos-services`, adaptado ao contexto brasileiro (PNRS/PLANARES):
+
+| Funcionalidade ARP-GAN | Adaptação SINARV |
+|------------------------|------------------|
+| Collecte sélective (PMC, Verre, Papier, Alimentaire) | Contenedores por cor (Azul, Amarelo, Verde, Laranja, Cinza) |
+| Collecte spécifique (WEEE, chimiques) | Coleta Específica (REEE, químicos, RCC, óleos, pneus) |
+| Location de conteneurs (240L–36m³) | Escala de Capacidade (120L–36m³ com compactadores) |
+| Vente de sacs commerciaux (30L, 50L, 80L) | Sacolas Comerciais Certificadas |
+| Nettoyage événementiel | Coleta Eventual / Eventos |
+| Suivi et conseil en gestion | Consultoria em Gestão de Resíduos (PGRS) |
+| Recypark régionaux (Buda, Demets, Humanité, Sud) | Ecopontos regionais credenciados |
+| Résidus refusés (amiante, explosifs, radioactifs) | Itens Proibidos com base legal brasileira (CONAMA, ANVISA) |
 
 ---
 
