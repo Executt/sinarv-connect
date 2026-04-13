@@ -37,6 +37,9 @@ import CooperativaCadastro from "./pages/cooperativa/CooperativaCadastro";
 // Indústria pages
 import IndustriaMetasLogisticas from "./pages/industria/IndustriaMetasLogisticas";
 import IndustriaCertificados from "./pages/industria/IndustriaCertificados";
+import IndustriaDashboardESG from "./pages/industria/IndustriaDashboardESG";
+import IndustriaIntegracao from "./pages/industria/IndustriaIntegracao";
+import IndustriaCadastro from "./pages/industria/IndustriaCadastro";
 
 // Ponto de Coleta pages
 import PontoColetaDashboard from "./pages/ponto-coleta/PontoColetaDashboard";
@@ -96,9 +99,12 @@ const App = () => (
                 <IndustriaLayout />
               </ProtectedRoute>
             }>
-              <Route index element={<Navigate to="/industria/metas-logisticas" replace />} />
+              <Route index element={<Navigate to="/industria/dashboard" replace />} />
+              <Route path="dashboard" element={<IndustriaDashboardESG />} />
               <Route path="metas-logisticas" element={<IndustriaMetasLogisticas />} />
+              <Route path="integracao" element={<IndustriaIntegracao />} />
               <Route path="certificados" element={<IndustriaCertificados />} />
+              <Route path="cadastro" element={<IndustriaCadastro />} />
             </Route>
 
             {/* Ponto de Coleta - requires 'ponto_coleta' role */}
