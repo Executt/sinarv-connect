@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
-import { ArrowLeft, type LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, LogOut, type LucideIcon } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 interface ModuleLayoutProps {
   title: string;
@@ -15,6 +15,7 @@ interface ModuleLayoutProps {
 const ModuleLayout = ({ title, subtitle, icon: Icon, accentColor, menuItems, pageTitles }: ModuleLayoutProps) => {
   const location = useLocation();
   const page = pageTitles[location.pathname] || { title, subtitle };
+  const { user, signOut } = useAuth();
 
   return (
     <div className="flex min-h-screen bg-surface">
@@ -64,6 +65,13 @@ const ModuleLayout = ({ title, subtitle, icon: Icon, accentColor, menuItems, pag
           <div>
             <h1 className="text-lg font-bold text-foreground">{page.title}</h1>
             <p className="text-xs text-muted-foreground">{page.subtitle}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">{user?.email}</span>
+            <button onClick={signOut} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors">
+              <LogOut className="h-3.5 w-3.5" />
+              Sair
+            </button>
           </div>
         </header>
         <main className="flex-1 p-6 space-y-5 overflow-auto">

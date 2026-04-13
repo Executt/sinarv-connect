@@ -1,6 +1,7 @@
 import { LayoutDashboard, Route, ClipboardCheck, AlertTriangle, Recycle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 const menuItems = [
   { title: "Visão Geral", icon: LayoutDashboard, url: "/dashboard" },
@@ -11,6 +12,7 @@ const menuItems = [
 
 const DashboardSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const { signOut } = useAuth();
 
   return (
     <aside className={`bg-sidebar flex flex-col border-r border-sidebar-border transition-all duration-200 ${collapsed ? "w-16" : "w-60"}`}>
@@ -43,8 +45,15 @@ const DashboardSidebar = () => {
         ))}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="p-2 border-t border-sidebar-border">
+      {/* Footer */}
+      <div className="p-2 border-t border-sidebar-border space-y-1">
+        <button
+          onClick={signOut}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-sidebar-muted hover:bg-destructive/10 hover:text-destructive transition-colors"
+        >
+          <LogOut className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span>Sair</span>}
+        </button>
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-xs text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
