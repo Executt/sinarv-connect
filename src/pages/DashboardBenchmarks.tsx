@@ -73,6 +73,19 @@ const useMunicipios = () =>
     },
   });
 
+const useMunicipiosRanked = () =>
+  useQuery({
+    queryKey: ["benchmark_municipios_ranked"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("benchmark_municipios")
+        .select("*")
+        .order("eficiencia_coleta_seletiva", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
 const useSelos = () =>
   useQuery({
     queryKey: ["benchmark_selos"],
@@ -93,6 +106,7 @@ const DashboardBenchmarks = () => {
   const { data: ranking, isLoading: loadingRanking } = useRankingEstadual();
   const { data: municipios, isLoading: loadingMunicipios } = useMunicipios();
   const { data: selos, isLoading: loadingSelos } = useSelos();
+  const { data: municipiosRanked, isLoading: loadingMunRanked } = useMunicipiosRanked();
 
   const [mun1, setMun1] = useState<string>("");
   const [mun2, setMun2] = useState<string>("");
@@ -208,6 +222,9 @@ const DashboardBenchmarks = () => {
           </TabsTrigger>
           <TabsTrigger value="comparativo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
             📊 Comparativo Municipal
+          </TabsTrigger>
+          <TabsTrigger value="ranking-municipal" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
+            🏙️ Ranking Municipal
           </TabsTrigger>
           <TabsTrigger value="selos" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
             🏅 Distintivos e Metas
@@ -538,6 +555,86 @@ const DashboardBenchmarks = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Ranking Municipal ─────────────────────── */}
+        <TabsContent value="ranking-municipal" className="space-y-5 mt-4">
+          <Card className="shadow-sm border-gray-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold" style={{ color: FIORI_BLUE_DARK }}>
+                Ranking Municipal — Eficiência da Coleta Seletiva (%)
+              </CardTitle>
+              <p className="text-xs text-gray-500 mt-1">
+                Todos os municípios mapeados, ordenados por eficiência da coleta seletiva. Dados do ano de referência 2025.
+              </p>
+            </CardHeader>
+            <CardContent className="p-0">
+              {loadingMunRanked ? (
+                <div className="py-12 text-center text-sm text-gray-400">Carregando ranking...</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gray-50">
+                        <TableHead className="text-xs font-semibold w-12" style={{ color: FIORI_BLUE_DARK }}>#</TableHead>
+                        <TableHead className="text-xs font-semibold" style={{ color: FIORI_BLUE_DARK }}>Município</TableHead>
+                        <TableHead className="text-xs font-semibold" style={{ color: FIORI_BLUE_DARK }}>UF</TableHead>
+                        <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>População</TableHead>
+                        <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Coleta Seletiva</TableHead>
+                        <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Engajamento</TableHead>
+                        <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Pts/km²</TableHead>
+                        <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Desvio Aterro</TableHead>
+                        <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Reciclado (ton)</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {municipiosRanked?.map((m: any, idx: number) => {
+                        const eff = Number(m.eficiencia_coleta_seletiva);
+                        const barColor = eff >= 60 ? FIORI_GREEN : eff >= 40 ? FIORI_BLUE : eff >= 25 ? FIORI_ORANGE : FIORI_RED;
+                        return (
+                          <TableRow key={m.id} className="hover:bg-blue-50/30">
+                            <TableCell className="text-xs font-bold" style={{ color: FIORI_BLUE }}>
+                              {idx + 1}º
+                            </TableCell>
+                            <TableCell className="text-xs font-medium">{m.nome_municipio}</TableCell>
+                            <TableCell className="text-xs">{m.uf}</TableCell>
+                            <TableCell className="text-xs text-right text-gray-600">
+                              {Number(m.populacao).toLocaleString("pt-BR")}
+                            </TableCell>
+                            <TableCell className="text-xs text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <div className="w-16 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all"
+                                    style={{ width: `${Math.min(eff, 100)}%`, backgroundColor: barColor }}
+                                  />
+                                </div>
+                                <span className="font-semibold w-12 text-right" style={{ color: barColor }}>
+                                  {eff.toFixed(1)}%
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-xs text-right text-gray-600">
+                              {Number(m.engajamento_cidadao).toFixed(1)}%
+                            </TableCell>
+                            <TableCell className="text-xs text-right text-gray-600">
+                              {Number(m.pontos_coleta_por_km2).toFixed(1)}
+                            </TableCell>
+                            <TableCell className="text-xs text-right text-gray-600">
+                              {Number(m.taxa_desvio_aterro).toFixed(1)}%
+                            </TableCell>
+                            <TableCell className="text-xs text-right font-semibold" style={{ color: FIORI_BLUE_DARK }}>
+                              {Number(m.volume_reciclado_ton).toLocaleString("pt-BR")}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
