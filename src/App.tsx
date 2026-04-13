@@ -10,6 +10,7 @@ import Rastreabilidade from "./pages/DashboardRastreabilidade.tsx";
 import Auditoria from "./pages/DashboardAuditoria.tsx";
 import Alertas from "./pages/DashboardAlertas.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import TransparenciaMapaReciclagem from "./pages/TransparenciaMapaReciclagem.tsx";
 
 // Module layouts
 import CooperativaLayout from "./components/modules/CooperativaLayout.tsx";
@@ -40,6 +41,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+
+          {/* Public transparency */}
+          <Route path="/transparencia/mapa-reciclagem" element={<TransparenciaMapaReciclagem />} />
 
           {/* Governo Dashboard */}
           <Route path="/dashboard" element={<DashboardLayout />}>

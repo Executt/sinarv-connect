@@ -274,7 +274,588 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_auditoria_infracoes: {
+        Row: {
+          artigo_pnrs_violado: string | null
+          cnpj_infrator: string | null
+          created_at: string | null
+          data_autuacao: string | null
+          id: string | null
+          motivo: string | null
+          razao_social_infrator: string | null
+          status: string | null
+          updated_at: string | null
+          valor_multa: number | null
+        }
+        Insert: {
+          artigo_pnrs_violado?: string | null
+          cnpj_infrator?: string | null
+          created_at?: string | null
+          data_autuacao?: string | null
+          id?: string | null
+          motivo?: string | null
+          razao_social_infrator?: string | null
+          status?: string | null
+          updated_at?: string | null
+          valor_multa?: number | null
+        }
+        Update: {
+          artigo_pnrs_violado?: string | null
+          cnpj_infrator?: string | null
+          created_at?: string | null
+          data_autuacao?: string | null
+          id?: string | null
+          motivo?: string | null
+          razao_social_infrator?: string | null
+          status?: string | null
+          updated_at?: string | null
+          valor_multa?: number | null
+        }
+        Relationships: []
+      }
+      v_carteira_creditos: {
+        Row: {
+          created_at: string | null
+          data_ultima_atualizacao: string | null
+          id: string | null
+          saldo_pontos_moeda_eco: number | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_ultima_atualizacao?: string | null
+          id?: string | null
+          saldo_pontos_moeda_eco?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          data_ultima_atualizacao?: string | null
+          id?: string | null
+          saldo_pontos_moeda_eco?: number | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      v_certificado_logistica_reversa: {
+        Row: {
+          ano_referencia: number | null
+          created_at: string | null
+          data_emissao: string | null
+          hash_auditoria: string | null
+          id: string | null
+          industria_id: string | null
+          status: "Válido" | "Expirado" | "Revogado" | null
+          updated_at: string | null
+          volume_total_certificado: number | null
+        }
+        Insert: {
+          ano_referencia?: number | null
+          created_at?: string | null
+          data_emissao?: string | null
+          hash_auditoria?: string | null
+          id?: string | null
+          industria_id?: string | null
+          status?: "Válido" | "Expirado" | "Revogado" | null
+          updated_at?: string | null
+          volume_total_certificado?: number | null
+        }
+        Update: {
+          ano_referencia?: number | null
+          created_at?: string | null
+          data_emissao?: string | null
+          hash_auditoria?: string | null
+          id?: string | null
+          industria_id?: string | null
+          status?: "Válido" | "Expirado" | "Revogado" | null
+          updated_at?: string | null
+          volume_total_certificado?: number | null
+        }
+        Relationships: []
+      }
+      v_coleta_registro: {
+        Row: {
+          app_origem: string | null
+          created_at: string | null
+          data_hora: string | null
+          geolocalizacao_lat: number | null
+          geolocalizacao_lon: number | null
+          id: string | null
+          id_transacao_app_externo: string | null
+          peso_kg: number | null
+          tipo_material:
+            | "PET"
+            | "Vidro"
+            | "Alumínio"
+            | "Papelão"
+            | "Metal"
+            | "Plástico"
+            | "Orgânico"
+            | "Eletrônico"
+            | "Outros"
+            | null
+          updated_at: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          app_origem?: string | null
+          created_at?: string | null
+          data_hora?: string | null
+          geolocalizacao_lat?: number | null
+          geolocalizacao_lon?: number | null
+          id?: string | null
+          id_transacao_app_externo?: string | null
+          peso_kg?: number | null
+          tipo_material?:
+            | "PET"
+            | "Vidro"
+            | "Alumínio"
+            | "Papelão"
+            | "Metal"
+            | "Plástico"
+            | "Orgânico"
+            | "Eletrônico"
+            | "Outros"
+            | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          app_origem?: string | null
+          created_at?: string | null
+          data_hora?: string | null
+          geolocalizacao_lat?: number | null
+          geolocalizacao_lon?: number | null
+          id?: string | null
+          id_transacao_app_externo?: string | null
+          peso_kg?: number | null
+          tipo_material?:
+            | "PET"
+            | "Vidro"
+            | "Alumínio"
+            | "Papelão"
+            | "Metal"
+            | "Plástico"
+            | "Orgânico"
+            | "Eletrônico"
+            | "Outros"
+            | null
+          updated_at?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
+      v_cooperativa: {
+        Row: {
+          capacidade_processamento: number | null
+          cidade: string | null
+          cnpj: string | null
+          created_at: string | null
+          estado: string | null
+          id: string | null
+          licenca_ambiental: string | null
+          nome: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          capacidade_processamento?: number | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          estado?: string | null
+          id?: string | null
+          licenca_ambiental?: string | null
+          nome?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          capacidade_processamento?: number | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          estado?: string | null
+          id?: string | null
+          licenca_ambiental?: string | null
+          nome?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_entidade_credenciada: {
+        Row: {
+          cnpj: string | null
+          created_at: string | null
+          email_contato: string | null
+          id: string | null
+          natureza_juridica: "Privada" | "Órgão Público" | null
+          nome_fantasia: string | null
+          razao_social: string | null
+          telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          created_at?: string | null
+          email_contato?: string | null
+          id?: string | null
+          natureza_juridica?: "Privada" | "Órgão Público" | null
+          nome_fantasia?: string | null
+          razao_social?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          created_at?: string | null
+          email_contato?: string | null
+          id?: string | null
+          natureza_juridica?: "Privada" | "Órgão Público" | null
+          nome_fantasia?: string | null
+          razao_social?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_estacao_coleta: {
+        Row: {
+          capacidade_toneladas: number | null
+          cep: string | null
+          cidade: string | null
+          created_at: string | null
+          endereco: string | null
+          entidade_id: string | null
+          estado: string | null
+          id: string | null
+          latitude: number | null
+          longitude: number | null
+          status_operacional: "Ativo" | "Inativo" | "Manutenção" | null
+          updated_at: string | null
+        }
+        Insert: {
+          capacidade_toneladas?: number | null
+          cep?: string | null
+          cidade?: string | null
+          created_at?: string | null
+          endereco?: string | null
+          entidade_id?: string | null
+          estado?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          status_operacional?: "Ativo" | "Inativo" | "Manutenção" | null
+          updated_at?: string | null
+        }
+        Update: {
+          capacidade_toneladas?: number | null
+          cep?: string | null
+          cidade?: string | null
+          created_at?: string | null
+          endereco?: string | null
+          entidade_id?: string | null
+          estado?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          status_operacional?: "Ativo" | "Inativo" | "Manutenção" | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_industria: {
+        Row: {
+          cidade: string | null
+          cnae_principal: string | null
+          cnpj: string | null
+          created_at: string | null
+          estado: string | null
+          id: string | null
+          licenca_operacao: string | null
+          razao_social: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cidade?: string | null
+          cnae_principal?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          estado?: string | null
+          id?: string | null
+          licenca_operacao?: string | null
+          razao_social?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cidade?: string | null
+          cnae_principal?: string | null
+          cnpj?: string | null
+          created_at?: string | null
+          estado?: string | null
+          id?: string | null
+          licenca_operacao?: string | null
+          razao_social?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_lote_entrada: {
+        Row: {
+          cooperativa_id: string | null
+          created_at: string | null
+          data_recebimento: string | null
+          id: string | null
+          origem_id: string | null
+          origem_tipo: "Cidadão" | "PontoColeta" | null
+          peso_bruto_kg: number | null
+          tipo_material: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_recebimento?: string | null
+          id?: string | null
+          origem_id?: string | null
+          origem_tipo?: "Cidadão" | "PontoColeta" | null
+          peso_bruto_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_recebimento?: string | null
+          id?: string | null
+          origem_id?: string | null
+          origem_tipo?: "Cidadão" | "PontoColeta" | null
+          peso_bruto_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_lote_saida_faturado: {
+        Row: {
+          cooperativa_id: string | null
+          created_at: string | null
+          data_despacho: string | null
+          id: string | null
+          industria_destino_cnpj: string | null
+          numero_nota_fiscal: string | null
+          peso_liquido_kg: number | null
+          tipo_material: string | null
+          updated_at: string | null
+          valor_venda: number | null
+        }
+        Insert: {
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_despacho?: string | null
+          id?: string | null
+          industria_destino_cnpj?: string | null
+          numero_nota_fiscal?: string | null
+          peso_liquido_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+          valor_venda?: number | null
+        }
+        Update: {
+          cooperativa_id?: string | null
+          created_at?: string | null
+          data_despacho?: string | null
+          id?: string | null
+          industria_destino_cnpj?: string | null
+          numero_nota_fiscal?: string | null
+          peso_liquido_kg?: number | null
+          tipo_material?: string | null
+          updated_at?: string | null
+          valor_venda?: number | null
+        }
+        Relationships: []
+      }
+      v_materia_prima_reciclada: {
+        Row: {
+          comprovante_reaproveitamento: string | null
+          created_at: string | null
+          data_registro: string | null
+          id: string | null
+          industria_id: string | null
+          lote_saida_id: string | null
+          peso_kg: number | null
+          tipo_insumo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          comprovante_reaproveitamento?: string | null
+          created_at?: string | null
+          data_registro?: string | null
+          id?: string | null
+          industria_id?: string | null
+          lote_saida_id?: string | null
+          peso_kg?: number | null
+          tipo_insumo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          comprovante_reaproveitamento?: string | null
+          created_at?: string | null
+          data_registro?: string | null
+          id?: string | null
+          industria_id?: string | null
+          lote_saida_id?: string | null
+          peso_kg?: number | null
+          tipo_insumo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_metas_orgao_publico: {
+        Row: {
+          ano_vigencia: number | null
+          atingimento_peso_kg: number | null
+          created_at: string | null
+          entidade_id: string | null
+          id: string | null
+          meta_peso_kg: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ano_vigencia?: number | null
+          atingimento_peso_kg?: number | null
+          created_at?: string | null
+          entidade_id?: string | null
+          id?: string | null
+          meta_peso_kg?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ano_vigencia?: number | null
+          atingimento_peso_kg?: number | null
+          created_at?: string | null
+          entidade_id?: string | null
+          id?: string | null
+          meta_peso_kg?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      v_metrica_planares: {
+        Row: {
+          ano_referencia: number | null
+          created_at: string | null
+          id: string | null
+          tipo_meta:
+            | "Fim Lixões"
+            | "% Reciclagem Urbana"
+            | "Recuperação Áreas Degradadas"
+            | "Inclusão Catadores"
+            | "Logística Reversa"
+            | null
+          updated_at: string | null
+          valor_alvo: number | null
+          valor_atingido: number | null
+        }
+        Insert: {
+          ano_referencia?: number | null
+          created_at?: string | null
+          id?: string | null
+          tipo_meta?:
+            | "Fim Lixões"
+            | "% Reciclagem Urbana"
+            | "Recuperação Áreas Degradadas"
+            | "Inclusão Catadores"
+            | "Logística Reversa"
+            | null
+          updated_at?: string | null
+          valor_alvo?: number | null
+          valor_atingido?: number | null
+        }
+        Update: {
+          ano_referencia?: number | null
+          created_at?: string | null
+          id?: string | null
+          tipo_meta?:
+            | "Fim Lixões"
+            | "% Reciclagem Urbana"
+            | "Recuperação Áreas Degradadas"
+            | "Inclusão Catadores"
+            | "Logística Reversa"
+            | null
+          updated_at?: string | null
+          valor_alvo?: number | null
+          valor_atingido?: number | null
+        }
+        Relationships: []
+      }
+      v_telemetria_consolidada: {
+        Row: {
+          created_at: string | null
+          data_referencia: string | null
+          estado_ibge: string | null
+          id: string | null
+          municipio_ibge: string | null
+          updated_at: string | null
+          volume_total_coletado_ton: number | null
+          volume_total_reciclado_ton: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          data_referencia?: string | null
+          estado_ibge?: string | null
+          id?: string | null
+          municipio_ibge?: string | null
+          updated_at?: string | null
+          volume_total_coletado_ton?: number | null
+          volume_total_reciclado_ton?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          data_referencia?: string | null
+          estado_ibge?: string | null
+          id?: string | null
+          municipio_ibge?: string | null
+          updated_at?: string | null
+          volume_total_coletado_ton?: number | null
+          volume_total_reciclado_ton?: number | null
+        }
+        Relationships: []
+      }
+      v_usuario_app: {
+        Row: {
+          cpf_hash: string | null
+          created_at: string | null
+          data_cadastro: string | null
+          email: string | null
+          id: string | null
+          nome_exibicao: string | null
+          tipo_perfil: "Cidadão" | "Catador" | null
+          updated_at: string | null
+        }
+        Insert: {
+          cpf_hash?: string | null
+          created_at?: string | null
+          data_cadastro?: string | null
+          email?: string | null
+          id?: string | null
+          nome_exibicao?: string | null
+          tipo_perfil?: "Cidadão" | "Catador" | null
+          updated_at?: string | null
+        }
+        Update: {
+          cpf_hash?: string | null
+          created_at?: string | null
+          data_cadastro?: string | null
+          email?: string | null
+          id?: string | null
+          nome_exibicao?: string | null
+          tipo_perfil?: "Cidadão" | "Catador" | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
