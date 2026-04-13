@@ -1,19 +1,26 @@
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import KPICards from "@/components/dashboard/KPICards";
-import DashboardCharts from "@/components/dashboard/DashboardCharts";
-import TransactionsTable from "@/components/dashboard/TransactionsTable";
 import { Bell, User } from "lucide-react";
+import { Outlet, useLocation } from "react-router-dom";
 
-const Dashboard = () => {
+const pageTitles: Record<string, { title: string; subtitle: string }> = {
+  "/dashboard": { title: "Visão Geral", subtitle: "Painel de Telemetria Nacional — Dados em tempo real" },
+  "/dashboard/rastreabilidade": { title: "Rastreabilidade", subtitle: "Cadeia de custódia e rastreio de materiais recicláveis" },
+  "/dashboard/auditoria": { title: "Auditoria", subtitle: "Registos de conformidade e verificações do sistema" },
+  "/dashboard/alertas": { title: "Alertas", subtitle: "Notificações, anomalias e eventos críticos" },
+};
+
+const DashboardLayout = () => {
+  const location = useLocation();
+  const page = pageTitles[location.pathname] || pageTitles["/dashboard"];
+
   return (
     <div className="flex min-h-screen bg-surface">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
         <header className="bg-card border-b border-border px-6 py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-foreground">Visão Geral</h1>
-            <p className="text-xs text-muted-foreground">Painel de Telemetria Nacional — Dados em tempo real</p>
+            <h1 className="text-lg font-bold text-foreground">{page.title}</h1>
+            <p className="text-xs text-muted-foreground">{page.subtitle}</p>
           </div>
           <div className="flex items-center gap-3">
             <button className="relative p-2 rounded-lg hover:bg-secondary transition-colors">
@@ -28,16 +35,12 @@ const Dashboard = () => {
             </div>
           </div>
         </header>
-
-        {/* Content */}
         <main className="flex-1 p-6 space-y-5 overflow-auto">
-          <KPICards />
-          <DashboardCharts />
-          <TransactionsTable />
+          <Outlet />
         </main>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default DashboardLayout;
