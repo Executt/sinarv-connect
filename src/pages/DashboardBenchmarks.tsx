@@ -596,18 +596,70 @@ const DashboardBenchmarks = () => {
 
         {/* ── Tab: Ranking Municipal ─────────────────────── */}
         <TabsContent value="ranking-municipal" className="space-y-5 mt-4">
+          {/* Filters */}
+          <Card className="shadow-sm border-gray-200">
+            <CardContent className="pt-4 pb-3">
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="min-w-[160px]">
+                  <label className="text-xs font-medium mb-1 block" style={{ color: FIORI_BLUE_DARK }}>Região</label>
+                  <Select value={filtroRegiao} onValueChange={(v) => { setFiltroRegiao(v); setFiltroUF("todas"); }}>
+                    <SelectTrigger className="h-9 text-xs border-gray-300">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas" className="text-xs">Todas as Regiões</SelectItem>
+                      {Object.keys(REGIOES).map((r) => (
+                        <SelectItem key={r} value={r} className="text-xs">{r}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="min-w-[120px]">
+                  <label className="text-xs font-medium mb-1 block" style={{ color: FIORI_BLUE_DARK }}>UF</label>
+                  <Select value={filtroUF} onValueChange={setFiltroUF}>
+                    <SelectTrigger className="h-9 text-xs border-gray-300">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todas" className="text-xs">Todas</SelectItem>
+                      {availableUFs.map((uf) => (
+                        <SelectItem key={uf} value={uf} className="text-xs">{uf}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2 ml-auto">
+                  <Badge variant="outline" className="text-[10px] border-gray-300 text-gray-600">
+                    {filteredMunRanked.length} município{filteredMunRanked.length !== 1 ? "s" : ""}
+                  </Badge>
+                  {(filtroRegiao !== "todas" || filtroUF !== "todas") && (
+                    <button
+                      onClick={() => { setFiltroRegiao("todas"); setFiltroUF("todas"); }}
+                      className="text-[10px] px-2 py-1 rounded hover:bg-gray-100 text-gray-500"
+                    >
+                      Limpar filtros
+                    </button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Table */}
           <Card className="shadow-sm border-gray-200">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold" style={{ color: FIORI_BLUE_DARK }}>
                 Ranking Municipal — Eficiência da Coleta Seletiva (%)
               </CardTitle>
               <p className="text-xs text-gray-500 mt-1">
-                Todos os municípios mapeados, ordenados por eficiência da coleta seletiva. Dados do ano de referência 2025.
+                Municípios ordenados por eficiência da coleta seletiva. Dados do ano de referência 2025.
               </p>
             </CardHeader>
             <CardContent className="p-0">
               {loadingMunRanked ? (
                 <div className="py-12 text-center text-sm text-gray-400">Carregando ranking...</div>
+              ) : filteredMunRanked.length === 0 ? (
+                <div className="py-12 text-center text-sm text-gray-400">Nenhum município encontrado para os filtros selecionados.</div>
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
@@ -616,6 +668,7 @@ const DashboardBenchmarks = () => {
                         <TableHead className="text-xs font-semibold w-12" style={{ color: FIORI_BLUE_DARK }}>#</TableHead>
                         <TableHead className="text-xs font-semibold" style={{ color: FIORI_BLUE_DARK }}>Município</TableHead>
                         <TableHead className="text-xs font-semibold" style={{ color: FIORI_BLUE_DARK }}>UF</TableHead>
+                        <TableHead className="text-xs font-semibold" style={{ color: FIORI_BLUE_DARK }}>Região</TableHead>
                         <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>População</TableHead>
                         <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Coleta Seletiva</TableHead>
                         <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Engajamento</TableHead>
@@ -625,7 +678,7 @@ const DashboardBenchmarks = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {municipiosRanked?.map((m: any, idx: number) => {
+                      {filteredMunRanked.map((m: any, idx: number) => {
                         const eff = Number(m.eficiencia_coleta_seletiva);
                         const barColor = eff >= 60 ? FIORI_GREEN : eff >= 40 ? FIORI_BLUE : eff >= 25 ? FIORI_ORANGE : FIORI_RED;
                         return (
@@ -635,6 +688,7 @@ const DashboardBenchmarks = () => {
                             </TableCell>
                             <TableCell className="text-xs font-medium">{m.nome_municipio}</TableCell>
                             <TableCell className="text-xs">{m.uf}</TableCell>
+                            <TableCell className="text-xs text-gray-500">{getRegiao(m.uf)}</TableCell>
                             <TableCell className="text-xs text-right text-gray-600">
                               {Number(m.populacao).toLocaleString("pt-BR")}
                             </TableCell>
