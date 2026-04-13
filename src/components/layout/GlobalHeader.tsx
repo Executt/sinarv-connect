@@ -69,6 +69,16 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Credenciamento", to: "/ponto-coleta/credenciamento" },
     ],
   },
+  "/admin": {
+    title: "Administração",
+    navItems: [
+      { label: "Painel", to: "/admin/painel" },
+      { label: "Contenedores", to: "/admin/contenedores" },
+      { label: "Localizações", to: "/admin/localizacoes" },
+      { label: "Integrações", to: "/admin/integracoes" },
+      { label: "Parâmetros", to: "/admin/parametros" },
+    ],
+  },
 };
 
 function getModuleConfig(pathname: string): ModuleConfig | null {

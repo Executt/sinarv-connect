@@ -10,6 +10,30 @@ import {
   Recycle, Box, Truck, Calendar, ClipboardCheck, AlertTriangle,
   Leaf, Zap, Beaker, HardHat, Package, Info, MapPin,
 } from "lucide-react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix default marker icons
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
+
+const COR_HEX: Record<string, string> = {
+  blue: "#3b82f6", yellow: "#eab308", green: "#16a34a",
+  orange: "#f97316", gray: "#6b7280",
+};
+
+const createColorIcon = (color: string) =>
+  new L.DivIcon({
+    className: "",
+    html: `<div style="width:12px;height:12px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
 
 const ICON_MAP: Record<string, any> = { Recycle, Box, Beaker, Leaf, Package, Zap, AlertTriangle, HardHat };
 const COR_CLASS: Record<string, string> = {
@@ -164,7 +188,7 @@ const PontoColetaServicos = () => {
           </Card>
         </TabsContent>
 
-        {/* ── Ecopontos Ativos (dinâmico) ── */}
+        {/* ── Ecopontos Ativos (dinâmico + mapa) ── */}
         <TabsContent value="localizacoes" className="space-y-4 mt-4">
           {loadingLoc ? (
             <Skeleton className="h-64 rounded-lg" />
@@ -190,6 +214,54 @@ const PontoColetaServicos = () => {
                   <p className="text-[10px] text-muted-foreground">Capacidade Total</p>
                 </CardContent></Card>
               </div>
+
+              {/* Mapa Interativo */}
+              {(() => {
+                const mapPoints = localizacoes.filter((l: any) => l.latitude && l.longitude);
+                if (mapPoints.length === 0) return null;
+                return (
+                  <Card className="shadow-sm overflow-hidden">
+                    <CardHeader className="pb-2 pt-3">
+                      <CardTitle className="text-xs flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-[hsl(var(--primary))]" /> Mapa de Ecopontos Ativos
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <MapContainer
+                        center={[-15.78, -47.93]}
+                        zoom={4}
+                        style={{ height: "400px", width: "100%" }}
+                        className="z-0"
+                      >
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        {mapPoints.map((l: any) => {
+                          const cor = (l as any).contenedores?.cor || "gray";
+                          return (
+                            <Marker key={l.id} position={[l.latitude, l.longitude]} icon={createColorIcon(COR_HEX[cor] || "#6b7280")}>
+                              <Popup>
+                                <div className="text-xs space-y-1 min-w-[160px]">
+                                  <p className="font-bold">{l.nome_local}</p>
+                                  <p className="text-gray-500">{l.endereco}</p>
+                                  <p>{l.cidade}/{l.uf} — {l.capacidade_litros}L</p>
+                                  <div className="flex items-center gap-1 pt-1">
+                                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full">
+                                      <div className={`h-full rounded-full ${l.nivel_preenchimento >= 80 ? "bg-red-500" : l.nivel_preenchimento >= 50 ? "bg-yellow-500" : "bg-green-500"}`} style={{ width: `${l.nivel_preenchimento}%` }} />
+                                    </div>
+                                    <span className="text-[10px]">{l.nivel_preenchimento}%</span>
+                                  </div>
+                                </div>
+                              </Popup>
+                            </Marker>
+                          );
+                        })}
+                      </MapContainer>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               {Object.entries(locByCity).sort().map(([city, locs]) => (
                 <Card key={city} className="shadow-sm">

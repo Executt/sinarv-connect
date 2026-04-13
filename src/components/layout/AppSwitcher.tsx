@@ -7,6 +7,7 @@ import {
   MapPin,
   Shield,
   Users,
+  Settings,
 } from "lucide-react";
 
 interface Module {
@@ -58,6 +59,14 @@ const modules: Module[] = [
     icon: Users,
     path: "/transparencia/mapa-reciclagem",
     color: "bg-[hsl(280,60%,50%)]",
+  },
+  {
+    id: "super_admin",
+    label: "Administração",
+    description: "Parametrização do sistema",
+    icon: Settings,
+    path: "/admin/painel",
+    color: "bg-[hsl(0,0%,30%)]",
   },
 ];
 
