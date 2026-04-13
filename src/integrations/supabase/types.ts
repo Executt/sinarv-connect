@@ -559,6 +559,48 @@ export type Database = {
         }
         Relationships: []
       }
+      v_despacho_lote: {
+        Row: {
+          cooperativa_destino_cnpj: string | null
+          cooperativa_destino_nome: string | null
+          created_at: string | null
+          data_despacho: string | null
+          entidade_id: string | null
+          id: string | null
+          observacoes: string | null
+          peso_total_kg: number | null
+          status: string | null
+          tipo_material: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cooperativa_destino_cnpj?: string | null
+          cooperativa_destino_nome?: string | null
+          created_at?: string | null
+          data_despacho?: string | null
+          entidade_id?: string | null
+          id?: string | null
+          observacoes?: string | null
+          peso_total_kg?: number | null
+          status?: string | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cooperativa_destino_cnpj?: string | null
+          cooperativa_destino_nome?: string | null
+          created_at?: string | null
+          data_despacho?: string | null
+          entidade_id?: string | null
+          id?: string | null
+          observacoes?: string | null
+          peso_total_kg?: number | null
+          status?: string | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       v_entidade_credenciada: {
         Row: {
           cnpj: string | null
@@ -862,6 +904,48 @@ export type Database = {
           updated_at?: string | null
           valor_alvo?: number | null
           valor_atingido?: number | null
+        }
+        Relationships: []
+      }
+      v_registro_entrada: {
+        Row: {
+          cpf_cidadao: string | null
+          created_at: string | null
+          entidade_id: string | null
+          estacao_id: string | null
+          id: string | null
+          observacoes: string | null
+          origem_anonima: boolean | null
+          peso_kg: number | null
+          recibo_codigo: string | null
+          tipo_material: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cpf_cidadao?: string | null
+          created_at?: string | null
+          entidade_id?: string | null
+          estacao_id?: string | null
+          id?: string | null
+          observacoes?: string | null
+          origem_anonima?: boolean | null
+          peso_kg?: number | null
+          recibo_codigo?: string | null
+          tipo_material?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cpf_cidadao?: string | null
+          created_at?: string | null
+          entidade_id?: string | null
+          estacao_id?: string | null
+          id?: string | null
+          observacoes?: string | null
+          origem_anonima?: boolean | null
+          peso_kg?: number | null
+          recibo_codigo?: string | null
+          tipo_material?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
