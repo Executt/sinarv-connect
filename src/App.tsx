@@ -83,8 +83,11 @@ const App = () => (
             }>
               <Route index element={<Navigate to="/cooperativa/painel" replace />} />
               <Route path="painel" element={<CooperativaPainel />} />
+              <Route path="recepcao" element={<CooperativaRecepcao />} />
               <Route path="lotes-entrada" element={<CooperativaLotesEntrada />} />
+              <Route path="despacho" element={<CooperativaDespacho />} />
               <Route path="faturamento" element={<CooperativaFaturamento />} />
+              <Route path="cadastro" element={<CooperativaCadastro />} />
             </Route>
 
             {/* Indústria - requires 'industria' role */}
