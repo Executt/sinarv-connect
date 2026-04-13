@@ -30,6 +30,9 @@ import PontoColetaLayout from "./components/modules/PontoColetaLayout";
 import CooperativaPainel from "./pages/cooperativa/CooperativaPainel";
 import CooperativaLotesEntrada from "./pages/cooperativa/CooperativaLotesEntrada";
 import CooperativaFaturamento from "./pages/cooperativa/CooperativaFaturamento";
+import CooperativaRecepcao from "./pages/cooperativa/CooperativaRecepcao";
+import CooperativaDespacho from "./pages/cooperativa/CooperativaDespacho";
+import CooperativaCadastro from "./pages/cooperativa/CooperativaCadastro";
 
 // Indústria pages
 import IndustriaMetasLogisticas from "./pages/industria/IndustriaMetasLogisticas";
