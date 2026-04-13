@@ -59,7 +59,7 @@ const CooperativaDespacho = () => {
         numero_nota_fiscal: nf,
         chave_nfe: chaveNfe || undefined,
       });
-      setLastToken(result?.token_rastreabilidade || "—");
+      setLastToken((result as any)?.token_rastreabilidade || "—");
       setTokenDialog(true);
       toast.success("Despacho registrado com sucesso!");
       // reset
