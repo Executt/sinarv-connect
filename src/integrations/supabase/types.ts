@@ -14,7 +14,264 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alertas: {
+        Row: {
+          codigo: string
+          created_at: string
+          description: string
+          id: string
+          module: string
+          severity: Database["public"]["Enums"]["alert_severity"]
+          source: string
+          status: Database["public"]["Enums"]["alert_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          description: string
+          id?: string
+          module: string
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          source: string
+          status?: Database["public"]["Enums"]["alert_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          description?: string
+          id?: string
+          module?: string
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          source?: string
+          status?: Database["public"]["Enums"]["alert_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      auditorias: {
+        Row: {
+          auditor: string
+          codigo: string
+          created_at: string
+          data: string
+          entidade: string
+          id: string
+          pontuacao: number
+          status: Database["public"]["Enums"]["audit_status"]
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          auditor: string
+          codigo: string
+          created_at?: string
+          data?: string
+          entidade: string
+          id?: string
+          pontuacao?: number
+          status?: Database["public"]["Enums"]["audit_status"]
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          auditor?: string
+          codigo?: string
+          created_at?: string
+          data?: string
+          entidade?: string
+          id?: string
+          pontuacao?: number
+          status?: Database["public"]["Enums"]["audit_status"]
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cooperativas: {
+        Row: {
+          cidade: string
+          cnpj: string | null
+          created_at: string
+          estado: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          cidade: string
+          cnpj?: string | null
+          created_at?: string
+          estado: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string
+          cnpj?: string | null
+          created_at?: string
+          estado?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      indicadores_sustentabilidade: {
+        Row: {
+          id: string
+          label: string
+          suffix: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          id?: string
+          label: string
+          suffix?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          id?: string
+          label?: string
+          suffix?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      industrias: {
+        Row: {
+          cidade: string
+          cnpj: string | null
+          created_at: string
+          estado: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          cidade: string
+          cnpj?: string | null
+          created_at?: string
+          estado: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string
+          cnpj?: string | null
+          created_at?: string
+          estado?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lotes: {
+        Row: {
+          codigo: string
+          created_at: string
+          destino: string
+          etapa_atual: number
+          id: string
+          material: string
+          origem: string
+          peso: string
+          status: Database["public"]["Enums"]["lote_status"]
+          updated_at: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          destino: string
+          etapa_atual?: number
+          id?: string
+          material: string
+          origem: string
+          peso: string
+          status?: Database["public"]["Enums"]["lote_status"]
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          destino?: string
+          etapa_atual?: number
+          id?: string
+          material?: string
+          origem?: string
+          peso?: string
+          status?: Database["public"]["Enums"]["lote_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transacoes: {
+        Row: {
+          codigo: string
+          cooperativa_id: string | null
+          created_at: string
+          destino: string
+          id: string
+          industria_id: string | null
+          material: string
+          origem: string
+          peso: string
+          status: Database["public"]["Enums"]["transaction_status"]
+          updated_at: string
+        }
+        Insert: {
+          codigo: string
+          cooperativa_id?: string | null
+          created_at?: string
+          destino: string
+          id?: string
+          industria_id?: string | null
+          material: string
+          origem: string
+          peso: string
+          status?: Database["public"]["Enums"]["transaction_status"]
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string
+          cooperativa_id?: string | null
+          created_at?: string
+          destino?: string
+          id?: string
+          industria_id?: string | null
+          material?: string
+          origem?: string
+          peso?: string
+          status?: Database["public"]["Enums"]["transaction_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transacoes_cooperativa_id_fkey"
+            columns: ["cooperativa_id"]
+            isOneToOne: false
+            referencedRelation: "cooperativas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacoes_industria_id_fkey"
+            columns: ["industria_id"]
+            isOneToOne: false
+            referencedRelation: "industrias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +280,11 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      alert_severity: "critical" | "high" | "medium" | "low"
+      alert_status: "active" | "acknowledged" | "resolved"
+      audit_status: "Conforme" | "Não Conforme" | "Pendente" | "Em Análise"
+      lote_status: "Coletado" | "Em Processamento" | "Em Trânsito" | "Entregue"
+      transaction_status: "Concluída" | "Em Trânsito" | "Pendente" | "Auditoria"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +411,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      alert_severity: ["critical", "high", "medium", "low"],
+      alert_status: ["active", "acknowledged", "resolved"],
+      audit_status: ["Conforme", "Não Conforme", "Pendente", "Em Análise"],
+      lote_status: ["Coletado", "Em Processamento", "Em Trânsito", "Entregue"],
+      transaction_status: ["Concluída", "Em Trânsito", "Pendente", "Auditoria"],
+    },
   },
 } as const
