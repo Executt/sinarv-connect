@@ -176,6 +176,29 @@ const DashboardBenchmarks = () => {
 
   const radarColors = [FIORI_BLUE, FIORI_GREEN, FIORI_ORANGE];
 
+  // Filtered municipal ranking
+  const filteredMunRanked = useMemo(() => {
+    if (!municipiosRanked) return [];
+    return municipiosRanked.filter((m: any) => {
+      if (filtroRegiao !== "todas") {
+        const regiaoUFs = REGIOES[filtroRegiao];
+        if (!regiaoUFs?.includes(m.uf)) return false;
+      }
+      if (filtroUF !== "todas" && m.uf !== filtroUF) return false;
+      return true;
+    });
+  }, [municipiosRanked, filtroRegiao, filtroUF]);
+
+  // Available UFs based on region filter
+  const availableUFs = useMemo(() => {
+    if (!municipiosRanked) return [];
+    const ufs = [...new Set(municipiosRanked.map((m: any) => m.uf as string))].sort();
+    if (filtroRegiao !== "todas") {
+      return ufs.filter((uf) => REGIOES[filtroRegiao]?.includes(uf));
+    }
+    return ufs;
+  }, [municipiosRanked, filtroRegiao]);
+
   // KPI summary
   const totalEstados = ranking?.length || 0;
   const metaCumprida = ranking?.filter((e: any) => e.meta_pnrs_cumprida).length || 0;
