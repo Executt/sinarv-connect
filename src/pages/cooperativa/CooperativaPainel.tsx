@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { useCooperativas, useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
+import { useEstoqueCooperativa, useLicencasCooperativa } from "@/hooks/use-cooperativa-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Boxes, TrendingUp, TrendingDown, Scale, Filter } from "lucide-react";
+import { Boxes, TrendingUp, TrendingDown, Scale, Filter, AlertTriangle, Package } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const CooperativaPainel = () => {
@@ -13,6 +14,8 @@ const CooperativaPainel = () => {
   const { data: cooperativas, isLoading: loadingCoop } = useCooperativas();
   const { data: allEntradas, isLoading: loadingEnt } = useLotesEntrada();
   const { data: allSaidas, isLoading: loadingSai } = useLotesSaida();
+  const { data: estoque } = useEstoqueCooperativa(selectedCoop === "all" ? undefined : selectedCoop);
+  const { data: licencas } = useLicencasCooperativa(selectedCoop === "all" ? undefined : selectedCoop);
 
   const entradas = useMemo(() => {
     if (selectedCoop === "all" || !allEntradas) return allEntradas;
