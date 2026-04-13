@@ -27,6 +27,17 @@ const PontoColetaDashboard = () => {
     estacoes?.reduce((s: number, e: any) => s + Number(e.capacidade_toneladas || 0) * 1000, 0) ?? 0, [estacoes]);
   const capOcupada = capTotal > 0 ? Math.min((totalRecebido / capTotal) * 100, 100) : 0;
 
+  // Separate public vs private entities
+  const entPublicas = useMemo(() => entidades?.filter((e: any) => e.natureza_juridica === "Órgão Público") ?? [], [entidades]);
+  const entPrivadas = useMemo(() => entidades?.filter((e: any) => e.natureza_juridica === "Privada") ?? [], [entidades]);
+
+  const creditosTotal = useMemo(() => {
+    const privateIds = new Set(entPrivadas.map((e: any) => e.id));
+    return registros
+      ?.filter((r: any) => privateIds.has(r.entidade_id))
+      .reduce((s: number, r: any) => s + Number(r.peso_kg || 0), 0) ?? 0;
+  }, [registros, entPrivadas]);
+
   const isLoading = l1 || l2 || l3 || l4;
 
   if (isLoading) {
@@ -41,18 +52,6 @@ const PontoColetaDashboard = () => {
   }
 
   const ativas = estacoes?.filter((e: any) => e.status_operacional === "Ativo").length ?? 0;
-
-  // Separate public vs private entities
-  const entPublicas = entidades?.filter((e: any) => e.natureza_juridica === "Órgão Público") ?? [];
-  const entPrivadas = entidades?.filter((e: any) => e.natureza_juridica === "Privada") ?? [];
-
-  // Calculate credits for private entities (1 credit per kg)
-  const creditosTotal = useMemo(() => {
-    const privateIds = new Set(entPrivadas.map((e: any) => e.id));
-    return registros
-      ?.filter((r: any) => privateIds.has(r.entidade_id))
-      .reduce((s: number, r: any) => s + Number(r.peso_kg || 0), 0) ?? 0;
-  }, [registros, entPrivadas]);
 
   return (
     <div className="space-y-6">
