@@ -37,6 +37,9 @@ import CooperativaCadastro from "./pages/cooperativa/CooperativaCadastro";
 // Indústria pages
 import IndustriaMetasLogisticas from "./pages/industria/IndustriaMetasLogisticas";
 import IndustriaCertificados from "./pages/industria/IndustriaCertificados";
+import IndustriaDashboardESG from "./pages/industria/IndustriaDashboardESG";
+import IndustriaIntegracao from "./pages/industria/IndustriaIntegracao";
+import IndustriaCadastro from "./pages/industria/IndustriaCadastro";
 
 // Ponto de Coleta pages
 import PontoColetaDashboard from "./pages/ponto-coleta/PontoColetaDashboard";
