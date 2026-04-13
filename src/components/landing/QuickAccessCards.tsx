@@ -1,4 +1,5 @@
 import { Users, Building2, Factory, ShieldCheck, ArrowUpRight } from "lucide-react";
+import { useInView } from "@/hooks/use-in-view";
 
 const portals = [
   {
@@ -37,6 +38,8 @@ const portals = [
 ];
 
 const QuickAccessCards = () => {
+  const { ref, inView } = useInView();
+
   return (
     <section id="acesso" className="bg-surface py-16 md:py-20">
       <div className="container max-w-7xl mx-auto px-4">
@@ -46,14 +49,19 @@ const QuickAccessCards = () => {
             Selecione o portal adequado ao seu perfil para acessar os serviços do SINARV.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {portals.map((portal) => (
+        <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {portals.map((portal, i) => (
             <a
               key={portal.title}
               href={portal.href}
               target={portal.external ? "_blank" : undefined}
               rel={portal.external ? "noopener noreferrer" : undefined}
-              className="group bg-card rounded-lg p-6 shadow-card hover:shadow-card-hover transition-all duration-200 border border-border hover:border-primary/20 flex flex-col"
+              className="group bg-card rounded-lg p-6 shadow-card hover:shadow-card-hover hover:border-primary/20 border border-border flex flex-col transition-all duration-500 hover:-translate-y-1"
+              style={{
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(24px)",
+                transitionDelay: `${i * 100}ms`,
+              }}
             >
               <div className={`w-11 h-11 rounded-lg flex items-center justify-center mb-4 ${portal.color}`}>
                 <portal.icon className="h-5 w-5" />
