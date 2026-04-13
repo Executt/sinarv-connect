@@ -119,6 +119,144 @@ export type Database = {
         }
         Relationships: []
       }
+      benchmark_estados: {
+        Row: {
+          ano_referencia: number
+          created_at: string
+          estado_ibge: string
+          id: string
+          meta_pnrs_cumprida: boolean
+          nome_estado: string
+          populacao: number
+          taxa_desvio_aterro: number
+          uf: string
+          updated_at: string
+          volume_coletado_ton: number
+          volume_reciclado_ton: number
+        }
+        Insert: {
+          ano_referencia?: number
+          created_at?: string
+          estado_ibge: string
+          id?: string
+          meta_pnrs_cumprida?: boolean
+          nome_estado: string
+          populacao?: number
+          taxa_desvio_aterro?: number
+          uf: string
+          updated_at?: string
+          volume_coletado_ton?: number
+          volume_reciclado_ton?: number
+        }
+        Update: {
+          ano_referencia?: number
+          created_at?: string
+          estado_ibge?: string
+          id?: string
+          meta_pnrs_cumprida?: boolean
+          nome_estado?: string
+          populacao?: number
+          taxa_desvio_aterro?: number
+          uf?: string
+          updated_at?: string
+          volume_coletado_ton?: number
+          volume_reciclado_ton?: number
+        }
+        Relationships: []
+      }
+      benchmark_municipios: {
+        Row: {
+          ano_referencia: number
+          created_at: string
+          eficiencia_coleta_seletiva: number
+          engajamento_cidadao: number
+          id: string
+          municipio_ibge: string
+          nome_municipio: string
+          pontos_coleta_por_km2: number
+          populacao: number
+          taxa_desvio_aterro: number
+          uf: string
+          updated_at: string
+          volume_coletado_ton: number
+          volume_reciclado_ton: number
+        }
+        Insert: {
+          ano_referencia?: number
+          created_at?: string
+          eficiencia_coleta_seletiva?: number
+          engajamento_cidadao?: number
+          id?: string
+          municipio_ibge: string
+          nome_municipio: string
+          pontos_coleta_por_km2?: number
+          populacao?: number
+          taxa_desvio_aterro?: number
+          uf: string
+          updated_at?: string
+          volume_coletado_ton?: number
+          volume_reciclado_ton?: number
+        }
+        Update: {
+          ano_referencia?: number
+          created_at?: string
+          eficiencia_coleta_seletiva?: number
+          engajamento_cidadao?: number
+          id?: string
+          municipio_ibge?: string
+          nome_municipio?: string
+          pontos_coleta_por_km2?: number
+          populacao?: number
+          taxa_desvio_aterro?: number
+          uf?: string
+          updated_at?: string
+          volume_coletado_ton?: number
+          volume_reciclado_ton?: number
+        }
+        Relationships: []
+      }
+      benchmark_selos: {
+        Row: {
+          ano_referencia: number
+          ativo: boolean
+          created_at: string
+          data_concessao: string
+          descricao: string | null
+          id: string
+          municipio_ibge: string
+          nome_municipio: string
+          tipo_selo: string
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          ano_referencia?: number
+          ativo?: boolean
+          created_at?: string
+          data_concessao?: string
+          descricao?: string | null
+          id?: string
+          municipio_ibge: string
+          nome_municipio: string
+          tipo_selo: string
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          ano_referencia?: number
+          ativo?: boolean
+          created_at?: string
+          data_concessao?: string
+          descricao?: string | null
+          id?: string
+          municipio_ibge?: string
+          nome_municipio?: string
+          tipo_selo?: string
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cooperativas: {
         Row: {
           cidade: string
@@ -1348,6 +1486,66 @@ export type Database = {
           nome_exibicao?: string | null
           tipo_perfil?: "Cidadão" | "Catador" | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      vw_comparativo_municipal: {
+        Row: {
+          ano_referencia: number | null
+          eficiencia_coleta_seletiva: number | null
+          engajamento_cidadao: number | null
+          kg_per_capita: number | null
+          municipio_ibge: string | null
+          nome_municipio: string | null
+          pontos_coleta_por_km2: number | null
+          populacao: number | null
+          taxa_desvio_aterro: number | null
+          uf: string | null
+          volume_coletado_ton: number | null
+          volume_reciclado_ton: number | null
+        }
+        Insert: {
+          ano_referencia?: number | null
+          eficiencia_coleta_seletiva?: number | null
+          engajamento_cidadao?: number | null
+          kg_per_capita?: never
+          municipio_ibge?: string | null
+          nome_municipio?: string | null
+          pontos_coleta_por_km2?: number | null
+          populacao?: number | null
+          taxa_desvio_aterro?: number | null
+          uf?: string | null
+          volume_coletado_ton?: number | null
+          volume_reciclado_ton?: number | null
+        }
+        Update: {
+          ano_referencia?: number | null
+          eficiencia_coleta_seletiva?: number | null
+          engajamento_cidadao?: number | null
+          kg_per_capita?: never
+          municipio_ibge?: string | null
+          nome_municipio?: string | null
+          pontos_coleta_por_km2?: number | null
+          populacao?: number | null
+          taxa_desvio_aterro?: number | null
+          uf?: string | null
+          volume_coletado_ton?: number | null
+          volume_reciclado_ton?: number | null
+        }
+        Relationships: []
+      }
+      vw_ranking_estadual: {
+        Row: {
+          ano_referencia: number | null
+          kg_per_capita: number | null
+          meta_pnrs_cumprida: boolean | null
+          nome_estado: string | null
+          populacao: number | null
+          posicao_ranking: number | null
+          taxa_desvio_aterro: number | null
+          uf: string | null
+          volume_coletado_ton: number | null
+          volume_reciclado_ton: number | null
         }
         Relationships: []
       }
