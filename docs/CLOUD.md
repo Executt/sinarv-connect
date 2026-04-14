@@ -1,6 +1,6 @@
 # SINARV — Infraestrutura Cloud
 
-Versão: 3.0 | Atualizado: 2026-04-13
+Versão: 4.0 | Atualizado: 2026-04-14
 
 ---
 
@@ -14,6 +14,7 @@ Versão: 3.0 | Atualizado: 2026-04-13
 | Autenticação | Supabase Auth (JWT) | Com email verification |
 | Storage | Supabase Storage | Buckets configuráveis |
 | DNS / CDN | Lovable Cloud | `sinarv-connect.lovable.app` |
+| Mapas | Leaflet (OSM tiles) | Renderização client-side |
 
 ---
 
@@ -41,9 +42,28 @@ Versão: 3.0 | Atualizado: 2026-04-13
 
 ---
 
-## 4. Roadmap de Infraestrutura
+## 4. Tabelas de Parametrização (Módulo Admin)
 
-### 4.1 Migração para OpenShift/OKD
+Tabelas adicionadas para suportar o módulo de administração:
+
+| Tabela | Registros Iniciais | Descrição |
+|--------|--------------------|-----------|
+| `contenedores` | 5 tipos (Azul, Amarelo, Verde, Laranja, Cinza) | Catálogo técnico de contenedores |
+| `contenedor_localizacoes` | 30 ecopontos em 9 capitais | Geolocalização e telemetria de ecopontos |
+| `configuracoes_integracoes` | 5 APIs (IBGE, SINIR, ViaCEP, OpenWeather, SEFAZ) | Registro de integrações externas |
+
+### Dependências de Infraestrutura
+
+| Recurso | Provedor | Uso |
+|---------|----------|-----|
+| Tiles de Mapa | OpenStreetMap (gratuito) | Leaflet MapContainer em AdminLocalizacoes e PontoColetaServicos |
+| PostgREST | Supabase (automático) | CRUD das tabelas via SDK |
+
+---
+
+## 5. Roadmap de Infraestrutura
+
+### 5.1 Migração para OpenShift/OKD
 
 ```
 Fase 1: Edge Functions → Containers Deno em pods
@@ -52,7 +72,7 @@ Fase 3: Frontend → Nginx container com build estático
 Fase 4: API Gateway → Traefik/Envoy com rate limiting
 ```
 
-### 4.2 SSO SERPRO
+### 5.2 SSO SERPRO
 
 ```
 Fluxo:
@@ -63,17 +83,18 @@ Fluxo:
 5. SINARV valida assertion e emite JWT com role
 ```
 
-### 4.3 Observabilidade
+### 5.3 Observabilidade
 
 | Ferramenta | Uso |
 |-----------|-----|
 | `admin_session_logs` | Auditoria de sessões |
 | `role_audit_logs` | Auditoria de alterações de roles |
 | `v_api_log` | Logs de chamadas B2B |
+| `configuracoes_integracoes.ultimo_sync` | Monitoramento de sincronização de APIs |
 | Prometheus + Grafana (roadmap) | Métricas de infraestrutura |
 
 ---
 
-## 5. Referência ARP-GAN — Impacto Cloud
+## 6. Referência ARP-GAN — Impacto Cloud
 
-A integração do modelo ARP-GAN no módulo Ponto de Coleta não exigiu novas tabelas ou Edge Functions, pois o catálogo de serviços e contenedores é implementado como conteúdo estático baseado em dados de referência extraídos de `https://www.pro.arp-gan.be/fr/nos-services`. Futuramente, a tabela `benchmark_municipios` pode ser expandida para incluir métricas inspiradas no modelo ARP-GAN (ex: número de contenedores por tipo por estação).
+A integração do modelo ARP-GAN no módulo Ponto de Coleta utiliza as tabelas `contenedores` e `contenedor_localizacoes` para armazenar o catálogo de serviços e a geolocalização dos ecopontos. Os dados são gerenciados via módulo Admin (`/admin/contenedores` e `/admin/localizacoes`) e consumidos dinamicamente pelo frontend em `/ponto-coleta/servicos`. O mapa interativo Leaflet renderiza os ecopontos com marcadores coloridos por tipo de resíduo, utilizando tiles gratuitos do OpenStreetMap.

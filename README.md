@@ -13,7 +13,8 @@ O SINARV é um sistema multi-módulo que interliga todos os elos da economia cir
 | **Governo (PNRS)** | Painel de telemetria nacional, auditoria, alertas, benchmarks | `gov` |
 | **Cooperativa** | Recepção, triagem, estoque, despacho e faturamento | `cooperativa` |
 | **Indústria** | Metas PNRS, recebimento B2B, certificados de logística reversa | `industria` |
-| **Ponto de Coleta** | Dashboard, recebimento, metas, serviços ARP-GAN, credenciamento | `ponto_coleta` |
+| **Ponto de Coleta** | Dashboard, recebimento, metas, serviços ARP-GAN, credenciamento, configurações | `ponto_coleta` |
+| **Administração** | Parametrização do sistema: contenedores, ecopontos (mapa Leaflet), integrações, parâmetros | `super_admin` |
 | **Cidadão** | Transparência e mapa de reciclagem (público) | Público |
 | **Super Admin** | Acesso total via App Switcher | `super_admin` |
 
@@ -26,6 +27,7 @@ O SINARV é um sistema multi-módulo que interliga todos os elos da economia cir
 | Frontend | React 18 + TypeScript + Tailwind CSS + shadcn/ui |
 | Design System | SAP Fiori (cores e layout) |
 | Gráficos | Recharts |
+| Mapas | Leaflet + react-leaflet |
 | Estado | TanStack React Query |
 | Backend | Edge Functions (Deno) + PostgreSQL |
 | Auth | JWT + RLS + SSO SERPRO (roadmap) |
@@ -38,23 +40,25 @@ O SINARV é um sistema multi-módulo que interliga todos os elos da economia cir
 ```
 src/
 ├── pages/
-│   ├── cooperativa/     # 6 páginas (Painel, Recepção, Lotes, Despacho, Faturamento, Cadastro)
-│   ├── industria/       # 5 páginas (Dashboard ESG, Metas, Integração, Certificados, Cadastro)
-│   ├── ponto-coleta/    # 6 páginas (Dashboard, Recebimento, Histórico, Metas, Serviços, Credenciamento)
-│   ├── Dashboard*.tsx   # 7 páginas governamentais
-│   └── Auth, Index...   # Páginas públicas e utilitárias
+│   ├── admin/            # 5 páginas (Painel, Contenedores, Localizações, Integrações, Parâmetros)
+│   ├── cooperativa/      # 6 páginas (Painel, Recepção, Lotes, Despacho, Faturamento, Cadastro)
+│   ├── industria/        # 5 páginas (Dashboard ESG, Metas, Integração, Certificados, Cadastro)
+│   ├── ponto-coleta/     # 8 páginas (Dashboard, Recebimento, Histórico, Metas, Serviços, Credenciamento, Configurações)
+│   ├── Dashboard*.tsx    # 7 páginas governamentais
+│   └── Auth, Index...    # Páginas públicas e utilitárias
 ├── components/
-│   ├── layout/          # GlobalHeader, ModuleShell, AppSwitcher
-│   ├── dashboard/       # KPICards, Charts, Tables, Planares
-│   ├── landing/         # Hero, Header, Footer, Indicadores
-│   └── ui/              # shadcn/ui (40+ componentes)
-├── hooks/               # 8 hooks customizados (auth, data, schema)
-└── integrations/        # Supabase client + types (auto-gerados)
+│   ├── layout/           # GlobalHeader, ModuleShell, AppSwitcher
+│   ├── modules/          # AdminLayout, CooperativaLayout, IndustriaLayout, PontoColetaLayout, ModuleLayout
+│   ├── dashboard/        # KPICards, Charts, Tables, Planares
+│   ├── landing/          # Hero, Header, Footer, Indicadores
+│   └── ui/               # shadcn/ui (40+ componentes)
+├── hooks/                # 8 hooks customizados (auth, data, schema)
+└── integrations/         # Supabase client + types (auto-gerados)
 
 supabase/
-└── functions/           # 4 Edge Functions (admin-users, b2b-importar-lotes, comparar-municipios, seed-admin)
+└── functions/            # 4 Edge Functions (admin-users, b2b-importar-lotes, comparar-municipios, seed-admin)
 
-docs/                    # Documentação técnica consolidada
+docs/                     # Documentação técnica consolidada
 ```
 
 ---
@@ -89,8 +93,16 @@ docs/                    # Documentação técnica consolidada
 - Novo Recebimento (pesagem com recibo QR Code)
 - Histórico e Despachos (recebimentos + envio para cooperativas)
 - Metas de Cumprimento (progresso obrigatório)
-- **Serviços e Contenedores** (catálogo ARP-GAN: contenedores por cor, coleta específica, serviços complementares, itens proibidos)
+- **Serviços e Contenedores** (catálogo ARP-GAN: contenedores por cor, coleta específica, serviços complementares, itens proibidos, **mapa interativo Leaflet** de ecopontos ativos)
 - Credenciamento (cadastro de novo ponto)
+- **Configurações** (parametrização local do módulo)
+
+### Administração (Super Admin)
+- **Painel Administrativo** (KPIs globais: contenedores, ecopontos, integrações, usuários)
+- **Gestão de Contenedores** (CRUD completo: nome, cor, material, volumes, boas práticas)
+- **Gestão de Localizações** (CRUD de ecopontos com **mapa interativo Leaflet**, filtros por UF/status, coordenadas GPS)
+- **Integrações Externas** (CRUD de APIs: IBGE, SINIR, ViaCEP, etc. com teste de conectividade)
+- **Parâmetros do Sistema** (regras de negócio, segurança, sincronização)
 
 ### Cidadão
 - Mapa de Reciclagem (transparência pública)

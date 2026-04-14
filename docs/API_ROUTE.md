@@ -1,6 +1,6 @@
 # SINARV — Rotas de API e Edge Functions
 
-Versão: 3.0 | Atualizado: 2026-04-13
+Versão: 4.0 | Atualizado: 2026-04-14
 
 ---
 
@@ -135,7 +135,8 @@ Cria o primeiro usuário super_admin no sistema. Uso único.
 | **Governo** | `/dashboard`, `/dashboard/rastreabilidade`, `/dashboard/auditoria`, `/dashboard/alertas`, `/dashboard/usuarios`, `/dashboard/benchmarks` |
 | **Cooperativa** | `/cooperativa/painel`, `/cooperativa/recepcao`, `/cooperativa/lotes-entrada`, `/cooperativa/despacho`, `/cooperativa/faturamento`, `/cooperativa/cadastro` |
 | **Indústria** | `/industria/dashboard`, `/industria/metas-logisticas`, `/industria/integracao`, `/industria/certificados`, `/industria/cadastro` |
-| **Ponto de Coleta** | `/ponto-coleta/dashboard`, `/ponto-coleta/novo-recebimento`, `/ponto-coleta/historico`, `/ponto-coleta/metas`, `/ponto-coleta/servicos`, `/ponto-coleta/credenciamento` |
+| **Ponto de Coleta** | `/ponto-coleta/dashboard`, `/ponto-coleta/novo-recebimento`, `/ponto-coleta/historico`, `/ponto-coleta/metas`, `/ponto-coleta/servicos`, `/ponto-coleta/credenciamento`, `/ponto-coleta/configuracoes` |
+| **Administração** | `/admin/painel`, `/admin/contenedores`, `/admin/localizacoes`, `/admin/integracoes`, `/admin/parametros` |
 | **Público** | `/`, `/auth`, `/reset-password`, `/selecionar-perfil`, `/transparencia/mapa-reciclagem` |
 
 ---
@@ -151,7 +152,35 @@ Cria o primeiro usuário super_admin no sistema. Uso único.
 | `lotes` | Público | Autenticado | Autenticado | — |
 | `alertas` | Público | Autenticado | Autenticado | — |
 | `auditorias` | Público | Autenticado | Autenticado | — |
+| `contenedores` | Público | Autenticado | Autenticado | — |
+| `contenedor_localizacoes` | Público | Autenticado | Autenticado | — |
+| `configuracoes_integracoes` | Autenticado | Autenticado | Autenticado | — |
 | `user_roles` | Próprio + Gov | Gov | — | Gov |
 | `profiles` | Próprio + Gov | Próprio | Próprio | — |
 | `admin_session_logs` | Super Admin | Super Admin | — | — |
 | `role_audit_logs` | Gov | Autenticado | — | — |
+
+---
+
+## 5. Tabelas de Parametrização — Endpoints REST (Supabase PostgREST)
+
+As tabelas de parametrização são consumidas diretamente via PostgREST (client SDK):
+
+| Tabela | Operações no Frontend | Página(s) |
+|--------|----------------------|-----------|
+| `contenedores` | SELECT, INSERT, UPDATE | AdminContenedores, PontoColetaServicos |
+| `contenedor_localizacoes` | SELECT, INSERT, UPDATE (com JOIN contenedores) | AdminLocalizacoes, PontoColetaServicos |
+| `configuracoes_integracoes` | SELECT, INSERT, UPDATE | AdminIntegracoes |
+
+### Exemplos de Queries
+
+```typescript
+// Listar contenedores ativos
+supabase.from("contenedores").select("*").eq("ativo", true)
+
+// Listar ecopontos com tipo de contenedor (JOIN)
+supabase.from("contenedor_localizacoes").select("*, contenedores(nome, cor, material)")
+
+// Listar integrações por módulo
+supabase.from("configuracoes_integracoes").select("*").eq("modulo", "ponto_coleta")
+```

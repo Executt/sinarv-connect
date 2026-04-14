@@ -1,6 +1,6 @@
 # SINARV — Contagem de Pontos de Função
 
-Versão: 3.0 | Atualizado: 2026-04-13
+Versão: 4.0 | Atualizado: 2026-04-14
 
 ---
 
@@ -39,10 +39,16 @@ Versão: 3.0 | Atualizado: 2026-04-13
 | 25 | Ponto Coleta | Novo Recebimento | `PontoColetaNovoRecebimento.tsx` | Alta |
 | 26 | Ponto Coleta | Histórico e Despachos | `PontoColetaHistorico.tsx` | Alta |
 | 27 | Ponto Coleta | Metas | `PontoColetaMetas.tsx` | Média |
-| 28 | Ponto Coleta | Serviços e Contenedores | `PontoColetaServicos.tsx` | Alta |
+| 28 | Ponto Coleta | Serviços e Contenedores | `PontoColetaServicos.tsx` | Muito Alta |
 | 29 | Ponto Coleta | Credenciamento | `PontoColetaCredenciamento.tsx` | Alta |
+| 30 | Ponto Coleta | Configurações | `PontoColetaConfiguracoes.tsx` | Alta |
+| 31 | Admin | Painel Administrativo | `AdminPainel.tsx` | Alta |
+| 32 | Admin | Gestão de Contenedores | `AdminContenedores.tsx` | Alta |
+| 33 | Admin | Gestão de Localizações | `AdminLocalizacoes.tsx` | Muito Alta |
+| 34 | Admin | Integrações Externas | `AdminIntegracoes.tsx` | Alta |
+| 35 | Admin | Parâmetros do Sistema | `AdminParametros.tsx` | Média |
 
-**Total de Páginas: 29**
+**Total de Páginas: 35**
 
 ### 1.2 Componentes Estruturais (não-UI)
 
@@ -57,19 +63,20 @@ Versão: 3.0 | Atualizado: 2026-04-13
 | 7 | CooperativaLayout | `modules/CooperativaLayout.tsx` | Layout |
 | 8 | IndustriaLayout | `modules/IndustriaLayout.tsx` | Layout |
 | 9 | PontoColetaLayout | `modules/PontoColetaLayout.tsx` | Layout |
-| 10 | ModuleLayout | `modules/ModuleLayout.tsx` | Layout |
-| 11 | DashboardCharts | `dashboard/DashboardCharts.tsx` | Gráficos |
-| 12 | KPICards | `dashboard/KPICards.tsx` | KPI |
-| 13 | PlanaresMetrics | `dashboard/PlanaresMetrics.tsx` | Métricas |
-| 14 | TransactionsTable | `dashboard/TransactionsTable.tsx` | Tabela |
-| 15 | DashboardSidebar | `dashboard/DashboardSidebar.tsx` | Layout |
-| 16 | GovHeader | `landing/GovHeader.tsx` | Landing |
-| 17 | GovFooter | `landing/GovFooter.tsx` | Landing |
-| 18 | HeroSection | `landing/HeroSection.tsx` | Landing |
-| 19 | QuickAccessCards | `landing/QuickAccessCards.tsx` | Landing |
-| 20 | SustainabilityIndicators | `landing/SustainabilityIndicators.tsx` | Landing |
+| 10 | **AdminLayout** | `modules/AdminLayout.tsx` | Layout |
+| 11 | ModuleLayout | `modules/ModuleLayout.tsx` | Layout |
+| 12 | DashboardCharts | `dashboard/DashboardCharts.tsx` | Gráficos |
+| 13 | KPICards | `dashboard/KPICards.tsx` | KPI |
+| 14 | PlanaresMetrics | `dashboard/PlanaresMetrics.tsx` | Métricas |
+| 15 | TransactionsTable | `dashboard/TransactionsTable.tsx` | Tabela |
+| 16 | DashboardSidebar | `dashboard/DashboardSidebar.tsx` | Layout |
+| 17 | GovHeader | `landing/GovHeader.tsx` | Landing |
+| 18 | GovFooter | `landing/GovFooter.tsx` | Landing |
+| 19 | HeroSection | `landing/HeroSection.tsx` | Landing |
+| 20 | QuickAccessCards | `landing/QuickAccessCards.tsx` | Landing |
+| 21 | SustainabilityIndicators | `landing/SustainabilityIndicators.tsx` | Landing |
 
-**Total de Componentes Estruturais: 20**
+**Total de Componentes Estruturais: 21**
 
 ### 1.3 Hooks Customizados
 
@@ -102,18 +109,27 @@ Versão: 3.0 | Atualizado: 2026-04-13
 | Tipo | Quantidade |
 |------|-----------|
 | Tabelas core (public) | 10 |
+| Tabelas de parametrização (admin) | 3 |
 | Tabelas benchmark | 3 |
 | Views segregadas | 23 |
 | Views analíticas | 2 |
 | Funções PL/pgSQL | 3 |
 | Enums | 6 |
-| Políticas RLS | ~40 |
+| Políticas RLS | ~46 |
 
-**Total de objetos de banco: ~87**
+**Total de objetos de banco: ~96**
 
 ### 1.6 Componentes UI (shadcn/ui)
 
 Mais de **40 primitivos** reutilizáveis: Accordion, Alert, Avatar, Badge, Button, Calendar, Card, Carousel, Chart, Checkbox, Collapsible, Command, ContextMenu, Dialog, Drawer, DropdownMenu, Form, HoverCard, Input, Label, Menubar, NavigationMenu, Pagination, Popover, Progress, RadioGroup, Resizable, ScrollArea, Select, Separator, Sheet, Sidebar, Skeleton, Slider, Sonner, Switch, Table, Tabs, Textarea, Toast, Toggle, Tooltip.
+
+### 1.7 Bibliotecas Externas Integradas
+
+| Biblioteca | Uso |
+|-----------|-----|
+| `leaflet` + `react-leaflet` | Mapas interativos em AdminLocalizacoes e PontoColetaServicos |
+| `recharts` | Gráficos (BarChart, RadarChart, PieChart) |
+| `@tanstack/react-query` | Gerenciamento de estado assíncrono |
 
 ---
 
@@ -121,18 +137,18 @@ Mais de **40 primitivos** reutilizáveis: Accordion, Alert, Avatar, Badge, Butto
 
 | Categoria | Quantidade |
 |-----------|-----------|
-| Páginas | 29 |
-| Componentes Estruturais | 20 |
+| Páginas | 35 |
+| Componentes Estruturais | 21 |
 | Componentes UI (shadcn) | 40+ |
 | Hooks (arquivos) | 8 |
 | Funções exportadas (hooks) | ~25 |
 | Edge Functions | 4 |
-| Tabelas no banco | 13 |
+| Tabelas no banco | 16 |
 | Views | 25 |
 | Funções de banco | 3 |
 | Enums | 6 |
-| Políticas RLS | ~40 |
-| **Total de Artefatos** | **~213+** |
+| Políticas RLS | ~46 |
+| **Total de Artefatos** | **~229+** |
 
 ---
 
@@ -140,16 +156,26 @@ Mais de **40 primitivos** reutilizáveis: Accordion, Alert, Avatar, Badge, Butto
 
 | Tipo de Função | Baixa | Média | Alta | Pontos |
 |---------------|-------|-------|------|--------|
-| EI (Entrada externa) | 4 | 8 | 5 | 85 |
-| EO (Saída externa) | 2 | 6 | 4 | 62 |
-| EQ (Consulta externa) | 3 | 5 | 3 | 44 |
-| ILF (Arquivo lógico interno) | — | 5 | 8 | 89 |
-| EIF (Arquivo interface externa) | 2 | 3 | — | 19 |
-| **Total não ajustado** | | | | **299 PF** |
+| EI (Entrada externa) | 5 | 10 | 7 | 112 |
+| EO (Saída externa) | 3 | 7 | 5 | 78 |
+| EQ (Consulta externa) | 4 | 6 | 4 | 56 |
+| ILF (Arquivo lógico interno) | — | 6 | 10 | 108 |
+| EIF (Arquivo interface externa) | 3 | 4 | — | 26 |
+| **Total não ajustado** | | | | **380 PF** |
 
 **Fator de ajuste (VAF):** 1.15 (complexidade técnica média-alta)
 
-**Total ajustado: ~344 Pontos de Função**
+**Total ajustado: ~437 Pontos de Função**
+
+### Variação vs. Versão Anterior
+
+| Métrica | v3.0 | v4.0 | Delta |
+|---------|------|------|-------|
+| Páginas | 29 | 35 | +6 |
+| Componentes Estruturais | 20 | 21 | +1 |
+| Tabelas | 13 | 16 | +3 |
+| Políticas RLS | ~40 | ~46 | +6 |
+| Pontos de Função | ~344 | ~437 | +93 (+27%) |
 
 ---
 
@@ -198,9 +224,20 @@ Os pontos de coleta (como ecopontos, supermercados e prefeituras) podem:
   - **Serviços extras** como coleta para eventos, consultoria em gestão de resíduos e sacolas comerciais certificadas
   - **Lista de itens proibidos** que não podem ser recebidos (resíduos hospitalares, radioativos, explosivos, amianto)
   - **Informações sobre multas** para descarte irregular
+  - **Mapa interativo** mostrando todos os ecopontos ativos com marcadores coloridos por tipo de material
 - Despachar material consolidado para cooperativas credenciadas
 - Para órgãos públicos: acompanhar o **progresso das metas obrigatórias**
 - Para empresas privadas: acumular **créditos fiscais ecológicos** por kg recebido
+- **Configurar** parâmetros locais do módulo
+
+### Para o Administrador do Sistema
+
+O Super Admin tem acesso a um **módulo de administração completo** que permite:
+- Visualizar **KPIs globais** do sistema (total de contenedores, ecopontos ativos, integrações configuradas, usuários)
+- **Cadastrar e editar tipos de contenedores** — definindo cor, material aceito, volumes disponíveis e boas práticas de uso
+- **Gerenciar ecopontos** em um **mapa interativo** — adicionando novos pontos com coordenadas GPS, endereço e capacidade, além de filtrar por UF e status operacional
+- **Configurar integrações com APIs externas** — como IBGE, SINIR, ViaCEP e SEFAZ — incluindo testes de conectividade para garantir que os serviços estão funcionando
+- **Ajustar parâmetros do sistema** — regras de negócio, políticas de segurança e intervalos de sincronização
 
 ### Para o Cidadão
 
@@ -212,12 +249,13 @@ Qualquer pessoa pode acessar o **mapa de reciclagem** na página pública, sem p
 
 Em linguagem simples, o SINARV possui:
 
-- **29 telas** diferentes, cada uma com funcionalidades específicas
-- **4 módulos de negócio** isolados (Governo, Cooperativa, Indústria, Ponto de Coleta) + área pública
+- **35 telas** diferentes, cada uma com funcionalidades específicas
+- **5 módulos de negócio** isolados (Governo, Cooperativa, Indústria, Ponto de Coleta, Administração) + área pública
 - **4 serviços de backend** que processam dados automaticamente
-- **13 tabelas** e **25 visualizações** no banco de dados
-- **~40 regras de segurança** que controlam quem pode ver e alterar cada dado
-- **~344 pontos de função** — uma medida padrão de mercado que indica o tamanho do sistema (equivalente a um sistema de médio-grande porte)
+- **16 tabelas** e **25 visualizações** no banco de dados
+- **~46 regras de segurança** que controlam quem pode ver e alterar cada dado
+- **~437 pontos de função** — uma medida padrão de mercado que indica o tamanho do sistema (equivalente a um sistema de **grande porte**)
+- **2 mapas interativos** (gestão administrativa + consulta pública de ecopontos)
 
 ### Referências Internacionais Integradas
 
