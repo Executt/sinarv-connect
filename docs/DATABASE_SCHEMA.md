@@ -1,6 +1,6 @@
 # SINARV — Schema do Banco de Dados
 
-Versão: 3.0 | Atualizado: 2026-04-13
+Versão: 4.0 | Atualizado: 2026-04-14
 
 ---
 
@@ -120,7 +120,39 @@ O PostgreSQL utiliza **views com `security_invoker = true`** para segregação l
 
 ---
 
-## 9. Enums
+## 9. Tabelas de Parametrização (Módulo Admin)
+
+| Tabela | Descrição | Campos-chave |
+|--------|-----------|-------------|
+| `contenedores` | Catálogo técnico de tipos de contenedores por material | nome, cor, material, descricao, icone, volumes[], boas_praticas[], ativo |
+| `contenedor_localizacoes` | Ecopontos com geolocalização e telemetria | contenedor_id (FK→contenedores), nome_local, endereco, cidade, uf, cep, latitude, longitude, capacidade_litros, status_operacional, nivel_preenchimento, ultima_coleta |
+| `configuracoes_integracoes` | Registro de APIs e fontes de dados externas | nome, tipo, url_base, auth_type, auth_header, status, modulo, intervalo_sync_min, ultimo_sync, metadados (JSONB) |
+
+### Relacionamentos
+
+```
+contenedores (1) ──────▶ (N) contenedor_localizacoes
+     │                         │
+     └── id ◀── contenedor_id ─┘
+```
+
+### RLS das Tabelas de Parametrização
+
+| Tabela | SELECT | INSERT | UPDATE | DELETE |
+|--------|--------|--------|--------|--------|
+| `contenedores` | Público | Autenticado | Autenticado | — |
+| `contenedor_localizacoes` | Público | Autenticado | Autenticado | — |
+| `configuracoes_integracoes` | Autenticado | Autenticado | Autenticado | — |
+
+### Dados Pré-Populados
+
+- **5 tipos de contenedores**: Azul (PMC), Amarelo (Papel/Papelão), Verde (Vidro), Laranja (Orgânicos), Cinza (Rejeitos)
+- **30 ecopontos** em 9 capitais brasileiras: SP, RJ, BH, Curitiba, POA, Recife, Salvador, Brasília, Florianópolis
+- **5 integrações**: IBGE Localidades, SINIR, ViaCEP, OpenWeatherMap, SEFAZ NF-e
+
+---
+
+## 10. Enums
 
 | Enum | Valores |
 |------|---------|
@@ -133,7 +165,7 @@ O PostgreSQL utiliza **views com `security_invoker = true`** para segregação l
 
 ---
 
-## 10. Funções de Banco
+## 11. Funções de Banco
 
 | Função | Tipo | Descrição |
 |--------|------|-----------|
