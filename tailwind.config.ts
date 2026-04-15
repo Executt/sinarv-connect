@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        /* SAP 72 → Inter fallback (72 is proprietary) */
+        sans: ["72", "72full", "Inter", "Arial", "Helvetica", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -49,6 +50,10 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        neutral: {
+          DEFAULT: "hsl(var(--neutral))",
+          foreground: "hsl(var(--neutral-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -80,11 +85,39 @@ export default {
           header: "hsl(var(--gov-header))",
           "header-foreground": "hsl(var(--gov-header-foreground))",
         },
+        /* SAP Fiori Accent Colors */
+        fiori: {
+          "accent-1": "hsl(var(--fiori-accent-1))",
+          "accent-2": "hsl(var(--fiori-accent-2))",
+          "accent-3": "hsl(var(--fiori-accent-3))",
+          "accent-4": "hsl(var(--fiori-accent-4))",
+          "accent-5": "hsl(var(--fiori-accent-5))",
+          "accent-6": "hsl(var(--fiori-accent-6))",
+          "accent-7": "hsl(var(--fiori-accent-7))",
+          "accent-8": "hsl(var(--fiori-accent-8))",
+          "accent-9": "hsl(var(--fiori-accent-9))",
+          "accent-10": "hsl(var(--fiori-accent-10))",
+        },
+        /* SAP Fiori Semantic Background Colors */
+        "semantic-bg": {
+          negative: "hsl(var(--negative-bg))",
+          critical: "hsl(var(--critical-bg))",
+          positive: "hsl(var(--positive-bg))",
+          neutral: "hsl(var(--neutral-bg))",
+          information: "hsl(var(--information-bg))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        /* SAP Fiori Shadow Levels */
+        "fiori-0": "none",
+        "fiori-1": "0 1px 4px 0 rgba(19,30,41,0.08), 0 1px 2px 0 rgba(19,30,41,0.04)",
+        "fiori-2": "0 4px 16px 0 rgba(19,30,41,0.12), 0 2px 4px 0 rgba(19,30,41,0.06)",
+        "fiori-3": "0 8px 32px 0 rgba(19,30,41,0.16), 0 4px 8px 0 rgba(19,30,41,0.08)",
       },
       keyframes: {
         "accordion-down": {
