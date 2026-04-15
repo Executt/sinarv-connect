@@ -159,7 +159,7 @@ const GlobalHeader = () => {
             {isSuperAdmin && <AppSwitcher />}
             <button className="relative p-2 rounded-lg hover:bg-white/10 transition-colors">
               <Bell className="h-4 w-4 text-white/80" />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-400 rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-destructive rounded-full" />
             </button>
             <div className="hidden md:flex items-center gap-2 pl-2 border-l border-white/20">
               <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
