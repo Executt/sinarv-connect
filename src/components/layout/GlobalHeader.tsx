@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { NavLink } from "@/components/NavLink";
 import AppSwitcher from "./AppSwitcher";
 import {
@@ -10,6 +11,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -92,6 +95,7 @@ const GlobalHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, hasRole } = useAuth();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isSuperAdmin = hasRole("super_admin" as any);
 
@@ -157,8 +161,20 @@ const GlobalHeader = () => {
           {/* Right: actions */}
           <div className="flex items-center gap-2">
             {isSuperAdmin && <AppSwitcher />}
+            {/* SAP Fiori Theme Toggle – Morning / Evening Horizon */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+              title={resolvedTheme === "dark" ? "Morning Horizon (Light)" : "Evening Horizon (Dark)"}
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="h-4 w-4 text-gov-header-foreground/80" />
+              ) : (
+                <Moon className="h-4 w-4 text-gov-header-foreground/80" />
+              )}
+            </button>
             <button className="relative p-2 rounded-lg hover:bg-white/10 transition-colors">
-              <Bell className="h-4 w-4 text-white/80" />
+              <Bell className="h-4 w-4 text-gov-header-foreground/80" />
               <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-destructive rounded-full" />
             </button>
             <div className="hidden md:flex items-center gap-2 pl-2 border-l border-white/20">
