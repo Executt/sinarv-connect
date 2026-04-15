@@ -5,73 +5,59 @@
 @tailwind utilities;
 
 /* ──────────────────────────────────────────────────────────
-   SAP Fiori – Morning Horizon Design Tokens
+   SAP Fiori – Morning Horizon + Evening Horizon Design Tokens
    Ref: SAP Fiori Design Web v1.145 – Visual Foundations
    ────────────────────────────────────────────────────────── */
 
 @layer base {
+  /* ══════════════════════════════════════════════════════════
+     MORNING HORIZON (Light Mode)
+     ══════════════════════════════════════════════════════════ */
   :root {
-    /* ── Typography ── */
-    /* Primary: SAP 72 (proprietary) → fallback to Inter + system sans */
+    --background: 210 7% 96%;           /* #F5F6F7 */
+    --foreground: 210 30% 13%;          /* #131E29 */
 
-    /* ── Morning Horizon – Primary Colors ── */
-    --background: 210 7% 96%;           /* #F5F6F7  – Home / App Background */
-    --foreground: 210 30% 13%;          /* #131E29  – Text and Titles */
-
-    --card: 0 0% 100%;                  /* #FFFFFF  – Card / Container Background */
-    --card-foreground: 210 30% 13%;     /* #131E29 */
+    --card: 0 0% 100%;                  /* #FFFFFF */
+    --card-foreground: 210 30% 13%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 210 30% 13%;
 
-    /* Brand / Highlight – #0070F2 */
-    --primary: 213 100% 47%;
+    --primary: 213 100% 47%;            /* #0070F2 */
     --primary-foreground: 0 0% 100%;
+    --primary-light: 200 100% 96%;      /* #EBF8FF */
+    --primary-glow: 218 100% 41%;       /* #0057D2 */
 
-    /* Selection highlight – #EBF8FF */
-    --primary-light: 200 100% 96%;
-    /* Accent 6 – #0057D2 */
-    --primary-glow: 218 100% 41%;
-
-    /* Table Group Header / Neutral BG – #EFF1F2 */
-    --secondary: 210 7% 94%;
+    --secondary: 210 7% 94%;            /* #EFF1F2 */
     --secondary-foreground: 210 30% 13%;
 
-    --muted: 210 7% 94%;               /* #EFF1F2 */
-    --muted-foreground: 210 21% 42%;    /* #556B82  – Subtitles and Labels */
+    --muted: 210 7% 94%;
+    --muted-foreground: 210 21% 42%;    /* #556B82 */
 
-    /* Information – #0070F2 */
     --accent: 213 100% 47%;
     --accent-foreground: 0 0% 100%;
 
-    /* Semantic – Negative #AA0808 */
-    --destructive: 0 91% 35%;
+    --destructive: 0 91% 35%;           /* #AA0808 */
     --destructive-foreground: 0 0% 100%;
 
-    /* Semantic – Positive #256F3A */
-    --success: 137 50% 29%;
+    --success: 137 50% 29%;             /* #256F3A */
     --success-foreground: 0 0% 100%;
 
-    /* Semantic – Critical #E76500 */
-    --warning: 26 100% 45%;
+    --warning: 26 100% 45%;             /* #E76500 */
     --warning-foreground: 0 0% 100%;
 
-    /* Semantic – Information #0070F2 */
     --info: 213 100% 47%;
     --info-foreground: 0 0% 100%;
 
-    /* Semantic – Neutral #788FA6 */
-    --neutral: 210 17% 56%;
+    --neutral: 210 17% 56%;             /* #788FA6 */
     --neutral-foreground: 0 0% 100%;
 
-    /* ── Grayscale / Borders ── */
-    --border: 210 7% 87%;              /* #D9D9D9  – Header / Container Borders */
-    --input: 0 0% 90%;                 /* #E5E5E5  – List / Table Borders */
-    --ring: 213 100% 47%;              /* Brand focus ring */
+    --border: 210 7% 87%;               /* #D9D9D9 */
+    --input: 0 0% 90%;                  /* #E5E5E5 */
+    --ring: 213 100% 47%;
 
-    --radius: 0.5rem;                  /* Fiori Horizon: 8px base radius */
+    --radius: 0.5rem;
 
-    /* ── Shell / Sidebar (SAP Fiori Shell Bar) ── */
     --sidebar-background: 210 50% 14%;
     --sidebar-foreground: 210 20% 88%;
     --sidebar-primary: 213 100% 47%;
@@ -82,31 +68,116 @@
     --sidebar-ring: 213 100% 47%;
     --sidebar-muted: 210 20% 65%;
 
-    /* ── Gov Header (SAP Shell Bar – dark) ── */
     --gov-header: 210 50% 14%;
     --gov-header-foreground: 0 0% 100%;
 
-    /* ── Surface – slightly off-white ── */
     --surface: 210 7% 96%;
 
-    /* ── SAP Fiori Accent Colors ── */
-    --fiori-accent-1: 31 100% 41%;     /* #D27700 */
-    --fiori-accent-2: 0 91% 35%;      /* #AA0808 */
-    --fiori-accent-3: 329 94% 38%;    /* #BA066C */
-    --fiori-accent-4: 290 100% 38%;   /* #A100C2 */
-    --fiori-accent-5: 254 100% 61%;   /* #5D36FF */
-    --fiori-accent-6: 218 100% 41%;   /* #0057D2 */
-    --fiori-accent-7: 186 94% 25%;    /* #046C7A */
-    --fiori-accent-8: 137 50% 29%;    /* #256F3A */
-    --fiori-accent-9: 275 54% 43%;    /* #6C32A9 */
-    --fiori-accent-10: 210 21% 45%;   /* #5B738B */
+    /* Fiori Accent Colors (Morning Horizon) */
+    --fiori-accent-1: 31 100% 41%;
+    --fiori-accent-2: 0 91% 35%;
+    --fiori-accent-3: 329 94% 38%;
+    --fiori-accent-4: 290 100% 38%;
+    --fiori-accent-5: 254 100% 61%;
+    --fiori-accent-6: 218 100% 41%;
+    --fiori-accent-7: 186 94% 25%;
+    --fiori-accent-8: 137 50% 29%;
+    --fiori-accent-9: 275 54% 43%;
+    --fiori-accent-10: 210 21% 45%;
 
-    /* ── Semantic Background Colors ── */
-    --negative-bg: 330 100% 96%;       /* #FFEAF4 */
-    --critical-bg: 46 100% 92%;        /* #FFF8D6 */
-    --positive-bg: 84 53% 94%;         /* #F5FAE5 */
-    --neutral-bg: 210 7% 94%;          /* #EFF1F2 */
-    --information-bg: 200 100% 94%;    /* #E1F4FF */
+    /* Semantic Background Colors (Morning Horizon) */
+    --negative-bg: 330 100% 96%;
+    --critical-bg: 46 100% 92%;
+    --positive-bg: 84 53% 94%;
+    --neutral-bg: 210 7% 94%;
+    --information-bg: 200 100% 94%;
+
+    /* Shadow color base */
+    --shadow-color: 210 30% 13%;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     EVENING HORIZON (Dark Mode)
+     SAP Fiori Design Web v1.145
+     ══════════════════════════════════════════════════════════ */
+  .dark {
+    --background: 210 21% 11%;          /* #12171C */
+    --foreground: 210 7% 96%;           /* #F5F6F7 */
+
+    --card: 210 18% 14%;               /* #1D232A */
+    --card-foreground: 210 7% 96%;
+
+    --popover: 210 18% 14%;
+    --popover-foreground: 210 7% 96%;
+
+    --primary: 210 100% 65%;            /* #4DB1FF */
+    --primary-foreground: 210 30% 10%;
+    --primary-light: 213 35% 18%;       /* #1D2D3E */
+    --primary-glow: 210 100% 65%;
+
+    --secondary: 216 16% 11%;           /* #171B21 */
+    --secondary-foreground: 210 7% 96%;
+
+    --muted: 216 16% 11%;
+    --muted-foreground: 210 20% 59%;    /* #8396A8 */
+
+    --accent: 210 100% 65%;
+    --accent-foreground: 210 30% 10%;
+
+    --destructive: 0 95% 68%;           /* #FA6161 */
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 94 68% 56%;              /* #97DD40 */
+    --success-foreground: 0 0% 10%;
+
+    --warning: 46 100% 72%;             /* #FFDF72 */
+    --warning-foreground: 0 0% 10%;
+
+    --info: 210 100% 65%;               /* #4DB1FF */
+    --info-foreground: 0 0% 100%;
+
+    --neutral: 210 13% 70%;             /* #A9B4BE */
+    --neutral-foreground: 0 0% 100%;
+
+    --border: 212 18% 22%;              /* #2E3742 */
+    --input: 212 18% 22%;
+    --ring: 210 100% 65%;
+
+    --sidebar-background: 210 21% 9%;
+    --sidebar-foreground: 210 7% 90%;
+    --sidebar-primary: 210 100% 65%;
+    --sidebar-primary-foreground: 210 30% 10%;
+    --sidebar-accent: 210 18% 16%;
+    --sidebar-accent-foreground: 210 7% 96%;
+    --sidebar-border: 212 18% 22%;
+    --sidebar-ring: 210 100% 65%;
+    --sidebar-muted: 210 20% 59%;
+
+    --gov-header: 210 21% 9%;
+    --gov-header-foreground: 210 7% 96%;
+
+    --surface: 210 18% 14%;
+
+    /* Fiori Accent Colors (Evening Horizon) */
+    --fiori-accent-1: 46 100% 72%;      /* #FFDF72 */
+    --fiori-accent-2: 340 100% 77%;     /* #FF8CB2 */
+    --fiori-accent-3: 340 95% 90%;      /* #FECBDA */
+    --fiori-accent-4: 310 100% 84%;     /* #FFAFED */
+    --fiori-accent-5: 267 100% 86%;     /* #D3B6FF */
+    --fiori-accent-6: 203 100% 83%;     /* #A6E0FF */
+    --fiori-accent-7: 166 81% 66%;      /* #64EDD2 */
+    --fiori-accent-8: 91 70% 62%;       /* #BDE986 */
+    --fiori-accent-9: 269 53% 73%;      /* #B995E0 */
+    --fiori-accent-10: 210 10% 85%;     /* #D5DADD */
+
+    /* Semantic Background Colors (Evening Horizon) */
+    --negative-bg: 0 100% 14%;          /* #490000 */
+    --critical-bg: 44 100% 11%;         /* #382700 */
+    --positive-bg: 143 51% 16%;         /* #143E20 */
+    --neutral-bg: 212 22% 18%;          /* #242E38 */
+    --information-bg: 224 100% 15%;     /* #00144A */
+
+    --shadow-color: 0 0% 0%;
   }
 }
 
@@ -116,54 +187,48 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    /* SAP 72 → Inter fallback chain (72 is proprietary, Inter is closest OSS match) */
     font-family: '72', '72full', 'Inter', Arial, Helvetica, sans-serif;
   }
 
-  /* ── SAP Fiori Typography Scale (Horizon) ── */
-  h1 { @apply text-3xl font-black tracking-tight; }          /* Header 1 – 36px Black */
-  h2 { @apply text-2xl font-bold tracking-tight; }            /* Header 2 – 24px Bold */
-  h3 { @apply text-xl font-bold; }                             /* Header 3 – 20px Bold */
-  h4 { @apply text-lg font-semibold; }                         /* Header 4 – 18px SemiBold */
-  h5 { @apply text-base font-semibold; }                       /* Header 5 – 16px SemiBold */
-  h6 { @apply text-sm font-semibold; }                         /* Header 6 – 14px SemiBold */
+  /* SAP Fiori Typography Scale (Horizon) */
+  h1 { @apply text-3xl font-black tracking-tight; }
+  h2 { @apply text-2xl font-bold tracking-tight; }
+  h3 { @apply text-xl font-bold; }
+  h4 { @apply text-lg font-semibold; }
+  h5 { @apply text-base font-semibold; }
+  h6 { @apply text-sm font-semibold; }
 }
 
 @layer utilities {
-  /* ── Gradients ── */
   .text-gradient-primary {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(213 100% 47%), hsl(218 100% 41%));
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
   }
 
-  /* ── SAP Fiori Shadow Levels (Morning Horizon) ── */
-  /* Level 0 – Tiles on overview page (flat, no shadow) */
+  /* SAP Fiori Shadow Levels */
   .shadow-fiori-0 {
     box-shadow: none;
   }
-  /* Level 1 – Action sheets, floating footers, menus */
   .shadow-fiori-1 {
-    box-shadow: 0 1px 4px 0 rgba(19, 30, 41, 0.08),
-                0 1px 2px 0 rgba(19, 30, 41, 0.04);
+    box-shadow: 0 1px 4px 0 hsl(var(--shadow-color) / 0.08),
+                0 1px 2px 0 hsl(var(--shadow-color) / 0.04);
   }
-  /* Level 2 – Popovers, message toasts, notifications */
   .shadow-fiori-2 {
-    box-shadow: 0 4px 16px 0 rgba(19, 30, 41, 0.12),
-                0 2px 4px 0 rgba(19, 30, 41, 0.06);
+    box-shadow: 0 4px 16px 0 hsl(var(--shadow-color) / 0.12),
+                0 2px 4px 0 hsl(var(--shadow-color) / 0.06);
   }
-  /* Level 3 – Dialogs */
   .shadow-fiori-3 {
-    box-shadow: 0 8px 32px 0 rgba(19, 30, 41, 0.16),
-                0 4px 8px 0 rgba(19, 30, 41, 0.08);
+    box-shadow: 0 8px 32px 0 hsl(var(--shadow-color) / 0.16),
+                0 4px 8px 0 hsl(var(--shadow-color) / 0.08);
   }
 
-  /* Legacy aliases → mapped to Fiori levels */
+  /* Legacy aliases */
   .shadow-card {
-    box-shadow: 0 1px 4px 0 rgba(19, 30, 41, 0.08),
-                0 1px 2px 0 rgba(19, 30, 41, 0.04);
+    box-shadow: 0 1px 4px 0 hsl(var(--shadow-color) / 0.08),
+                0 1px 2px 0 hsl(var(--shadow-color) / 0.04);
   }
   .shadow-card-hover {
-    box-shadow: 0 4px 16px 0 rgba(19, 30, 41, 0.12),
-                0 2px 4px 0 rgba(19, 30, 41, 0.06);
+    box-shadow: 0 4px 16px 0 hsl(var(--shadow-color) / 0.12),
+                0 2px 4px 0 hsl(var(--shadow-color) / 0.06);
   }
 }
