@@ -4,64 +4,109 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ──────────────────────────────────────────────────────────
+   SAP Fiori – Morning Horizon Design Tokens
+   Ref: SAP Fiori Design Web v1.145 – Visual Foundations
+   ────────────────────────────────────────────────────────── */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 210 20% 12%;
+    /* ── Typography ── */
+    /* Primary: SAP 72 (proprietary) → fallback to Inter + system sans */
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 20% 12%;
+    /* ── Morning Horizon – Primary Colors ── */
+    --background: 210 7% 96%;           /* #F5F6F7  – Home / App Background */
+    --foreground: 210 30% 13%;          /* #131E29  – Text and Titles */
+
+    --card: 0 0% 100%;                  /* #FFFFFF  – Card / Container Background */
+    --card-foreground: 210 30% 13%;     /* #131E29 */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 20% 12%;
+    --popover-foreground: 210 30% 13%;
 
-    --primary: 210 100% 30%;
+    /* Brand / Highlight – #0070F2 */
+    --primary: 213 100% 47%;
     --primary-foreground: 0 0% 100%;
 
-    --primary-light: 210 100% 95%;
-    --primary-glow: 210 90% 50%;
+    /* Selection highlight – #EBF8FF */
+    --primary-light: 200 100% 96%;
+    /* Accent 6 – #0057D2 */
+    --primary-glow: 218 100% 41%;
 
-    --secondary: 210 15% 96%;
-    --secondary-foreground: 210 20% 12%;
+    /* Table Group Header / Neutral BG – #EFF1F2 */
+    --secondary: 210 7% 94%;
+    --secondary-foreground: 210 30% 13%;
 
-    --muted: 210 15% 96%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 210 7% 94%;               /* #EFF1F2 */
+    --muted-foreground: 210 21% 42%;    /* #556B82  – Subtitles and Labels */
 
-    --accent: 210 90% 50%;
+    /* Information – #0070F2 */
+    --accent: 213 100% 47%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    /* Semantic – Negative #AA0808 */
+    --destructive: 0 91% 35%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 145 63% 42%;
+    /* Semantic – Positive #256F3A */
+    --success: 137 50% 29%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    /* Semantic – Critical #E76500 */
+    --warning: 26 100% 45%;
     --warning-foreground: 0 0% 100%;
 
-    --info: 210 90% 50%;
+    /* Semantic – Information #0070F2 */
+    --info: 213 100% 47%;
     --info-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 210 100% 30%;
+    /* Semantic – Neutral #788FA6 */
+    --neutral: 210 17% 56%;
+    --neutral-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    /* ── Grayscale / Borders ── */
+    --border: 210 7% 87%;              /* #D9D9D9  – Header / Container Borders */
+    --input: 0 0% 90%;                 /* #E5E5E5  – List / Table Borders */
+    --ring: 213 100% 47%;              /* Brand focus ring */
 
-    --sidebar-background: 210 100% 18%;
-    --sidebar-foreground: 210 30% 90%;
-    --sidebar-primary: 210 90% 50%;
+    --radius: 0.5rem;                  /* Fiori Horizon: 8px base radius */
+
+    /* ── Shell / Sidebar (SAP Fiori Shell Bar) ── */
+    --sidebar-background: 210 50% 14%;
+    --sidebar-foreground: 210 20% 88%;
+    --sidebar-primary: 213 100% 47%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 100% 22%;
+    --sidebar-accent: 210 40% 20%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 80% 25%;
-    --sidebar-ring: 210 90% 50%;
-    --sidebar-muted: 210 40% 70%;
+    --sidebar-border: 210 30% 24%;
+    --sidebar-ring: 213 100% 47%;
+    --sidebar-muted: 210 20% 65%;
 
-    --gov-header: 210 100% 18%;
+    /* ── Gov Header (SAP Shell Bar – dark) ── */
+    --gov-header: 210 50% 14%;
     --gov-header-foreground: 0 0% 100%;
 
-    --surface: 210 20% 98%;
+    /* ── Surface – slightly off-white ── */
+    --surface: 210 7% 96%;
+
+    /* ── SAP Fiori Accent Colors ── */
+    --fiori-accent-1: 31 100% 41%;     /* #D27700 */
+    --fiori-accent-2: 0 91% 35%;      /* #AA0808 */
+    --fiori-accent-3: 329 94% 38%;    /* #BA066C */
+    --fiori-accent-4: 290 100% 38%;   /* #A100C2 */
+    --fiori-accent-5: 254 100% 61%;   /* #5D36FF */
+    --fiori-accent-6: 218 100% 41%;   /* #0057D2 */
+    --fiori-accent-7: 186 94% 25%;    /* #046C7A */
+    --fiori-accent-8: 137 50% 29%;    /* #256F3A */
+    --fiori-accent-9: 275 54% 43%;    /* #6C32A9 */
+    --fiori-accent-10: 210 21% 45%;   /* #5B738B */
+
+    /* ── Semantic Background Colors ── */
+    --negative-bg: 330 100% 96%;       /* #FFEAF4 */
+    --critical-bg: 46 100% 92%;        /* #FFF8D6 */
+    --positive-bg: 84 53% 94%;         /* #F5FAE5 */
+    --neutral-bg: 210 7% 94%;          /* #EFF1F2 */
+    --information-bg: 200 100% 94%;    /* #E1F4FF */
   }
 }
 
@@ -71,19 +116,54 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* SAP 72 → Inter fallback chain (72 is proprietary, Inter is closest OSS match) */
+    font-family: '72', '72full', 'Inter', Arial, Helvetica, sans-serif;
   }
+
+  /* ── SAP Fiori Typography Scale (Horizon) ── */
+  h1 { @apply text-3xl font-black tracking-tight; }          /* Header 1 – 36px Black */
+  h2 { @apply text-2xl font-bold tracking-tight; }            /* Header 2 – 24px Bold */
+  h3 { @apply text-xl font-bold; }                             /* Header 3 – 20px Bold */
+  h4 { @apply text-lg font-semibold; }                         /* Header 4 – 18px SemiBold */
+  h5 { @apply text-base font-semibold; }                       /* Header 5 – 16px SemiBold */
+  h6 { @apply text-sm font-semibold; }                         /* Header 6 – 14px SemiBold */
 }
 
 @layer utilities {
+  /* ── Gradients ── */
   .text-gradient-primary {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(210 100% 30%), hsl(210 90% 50%));
+    background-image: linear-gradient(135deg, hsl(213 100% 47%), hsl(218 100% 41%));
   }
+
+  /* ── SAP Fiori Shadow Levels (Morning Horizon) ── */
+  /* Level 0 – Tiles on overview page (flat, no shadow) */
+  .shadow-fiori-0 {
+    box-shadow: none;
+  }
+  /* Level 1 – Action sheets, floating footers, menus */
+  .shadow-fiori-1 {
+    box-shadow: 0 1px 4px 0 rgba(19, 30, 41, 0.08),
+                0 1px 2px 0 rgba(19, 30, 41, 0.04);
+  }
+  /* Level 2 – Popovers, message toasts, notifications */
+  .shadow-fiori-2 {
+    box-shadow: 0 4px 16px 0 rgba(19, 30, 41, 0.12),
+                0 2px 4px 0 rgba(19, 30, 41, 0.06);
+  }
+  /* Level 3 – Dialogs */
+  .shadow-fiori-3 {
+    box-shadow: 0 8px 32px 0 rgba(19, 30, 41, 0.16),
+                0 4px 8px 0 rgba(19, 30, 41, 0.08);
+  }
+
+  /* Legacy aliases → mapped to Fiori levels */
   .shadow-card {
-    box-shadow: 0 1px 3px 0 hsl(210 20% 12% / 0.06), 0 1px 2px -1px hsl(210 20% 12% / 0.04);
+    box-shadow: 0 1px 4px 0 rgba(19, 30, 41, 0.08),
+                0 1px 2px 0 rgba(19, 30, 41, 0.04);
   }
   .shadow-card-hover {
-    box-shadow: 0 4px 12px 0 hsl(210 20% 12% / 0.1), 0 2px 4px -1px hsl(210 20% 12% / 0.06);
+    box-shadow: 0 4px 16px 0 rgba(19, 30, 41, 0.12),
+                0 2px 4px 0 rgba(19, 30, 41, 0.06);
   }
 }
