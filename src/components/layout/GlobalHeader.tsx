@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/use-auth";
+import { useTheme } from "@/hooks/use-theme";
 import { NavLink } from "@/components/NavLink";
 import AppSwitcher from "./AppSwitcher";
 import {
@@ -10,6 +11,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
