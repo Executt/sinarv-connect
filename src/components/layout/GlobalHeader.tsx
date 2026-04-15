@@ -95,6 +95,7 @@ const GlobalHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, hasRole } = useAuth();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const isSuperAdmin = hasRole("super_admin" as any);
 
