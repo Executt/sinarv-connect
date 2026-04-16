@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        /* SAP 72 → Inter fallback (72 is proprietary) */
-        sans: ["72", "72full", "Inter", "Arial", "Helvetica", "sans-serif"],
+        /* CRM Desktop — Inter as primary */
+        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Arial", "Helvetica", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -109,8 +109,8 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "var(--radius-sm, calc(var(--radius) - 2px))",
+        sm: "calc(var(--radius-sm, var(--radius)) - 2px)",
       },
       boxShadow: {
         /* SAP Fiori Shadow Levels */

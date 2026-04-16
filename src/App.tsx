@@ -58,6 +58,7 @@ import AdminContenedores from "./pages/admin/AdminContenedores";
 import AdminLocalizacoes from "./pages/admin/AdminLocalizacoes";
 import AdminIntegracoes from "./pages/admin/AdminIntegracoes";
 import AdminParametros from "./pages/admin/AdminParametros";
+import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 
 const queryClient = new QueryClient();
 
@@ -142,11 +143,28 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<Navigate to="/admin/painel" replace />} />
+              {/* Sistema */}
               <Route path="painel" element={<AdminPainel />} />
+              <Route path="parametros" element={<AdminParametros />} />
+              <Route path="regras-negocio" element={<AdminPlaceholder title="Regras de Negócio" description="Editor de parâmetros tipados (numeric/bool/enum/lista) com validação e versionamento." phase="Fase 3" />} />
+              <Route path="banco-dados" element={<AdminPlaceholder title="Banco de Dados" description="Métricas read-only do PostgreSQL: versão, tamanho, conexões ativas, top queries." phase="Fase 3" />} />
+              <Route path="logs" element={<AdminPlaceholder title="Logs do Sistema" description="Visualizador unificado de admin_session_logs, role_audit_logs e app_logs_sistema com filtros." phase="Fase 3" />} />
+              {/* Identidade & Acesso */}
+              <Route path="usuarios" element={<AdminPlaceholder title="Usuários" description="CRUD de usuários com filtros por role, entidade e status; ações de bloqueio/reset." phase="Fase 4" />} />
+              <Route path="perfis-usuario" element={<AdminPlaceholder title="Perfis de Usuário" description="Gestão de roles do sistema e permissões granulares por módulo." phase="Fase 4" />} />
+              <Route path="perfis-entidade" element={<AdminPlaceholder title="Perfis de Entidade" description="Templates de perfil por tipo de entidade (cooperativa, indústria, ponto de coleta)." phase="Fase 4" />} />
+              <Route path="ldap" element={<AdminPlaceholder title="LDAP / Active Directory" description="Configuração de servidor LDAP, bind credentials, base DN, mapeamento de atributos e cadastro automático de usuários." phase="Fase 4" />} />
+              {/* Integrações */}
+              <Route path="integracoes" element={<AdminIntegracoes />} />
+              <Route path="webhooks" element={<AdminPlaceholder title="Webhooks" description="CRUD de webhooks com eventos suscritos, header customizado, retry policy e log de envios." phase="Fase 5" />} />
+              <Route path="sei" element={<AdminPlaceholder title="SEI" description="Configuração de integração com Sistema Eletrônico de Informações (URL, token, unidade)." phase="Fase 5" />} />
+              <Route path="notificacoes" element={<AdminPlaceholder title="Notificações" description="Configuração multi-canal: SMTP, Microsoft Teams, SMS, WhatsApp Business e Telegram, com templates por evento." phase="Fase 5" />} />
+              {/* Operacional */}
               <Route path="contenedores" element={<AdminContenedores />} />
               <Route path="localizacoes" element={<AdminLocalizacoes />} />
-              <Route path="integracoes" element={<AdminIntegracoes />} />
-              <Route path="parametros" element={<AdminParametros />} />
+              <Route path="iot" element={<AdminPlaceholder title="Inventário IoT" description="Catálogo de modelos de dispositivos (sensores de nível, balanças, RFID) e instâncias vinculadas a contenedores." phase="Fase 3" />} />
+              <Route path="listas" element={<AdminPlaceholder title="Listas Suspensas" description="CRUD de listas e opções reutilizáveis em formulários do sistema." phase="Fase 3" />} />
+              <Route path="acoes-automaticas" element={<AdminPlaceholder title="Ações Automáticas" description="Builder visual de gatilhos: evento → condição → ação (ex: nível alto → notificar coleta)." phase="Fase 3" />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
