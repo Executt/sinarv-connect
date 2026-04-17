@@ -46,11 +46,15 @@ const AdminListasSuspensas = () => {
     mutationFn: async (payload: any) => {
       const parsed = schema.safeParse(payload);
       if (!parsed.success) throw new Error(parsed.error.issues[0].message);
+      const row = {
+        categoria: parsed.data.categoria, codigo: parsed.data.codigo,
+        rotulo: parsed.data.rotulo, ordem: parsed.data.ordem, ativo: parsed.data.ativo,
+      };
       if (editing) {
-        const { error } = await supabase.from("app_listas_suspensas").update(parsed.data).eq("id", editing.id);
+        const { error } = await supabase.from("app_listas_suspensas").update(row).eq("id", editing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("app_listas_suspensas").insert(parsed.data);
+        const { error } = await supabase.from("app_listas_suspensas").insert(row);
         if (error) throw error;
       }
     },
