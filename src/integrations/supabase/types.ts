@@ -80,6 +80,162 @@ export type Database = {
         }
         Relationships: []
       }
+      app_acoes_automaticas: {
+        Row: {
+          acao_config: Json
+          acao_tipo: string
+          ativo: boolean
+          condicao: Json
+          created_at: string
+          descricao: string
+          evento: string
+          id: string
+          nome: string
+          total_execucoes: number
+          ultimo_disparo: string | null
+          updated_at: string
+        }
+        Insert: {
+          acao_config?: Json
+          acao_tipo: string
+          ativo?: boolean
+          condicao?: Json
+          created_at?: string
+          descricao?: string
+          evento: string
+          id?: string
+          nome: string
+          total_execucoes?: number
+          ultimo_disparo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          acao_config?: Json
+          acao_tipo?: string
+          ativo?: boolean
+          condicao?: Json
+          created_at?: string
+          descricao?: string
+          evento?: string
+          id?: string
+          nome?: string
+          total_execucoes?: number
+          ultimo_disparo?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      app_listas_suspensas: {
+        Row: {
+          ativo: boolean
+          categoria: string
+          codigo: string
+          created_at: string
+          id: string
+          metadados: Json
+          ordem: number
+          rotulo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria: string
+          codigo: string
+          created_at?: string
+          id?: string
+          metadados?: Json
+          ordem?: number
+          rotulo: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string
+          codigo?: string
+          created_at?: string
+          id?: string
+          metadados?: Json
+          ordem?: number
+          rotulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      app_logs_sistema: {
+        Row: {
+          acao: string
+          contexto: Json
+          created_at: string
+          id: string
+          ip_address: string | null
+          mensagem: string
+          modulo: string
+          nivel: string
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          contexto?: Json
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          mensagem: string
+          modulo: string
+          nivel?: string
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          contexto?: Json
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          mensagem?: string
+          modulo?: string
+          nivel?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      app_regras_negocio: {
+        Row: {
+          ativo: boolean
+          chave: string
+          created_at: string
+          descricao: string
+          escopo: string
+          id: string
+          nome: string
+          tipo: string
+          updated_at: string
+          valor: Json
+        }
+        Insert: {
+          ativo?: boolean
+          chave: string
+          created_at?: string
+          descricao?: string
+          escopo?: string
+          id?: string
+          nome: string
+          tipo?: string
+          updated_at?: string
+          valor?: Json
+        }
+        Update: {
+          ativo?: boolean
+          chave?: string
+          created_at?: string
+          descricao?: string
+          escopo?: string
+          id?: string
+          nome?: string
+          tipo?: string
+          updated_at?: string
+          valor?: Json
+        }
+        Relationships: []
+      }
       auditorias: {
         Row: {
           auditor: string
@@ -442,6 +598,39 @@ export type Database = {
         }
         Relationships: []
       }
+      entidades_perfis: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string
+          id: string
+          nome: string
+          permissoes: Json
+          tipo_entidade: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome: string
+          permissoes?: Json
+          tipo_entidade: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome?: string
+          permissoes?: Json
+          tipo_entidade?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       indicadores_sustentabilidade: {
         Row: {
           id: string
@@ -495,6 +684,233 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      iot_dispositivos_instancias: {
+        Row: {
+          apelido: string | null
+          bateria_percent: number | null
+          config: Json
+          contenedor_localizacao_id: string | null
+          created_at: string
+          id: string
+          modelo_id: string
+          serial_number: string
+          sinal_dbm: number | null
+          status: string
+          ultimo_heartbeat: string | null
+          updated_at: string
+        }
+        Insert: {
+          apelido?: string | null
+          bateria_percent?: number | null
+          config?: Json
+          contenedor_localizacao_id?: string | null
+          created_at?: string
+          id?: string
+          modelo_id: string
+          serial_number: string
+          sinal_dbm?: number | null
+          status?: string
+          ultimo_heartbeat?: string | null
+          updated_at?: string
+        }
+        Update: {
+          apelido?: string | null
+          bateria_percent?: number | null
+          config?: Json
+          contenedor_localizacao_id?: string | null
+          created_at?: string
+          id?: string
+          modelo_id?: string
+          serial_number?: string
+          sinal_dbm?: number | null
+          status?: string
+          ultimo_heartbeat?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iot_dispositivos_instancias_contenedor_localizacao_id_fkey"
+            columns: ["contenedor_localizacao_id"]
+            isOneToOne: false
+            referencedRelation: "contenedor_localizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iot_dispositivos_instancias_modelo_id_fkey"
+            columns: ["modelo_id"]
+            isOneToOne: false
+            referencedRelation: "iot_dispositivos_modelos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iot_dispositivos_modelos: {
+        Row: {
+          ativo: boolean
+          capacidades: Json
+          categoria: string
+          config_padrao: Json
+          created_at: string
+          fabricante: string
+          firmware_versao: string | null
+          id: string
+          modelo: string
+          nome: string
+          protocolo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          capacidades?: Json
+          categoria?: string
+          config_padrao?: Json
+          created_at?: string
+          fabricante: string
+          firmware_versao?: string | null
+          id?: string
+          modelo: string
+          nome: string
+          protocolo?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          capacidades?: Json
+          categoria?: string
+          config_padrao?: Json
+          created_at?: string
+          fabricante?: string
+          firmware_versao?: string | null
+          id?: string
+          modelo?: string
+          nome?: string
+          protocolo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ldap_config: {
+        Row: {
+          ativo: boolean
+          atributo_email: string
+          atributo_grupo: string
+          atributo_login: string
+          atributo_nome: string
+          base_dn: string
+          bind_dn: string
+          bind_password_secret_ref: string | null
+          cadastro_automatico: boolean
+          created_at: string
+          group_filter: string
+          host: string
+          id: string
+          intervalo_sync_min: number
+          mapeamento_grupos: Json
+          nome: string
+          porta: number
+          ultima_sync: string | null
+          updated_at: string
+          use_ssl: boolean
+          use_tls: boolean
+          user_filter: string
+        }
+        Insert: {
+          ativo?: boolean
+          atributo_email?: string
+          atributo_grupo?: string
+          atributo_login?: string
+          atributo_nome?: string
+          base_dn: string
+          bind_dn: string
+          bind_password_secret_ref?: string | null
+          cadastro_automatico?: boolean
+          created_at?: string
+          group_filter?: string
+          host: string
+          id?: string
+          intervalo_sync_min?: number
+          mapeamento_grupos?: Json
+          nome: string
+          porta?: number
+          ultima_sync?: string | null
+          updated_at?: string
+          use_ssl?: boolean
+          use_tls?: boolean
+          user_filter?: string
+        }
+        Update: {
+          ativo?: boolean
+          atributo_email?: string
+          atributo_grupo?: string
+          atributo_login?: string
+          atributo_nome?: string
+          base_dn?: string
+          bind_dn?: string
+          bind_password_secret_ref?: string | null
+          cadastro_automatico?: boolean
+          created_at?: string
+          group_filter?: string
+          host?: string
+          id?: string
+          intervalo_sync_min?: number
+          mapeamento_grupos?: Json
+          nome?: string
+          porta?: number
+          ultima_sync?: string | null
+          updated_at?: string
+          use_ssl?: boolean
+          use_tls?: boolean
+          user_filter?: string
+        }
+        Relationships: []
+      }
+      ldap_sync_log: {
+        Row: {
+          detalhes: Json
+          erros: number
+          finalizado_em: string | null
+          id: string
+          iniciado_em: string
+          ldap_config_id: string
+          mensagem: string | null
+          status: string
+          usuarios_atualizados: number
+          usuarios_criados: number
+        }
+        Insert: {
+          detalhes?: Json
+          erros?: number
+          finalizado_em?: string | null
+          id?: string
+          iniciado_em?: string
+          ldap_config_id: string
+          mensagem?: string | null
+          status?: string
+          usuarios_atualizados?: number
+          usuarios_criados?: number
+        }
+        Update: {
+          detalhes?: Json
+          erros?: number
+          finalizado_em?: string | null
+          id?: string
+          iniciado_em?: string
+          ldap_config_id?: string
+          mensagem?: string | null
+          status?: string
+          usuarios_atualizados?: number
+          usuarios_criados?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ldap_sync_log_ldap_config_id_fkey"
+            columns: ["ldap_config_id"]
+            isOneToOne: false
+            referencedRelation: "ldap_config"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lotes: {
         Row: {
@@ -663,6 +1079,54 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usuarios_perfis_extra: {
+        Row: {
+          ativo: boolean
+          cargo: string | null
+          created_at: string
+          departamento: string | null
+          entidade_id: string | null
+          entidade_tipo: string | null
+          id: string
+          ldap_dn: string | null
+          origem_cadastro: string
+          telefone: string | null
+          ultimo_login: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          cargo?: string | null
+          created_at?: string
+          departamento?: string | null
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          id?: string
+          ldap_dn?: string | null
+          origem_cadastro?: string
+          telefone?: string | null
+          ultimo_login?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean
+          cargo?: string | null
+          created_at?: string
+          departamento?: string | null
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          id?: string
+          ldap_dn?: string | null
+          origem_cadastro?: string
+          telefone?: string | null
+          ultimo_login?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
