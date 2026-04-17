@@ -59,6 +59,16 @@ import AdminLocalizacoes from "./pages/admin/AdminLocalizacoes";
 import AdminIntegracoes from "./pages/admin/AdminIntegracoes";
 import AdminParametros from "./pages/admin/AdminParametros";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
+import AdminRegrasNegocio from "./pages/admin/AdminRegrasNegocio";
+import AdminListasSuspensas from "./pages/admin/AdminListasSuspensas";
+import AdminAcoesAutomaticas from "./pages/admin/AdminAcoesAutomaticas";
+import AdminLogs from "./pages/admin/AdminLogs";
+import AdminBancoDados from "./pages/admin/AdminBancoDados";
+import AdminInventarioIoT from "./pages/admin/AdminInventarioIoT";
+import AdminUsuarios from "./pages/admin/AdminUsuarios";
+import AdminPerfisUsuario from "./pages/admin/AdminPerfisUsuario";
+import AdminPerfisEntidade from "./pages/admin/AdminPerfisEntidade";
+import AdminLDAP from "./pages/admin/AdminLDAP";
 
 const queryClient = new QueryClient();
 
