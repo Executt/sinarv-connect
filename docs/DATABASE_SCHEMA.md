@@ -1,6 +1,6 @@
 # SINARV — Schema do Banco de Dados
 
-Versão: 4.0 | Atualizado: 2026-04-14
+Versão: 5.0 | Atualizado: 2026-04-18
 
 ---
 
@@ -172,3 +172,58 @@ contenedores (1) ──────▶ (N) contenedor_localizacoes
 | `has_role(_user_id, _role)` | SECURITY DEFINER | Verifica role sem recursão RLS |
 | `handle_new_user()` | TRIGGER | Cria profile ao registrar usuário |
 | `update_updated_at_column()` | TRIGGER | Atualiza timestamp em updates |
+
+---
+
+## 12. Tabelas do Módulo Admin — Sistema & Operacional (Fase 3)
+
+| Tabela | Campos-chave |
+|--------|-------------|
+| `app_regras_negocio` | chave (UNIQUE), nome, descricao, escopo, tipo (string/number/boolean/json), valor (JSONB), ativo |
+| `app_listas_suspensas` | categoria, codigo, rotulo, ordem, metadados (JSONB), ativo |
+| `app_acoes_automaticas` | nome, evento, condicao (JSONB), acao_tipo, acao_config (JSONB), total_execucoes, ultimo_disparo, ativo |
+| `app_logs_sistema` | nivel (info/warn/error/debug), modulo, acao, mensagem, contexto (JSONB), user_id, ip_address |
+| `iot_dispositivos_modelos` | fabricante, modelo, nome, categoria (sensor/actuator/gateway), protocolo (mqtt/http/lorawan), firmware_versao, capacidades (JSONB), config_padrao (JSONB) |
+| `iot_dispositivos_instancias` | modelo_id (FK), serial_number, apelido, contenedor_localizacao_id (FK), status, bateria_percent, sinal_dbm, ultimo_heartbeat, config (JSONB) |
+
+**RLS:** Todas restritas a `super_admin` ou `gov` (CRUD completo). `app_logs_sistema` permite INSERT por qualquer autenticado.
+
+---
+
+## 13. Tabelas do Módulo Admin — Identidade & Acesso (Fase 4)
+
+| Tabela | Campos-chave |
+|--------|-------------|
+| `entidades_perfis` | nome, descricao, tipo_entidade (cooperativa/industria/ponto_coleta/gov), permissoes (JSONB array), ativo |
+| `usuarios_perfis_extra` | user_id (FK→auth.users), telefone, cargo, departamento, entidade_tipo, entidade_id, origem_cadastro (manual/ldap/sso), ldap_dn, ultimo_login, ativo |
+| `ldap_config` | nome, host, porta, use_ssl, use_tls, base_dn, bind_dn, bind_password_secret_ref, user_filter, group_filter, atributo_login/email/nome/grupo, mapeamento_grupos (JSONB), cadastro_automatico, intervalo_sync_min, ultima_sync, ativo |
+| `ldap_sync_log` | ldap_config_id (FK), iniciado_em, finalizado_em, status, usuarios_criados, usuarios_atualizados, erros, mensagem, detalhes (JSONB) |
+
+**RLS:** Restritas a `super_admin` ou `gov`. `ldap_sync_log` é append-only.
+
+---
+
+## 14. Tabelas do Módulo Admin — Integrações & Notificações (Fase 5)
+
+| Tabela | Campos-chave |
+|--------|-------------|
+| `integracao_webhooks` | nome, descricao, url, metodo, eventos (JSONB array), headers (JSONB), secret_token, retry_max, retry_delay_seg, timeout_seg, total_envios, total_falhas, ultimo_envio, ativo |
+| `integracao_webhook_logs` | webhook_id (FK), evento, payload (JSONB), tentativa, status, http_status, resposta, erro, duracao_ms |
+| `integracao_sei` | nome, url_servico, sigla_sistema, identificacao_servico, unidade_padrao, token_secret_ref, tipo_processo_padrao, status_teste, ultimo_teste, metadados (JSONB), ativo |
+| `notif_canais` | nome, tipo (smtp/teams/sms/whatsapp/telegram), descricao, config (JSONB), secret_ref, total_envios, total_falhas, ultimo_envio, ativo |
+| `notif_templates` | nome, evento, canal_tipo, assunto, corpo, variaveis (JSONB array), ativo |
+| `notif_envios` | canal_id (FK), template_id (FK), evento, destinatario, assunto, corpo, status, erro |
+
+**RLS:** Restritas a `super_admin` ou `gov`. Logs (`integracao_webhook_logs`, `notif_envios`) são append-only.
+
+---
+
+## 15. Resumo de Crescimento de Esquema (Fases 3-5)
+
+| Fase | Tabelas adicionadas | Total de colunas | RLS Policies |
+|------|---------------------|------------------|--------------|
+| 3 — Sistema/Operacional | 6 | ~70 | 24 |
+| 4 — Identidade/Acesso | 4 | ~50 | 14 |
+| 5 — Integrações/Notificações | 6 | ~75 | 22 |
+| **Total** | **16** | **~195** | **60** |
+

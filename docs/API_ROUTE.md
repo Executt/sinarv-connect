@@ -1,6 +1,6 @@
 # SINARV — Rotas de API e Edge Functions
 
-Versão: 4.0 | Atualizado: 2026-04-14
+Versão: 5.0 | Atualizado: 2026-04-18
 
 ---
 
@@ -136,7 +136,11 @@ Cria o primeiro usuário super_admin no sistema. Uso único.
 | **Cooperativa** | `/cooperativa/painel`, `/cooperativa/recepcao`, `/cooperativa/lotes-entrada`, `/cooperativa/despacho`, `/cooperativa/faturamento`, `/cooperativa/cadastro` |
 | **Indústria** | `/industria/dashboard`, `/industria/metas-logisticas`, `/industria/integracao`, `/industria/certificados`, `/industria/cadastro` |
 | **Ponto de Coleta** | `/ponto-coleta/dashboard`, `/ponto-coleta/novo-recebimento`, `/ponto-coleta/historico`, `/ponto-coleta/metas`, `/ponto-coleta/servicos`, `/ponto-coleta/credenciamento`, `/ponto-coleta/configuracoes` |
-| **Administração** | `/admin/painel`, `/admin/contenedores`, `/admin/localizacoes`, `/admin/integracoes`, `/admin/parametros` |
+| **Administração — Hub** | `/admin/painel` |
+| **Admin — Parametrização** | `/admin/contenedores`, `/admin/localizacoes`, `/admin/parametros`, `/admin/regras-negocio`, `/admin/listas-suspensas`, `/admin/acoes-automaticas` |
+| **Admin — Sistema/Operacional** | `/admin/inventario-iot`, `/admin/logs`, `/admin/banco-dados` |
+| **Admin — Identidade & Acesso** | `/admin/usuarios`, `/admin/perfis-usuario`, `/admin/perfis-entidade`, `/admin/ldap` |
+| **Admin — Integrações** | `/admin/integracoes`, `/admin/webhooks`, `/admin/sei`, `/admin/notificacoes` |
 | **Público** | `/`, `/auth`, `/reset-password`, `/selecionar-perfil`, `/transparencia/mapa-reciclagem` |
 
 ---
@@ -159,6 +163,24 @@ Cria o primeiro usuário super_admin no sistema. Uso único.
 | `profiles` | Próprio + Gov | Próprio | Próprio | — |
 | `admin_session_logs` | Super Admin | Super Admin | — | — |
 | `role_audit_logs` | Gov | Autenticado | — | — |
+| `app_regras_negocio` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `app_listas_suspensas` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `app_acoes_automaticas` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `app_logs_sistema` | Admin/Gov | Autenticado | — | — |
+| `iot_dispositivos_modelos` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `iot_dispositivos_instancias` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `entidades_perfis` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `usuarios_perfis_extra` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `ldap_config` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `ldap_sync_log` | Admin/Gov | Admin/Gov | — | — |
+| `integracao_webhooks` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `integracao_webhook_logs` | Admin/Gov | Autenticado | — | — |
+| `integracao_sei` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `notif_canais` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `notif_templates` | Admin/Gov | Admin/Gov | Admin/Gov | Admin/Gov |
+| `notif_envios` | Admin/Gov | Autenticado | — | — |
+
+> **Admin/Gov** = `has_role(auth.uid(), 'super_admin')` OR `has_role(auth.uid(), 'gov')`
 
 ---
 
@@ -171,6 +193,18 @@ As tabelas de parametrização são consumidas diretamente via PostgREST (client
 | `contenedores` | SELECT, INSERT, UPDATE | AdminContenedores, PontoColetaServicos |
 | `contenedor_localizacoes` | SELECT, INSERT, UPDATE (com JOIN contenedores) | AdminLocalizacoes, PontoColetaServicos |
 | `configuracoes_integracoes` | SELECT, INSERT, UPDATE | AdminIntegracoes |
+| `app_regras_negocio` | CRUD completo | AdminRegrasNegocio |
+| `app_listas_suspensas` | CRUD completo | AdminListasSuspensas |
+| `app_acoes_automaticas` | CRUD completo | AdminAcoesAutomaticas |
+| `app_logs_sistema` | SELECT (filtros), INSERT (auditoria) | AdminLogs |
+| `iot_dispositivos_modelos` | CRUD completo | AdminInventarioIoT |
+| `iot_dispositivos_instancias` | CRUD completo (JOIN modelos + localizações) | AdminInventarioIoT |
+| `entidades_perfis` | CRUD completo | AdminPerfisEntidade |
+| `usuarios_perfis_extra` | CRUD (JOIN profiles) | AdminUsuarios |
+| `ldap_config` | CRUD completo | AdminLDAP |
+| `integracao_webhooks` | CRUD + invocação | AdminWebhooks |
+| `integracao_sei` | CRUD + teste de conexão | AdminSEI |
+| `notif_canais` / `notif_templates` | CRUD completo | AdminNotificacoes |
 
 ### Exemplos de Queries
 
@@ -181,6 +215,33 @@ supabase.from("contenedores").select("*").eq("ativo", true)
 // Listar ecopontos com tipo de contenedor (JOIN)
 supabase.from("contenedor_localizacoes").select("*, contenedores(nome, cor, material)")
 
-// Listar integrações por módulo
-supabase.from("configuracoes_integracoes").select("*").eq("modulo", "ponto_coleta")
+// Listar instâncias IoT com modelo + localização
+supabase.from("iot_dispositivos_instancias")
+  .select("*, iot_dispositivos_modelos(nome, fabricante), contenedor_localizacoes(nome_local, cidade)")
+
+// Filtrar logs por nível e módulo
+supabase.from("app_logs_sistema")
+  .select("*")
+  .eq("nivel", "error")
+  .eq("modulo", "ldap")
+  .order("created_at", { ascending: false })
+  .limit(100)
+
+// Inserir log de auditoria
+supabase.from("app_logs_sistema").insert({
+  nivel: "info", modulo: "admin", acao: "user.role.assigned",
+  mensagem: "Role gov atribuída", contexto: { user_id, role: "gov" }
+})
 ```
+
+---
+
+## 6. Edge Functions Roadmap (Fase 5+)
+
+| Função | Status | Descrição |
+|--------|--------|-----------|
+| `webhook-dispatch` | 📋 Planejado | Dispara webhooks de `integracao_webhooks` com retry/backoff e gravação em `integracao_webhook_logs` |
+| `notification-send` | 📋 Planejado | Roteia eventos para canais SMTP/Teams/SMS/WhatsApp/Telegram via templates |
+| `ldap-sync` | 📋 Planejado | Conecta ao LDAP configurado e sincroniza usuários para `auth.users` + `usuarios_perfis_extra` |
+| `sei-integration` | 📋 Planejado | Cliente SOAP/REST para o SEI (cria processo, anexa documento) |
+
