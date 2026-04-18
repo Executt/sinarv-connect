@@ -69,6 +69,9 @@ import AdminUsuarios from "./pages/admin/AdminUsuarios";
 import AdminPerfisUsuario from "./pages/admin/AdminPerfisUsuario";
 import AdminPerfisEntidade from "./pages/admin/AdminPerfisEntidade";
 import AdminLDAP from "./pages/admin/AdminLDAP";
+import AdminWebhooks from "./pages/admin/AdminWebhooks";
+import AdminSEI from "./pages/admin/AdminSEI";
+import AdminNotificacoes from "./pages/admin/AdminNotificacoes";
 
 const queryClient = new QueryClient();
 
@@ -166,9 +169,9 @@ const App = () => (
               <Route path="ldap" element={<AdminLDAP />} />
               {/* Integrações */}
               <Route path="integracoes" element={<AdminIntegracoes />} />
-              <Route path="webhooks" element={<AdminPlaceholder title="Webhooks" description="CRUD de webhooks com eventos suscritos, header customizado, retry policy e log de envios." phase="Fase 5" />} />
-              <Route path="sei" element={<AdminPlaceholder title="SEI" description="Configuração de integração com Sistema Eletrônico de Informações (URL, token, unidade)." phase="Fase 5" />} />
-              <Route path="notificacoes" element={<AdminPlaceholder title="Notificações" description="Configuração multi-canal: SMTP, Microsoft Teams, SMS, WhatsApp Business e Telegram, com templates por evento." phase="Fase 5" />} />
+              <Route path="webhooks" element={<AdminWebhooks />} />
+              <Route path="sei" element={<AdminSEI />} />
+              <Route path="notificacoes" element={<AdminNotificacoes />} />
               {/* Operacional */}
               <Route path="contenedores" element={<AdminContenedores />} />
               <Route path="localizacoes" element={<AdminLocalizacoes />} />

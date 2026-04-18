@@ -685,6 +685,167 @@ export type Database = {
         }
         Relationships: []
       }
+      integracao_sei: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          identificacao_servico: string
+          metadados: Json
+          nome: string
+          sigla_sistema: string
+          status_teste: string | null
+          tipo_processo_padrao: string | null
+          token_secret_ref: string | null
+          ultimo_teste: string | null
+          unidade_padrao: string
+          updated_at: string
+          url_servico: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          identificacao_servico: string
+          metadados?: Json
+          nome?: string
+          sigla_sistema: string
+          status_teste?: string | null
+          tipo_processo_padrao?: string | null
+          token_secret_ref?: string | null
+          ultimo_teste?: string | null
+          unidade_padrao: string
+          updated_at?: string
+          url_servico: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          identificacao_servico?: string
+          metadados?: Json
+          nome?: string
+          sigla_sistema?: string
+          status_teste?: string | null
+          tipo_processo_padrao?: string | null
+          token_secret_ref?: string | null
+          ultimo_teste?: string | null
+          unidade_padrao?: string
+          updated_at?: string
+          url_servico?: string
+        }
+        Relationships: []
+      }
+      integracao_webhook_logs: {
+        Row: {
+          created_at: string
+          duracao_ms: number | null
+          erro: string | null
+          evento: string
+          http_status: number | null
+          id: string
+          payload: Json
+          resposta: string | null
+          status: string
+          tentativa: number
+          webhook_id: string
+        }
+        Insert: {
+          created_at?: string
+          duracao_ms?: number | null
+          erro?: string | null
+          evento: string
+          http_status?: number | null
+          id?: string
+          payload?: Json
+          resposta?: string | null
+          status?: string
+          tentativa?: number
+          webhook_id: string
+        }
+        Update: {
+          created_at?: string
+          duracao_ms?: number | null
+          erro?: string | null
+          evento?: string
+          http_status?: number | null
+          id?: string
+          payload?: Json
+          resposta?: string | null
+          status?: string
+          tentativa?: number
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integracao_webhook_logs_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "integracao_webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integracao_webhooks: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string
+          eventos: Json
+          headers: Json
+          id: string
+          metodo: string
+          nome: string
+          retry_delay_seg: number
+          retry_max: number
+          secret_token: string | null
+          timeout_seg: number
+          total_envios: number
+          total_falhas: number
+          ultimo_envio: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string
+          eventos?: Json
+          headers?: Json
+          id?: string
+          metodo?: string
+          nome: string
+          retry_delay_seg?: number
+          retry_max?: number
+          secret_token?: string | null
+          timeout_seg?: number
+          total_envios?: number
+          total_falhas?: number
+          ultimo_envio?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string
+          eventos?: Json
+          headers?: Json
+          id?: string
+          metodo?: string
+          nome?: string
+          retry_delay_seg?: number
+          retry_max?: number
+          secret_token?: string | null
+          timeout_seg?: number
+          total_envios?: number
+          total_falhas?: number
+          ultimo_envio?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       iot_dispositivos_instancias: {
         Row: {
           apelido: string | null
@@ -948,6 +1109,144 @@ export type Database = {
           peso?: string
           status?: Database["public"]["Enums"]["lote_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      notif_canais: {
+        Row: {
+          ativo: boolean
+          config: Json
+          created_at: string
+          descricao: string
+          id: string
+          nome: string
+          secret_ref: string | null
+          tipo: string
+          total_envios: number
+          total_falhas: number
+          ultimo_envio: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          config?: Json
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome: string
+          secret_ref?: string | null
+          tipo: string
+          total_envios?: number
+          total_falhas?: number
+          ultimo_envio?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          config?: Json
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome?: string
+          secret_ref?: string | null
+          tipo?: string
+          total_envios?: number
+          total_falhas?: number
+          ultimo_envio?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notif_envios: {
+        Row: {
+          assunto: string | null
+          canal_id: string | null
+          corpo: string | null
+          created_at: string
+          destinatario: string
+          erro: string | null
+          evento: string | null
+          id: string
+          status: string
+          template_id: string | null
+        }
+        Insert: {
+          assunto?: string | null
+          canal_id?: string | null
+          corpo?: string | null
+          created_at?: string
+          destinatario: string
+          erro?: string | null
+          evento?: string | null
+          id?: string
+          status?: string
+          template_id?: string | null
+        }
+        Update: {
+          assunto?: string | null
+          canal_id?: string | null
+          corpo?: string | null
+          created_at?: string
+          destinatario?: string
+          erro?: string | null
+          evento?: string | null
+          id?: string
+          status?: string
+          template_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notif_envios_canal_id_fkey"
+            columns: ["canal_id"]
+            isOneToOne: false
+            referencedRelation: "notif_canais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notif_envios_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "notif_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notif_templates: {
+        Row: {
+          assunto: string
+          ativo: boolean
+          canal_tipo: string
+          corpo: string
+          created_at: string
+          evento: string
+          id: string
+          nome: string
+          updated_at: string
+          variaveis: Json
+        }
+        Insert: {
+          assunto?: string
+          ativo?: boolean
+          canal_tipo: string
+          corpo?: string
+          created_at?: string
+          evento: string
+          id?: string
+          nome: string
+          updated_at?: string
+          variaveis?: Json
+        }
+        Update: {
+          assunto?: string
+          ativo?: boolean
+          canal_tipo?: string
+          corpo?: string
+          created_at?: string
+          evento?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+          variaveis?: Json
         }
         Relationships: []
       }
