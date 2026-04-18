@@ -1,6 +1,6 @@
 # SINARV — Schema do Banco de Dados
 
-Versão: 4.0 | Atualizado: 2026-04-14
+Versão: 5.0 | Atualizado: 2026-04-18
 
 ---
 
