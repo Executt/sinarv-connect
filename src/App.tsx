@@ -13,6 +13,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SelecionarPerfil from "./pages/SelecionarPerfil";
 import NotFound from "./pages/NotFound";
 import TransparenciaMapaReciclagem from "./pages/TransparenciaMapaReciclagem";
+import RegrasTriagem from "./pages/RegrasTriagem";
 
 // Dashboard (Gov)
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/selecionar-perfil" element={<SelecionarPerfil />} />
             <Route path="/transparencia/mapa-reciclagem" element={<TransparenciaMapaReciclagem />} />
+            <Route path="/regras-triagem" element={<RegrasTriagem />} />
 
             {/* Gov Dashboard - requires 'gov' role */}
             <Route path="/dashboard" element={
