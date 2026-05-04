@@ -27,11 +27,11 @@
 
     --surface: 210 20% 98%;
 
-    /* Brand — CRM blue */
-    --primary: 221 83% 53%;             /* #2563EB */
+    /* Brand — Reciclagem green */
+    --primary: 142 71% 36%;             /* #16A34A */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 214 95% 96%;       /* #EFF6FF */
-    --primary-glow: 221 83% 45%;        /* #1D4ED8 */
+    --primary-light: 142 76% 95%;       /* #DCFCE7 */
+    --primary-glow: 142 71% 28%;        /* #15803D */
 
     /* Neutral scale (slate-based) */
     --secondary: 210 17% 95%;           /* #EEF1F4 */
@@ -40,8 +40,8 @@
     --muted: 210 16% 93%;               /* #E8ECEF */
     --muted-foreground: 215 14% 45%;    /* #64748B */
 
-    --accent: 214 95% 96%;              /* hover surface */
-    --accent-foreground: 221 83% 53%;
+    --accent: 142 76% 95%;              /* hover surface */
+    --accent-foreground: 142 71% 36%;
 
     /* Semantic */
     --destructive: 0 72% 51%;           /* #DC2626 */
@@ -62,7 +62,7 @@
     /* Borders */
     --border: 215 16% 88%;              /* #DCE1E7 */
     --input: 215 16% 88%;
-    --ring: 221 83% 53%;
+    --ring: 142 71% 36%;
 
     /* Radius — CRM compact */
     --radius: 0.5rem;                   /* 8px (cards) */
@@ -74,18 +74,18 @@
     --topnav-muted: 215 14% 45%;
     --topnav-border: 215 16% 88%;
     --topnav-hover: 210 17% 95%;
-    --topnav-active: 214 95% 96%;
-    --topnav-active-foreground: 221 83% 53%;
+    --topnav-active: 142 76% 95%;
+    --topnav-active-foreground: 142 71% 36%;
 
     /* Sidebar (kept for backward-compat with sidebar.tsx) */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 28% 17%;
-    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary: 142 71% 36%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 214 95% 96%;
-    --sidebar-accent-foreground: 221 83% 53%;
+    --sidebar-accent: 142 76% 95%;
+    --sidebar-accent-foreground: 142 71% 36%;
     --sidebar-border: 215 16% 88%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-ring: 142 71% 36%;
     --sidebar-muted: 215 14% 45%;
 
     /* Legacy gov-header (some pages still reference) */
@@ -93,7 +93,7 @@
     --gov-header-foreground: 215 28% 17%;
 
     /* Accent palette for charts/tags */
-    --fiori-accent-1: 221 83% 53%;      /* blue */
+    --fiori-accent-1: 142 71% 36%;      /* green */
     --fiori-accent-2: 142 71% 36%;      /* green */
     --fiori-accent-3: 38 92% 50%;       /* amber */
     --fiori-accent-4: 0 72% 51%;        /* red */
@@ -129,10 +129,10 @@
 
     --surface: 215 28% 9%;
 
-    --primary: 217 91% 60%;             /* #3B82F6 */
+    --primary: 142 64% 50%;             /* #22C55E */
     --primary-foreground: 215 28% 9%;
-    --primary-light: 215 30% 16%;
-    --primary-glow: 217 91% 65%;
+    --primary-light: 142 30% 16%;
+    --primary-glow: 142 64% 60%;
 
     --secondary: 215 22% 16%;
     --secondary-foreground: 210 17% 95%;
@@ -140,8 +140,8 @@
     --muted: 215 22% 16%;
     --muted-foreground: 215 14% 65%;
 
-    --accent: 215 30% 18%;
-    --accent-foreground: 217 91% 65%;
+    --accent: 142 30% 18%;
+    --accent-foreground: 142 64% 60%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -160,30 +160,30 @@
 
     --border: 215 22% 20%;
     --input: 215 22% 20%;
-    --ring: 217 91% 60%;
+    --ring: 142 64% 50%;
 
     --topnav-background: 215 25% 12%;
     --topnav-foreground: 210 17% 95%;
     --topnav-muted: 215 14% 65%;
     --topnav-border: 215 22% 20%;
     --topnav-hover: 215 22% 16%;
-    --topnav-active: 215 30% 18%;
-    --topnav-active-foreground: 217 91% 65%;
+    --topnav-active: 142 30% 18%;
+    --topnav-active-foreground: 142 64% 60%;
 
     --sidebar-background: 215 25% 12%;
     --sidebar-foreground: 210 17% 95%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 142 64% 50%;
     --sidebar-primary-foreground: 215 28% 9%;
-    --sidebar-accent: 215 30% 18%;
-    --sidebar-accent-foreground: 217 91% 65%;
+    --sidebar-accent: 142 30% 18%;
+    --sidebar-accent-foreground: 142 64% 60%;
     --sidebar-border: 215 22% 20%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-ring: 142 64% 50%;
     --sidebar-muted: 215 14% 65%;
 
     --gov-header: 215 25% 12%;
     --gov-header-foreground: 210 17% 95%;
 
-    --fiori-accent-1: 217 91% 65%;
+    --fiori-accent-1: 142 64% 60%;
     --fiori-accent-2: 142 64% 55%;
     --fiori-accent-3: 38 92% 60%;
     --fiori-accent-4: 0 84% 65%;
