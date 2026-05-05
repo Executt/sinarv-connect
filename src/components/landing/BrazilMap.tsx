@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { Card } from "@/components/ui/card";
-import { MapPin, Search, Filter } from "lucide-react";
+import { MapPin, Search, Filter, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type Feature = {
   type: "Feature";
@@ -26,23 +28,74 @@ const UF_MAP: Record<string, string> = {
   "São Paulo": "SP", "Sergipe": "SE", "Tocantins": "TO",
 };
 
-const MATERIAIS = ["Papel/Papelão", "Plástico (PET)", "Plástico (Outros)", "Vidro", "Metal/Alumínio", "Eletrônicos", "Óleo de cozinha", "Pilhas/Baterias"];
+type Ponto = {
+  nome: string;
+  uf: string;
+  cidade: string;
+  tipo: string;
+  materiais: string[];
+};
 
-// Amostra de pontos (mock didático até integrar tabela real)
-const PONTOS = [
-  { nome: "EcoPonto Centro - SP", uf: "SP", cidade: "São Paulo", tipo: "Ponto de Coleta", materiais: ["Papel/Papelão", "Plástico (PET)", "Vidro", "Metal/Alumínio"] },
-  { nome: "Coopamare", uf: "SP", cidade: "São Paulo", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Plástico (Outros)", "Metal/Alumínio"] },
-  { nome: "EcoPonto Tijuca", uf: "RJ", cidade: "Rio de Janeiro", tipo: "Ponto de Coleta", materiais: ["Vidro", "Eletrônicos", "Pilhas/Baterias"] },
-  { nome: "Cooperativa Cataforte", uf: "RJ", cidade: "Rio de Janeiro", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Plástico (PET)"] },
-  { nome: "ASMARE", uf: "MG", cidade: "Belo Horizonte", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Metal/Alumínio", "Plástico (Outros)"] },
-  { nome: "EcoPonto Pampulha", uf: "MG", cidade: "Belo Horizonte", tipo: "Ponto de Coleta", materiais: ["Óleo de cozinha", "Eletrônicos"] },
-  { nome: "Reciclo Curitiba", uf: "PR", cidade: "Curitiba", tipo: "Cooperativa", materiais: ["Vidro", "Papel/Papelão", "Plástico (PET)"] },
-  { nome: "EcoPonto Boa Viagem", uf: "PE", cidade: "Recife", tipo: "Ponto de Coleta", materiais: ["Plástico (PET)", "Metal/Alumínio"] },
-  { nome: "Cooperativa Verde DF", uf: "DF", cidade: "Brasília", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Vidro", "Eletrônicos"] },
-  { nome: "EcoPonto Salvador Norte", uf: "BA", cidade: "Salvador", tipo: "Ponto de Coleta", materiais: ["Plástico (PET)", "Pilhas/Baterias", "Óleo de cozinha"] },
-  { nome: "Recicla Porto Alegre", uf: "RS", cidade: "Porto Alegre", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Vidro", "Metal/Alumínio"] },
-  { nome: "EcoPonto Manaus", uf: "AM", cidade: "Manaus", tipo: "Ponto de Coleta", materiais: ["Eletrônicos", "Pilhas/Baterias"] },
-];
+const usePontosColeta = () =>
+  useQuery({
+    queryKey: ["mapa-pontos-coleta"],
+    queryFn: async (): Promise<Ponto[]> => {
+      // pontos via contenedor_localizacoes (contenedores físicos)
+      const { data: locs, error } = await supabase
+        .from("contenedor_localizacoes")
+        .select("nome_local, cidade, uf, contenedor_id, contenedores(material)")
+        .eq("status_operacional", "Ativo");
+      if (error) throw error;
+
+      const grouped = new Map<string, Ponto>();
+      (locs || []).forEach((l: any) => {
+        const key = `${l.nome_local}|${l.cidade}|${l.uf}`;
+        const material = l.contenedores?.material;
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            nome: l.nome_local,
+            cidade: l.cidade,
+            uf: l.uf,
+            tipo: "Ponto de Coleta",
+            materiais: [],
+          });
+        }
+        if (material && !grouped.get(key)!.materiais.includes(material)) {
+          grouped.get(key)!.materiais.push(material);
+        }
+      });
+
+      // cooperativas
+      const { data: coops } = await supabase
+        .from("cooperativas")
+        .select("nome, cidade, estado");
+      (coops || []).forEach((c: any) => {
+        grouped.set(`coop-${c.nome}`, {
+          nome: c.nome,
+          cidade: c.cidade,
+          uf: c.estado,
+          tipo: "Cooperativa",
+          materiais: [],
+        });
+      });
+
+      // indústrias
+      const { data: inds } = await supabase
+        .from("industrias")
+        .select("nome, cidade, estado");
+      (inds || []).forEach((i: any) => {
+        grouped.set(`ind-${i.nome}`, {
+          nome: i.nome,
+          cidade: i.cidade,
+          uf: i.estado,
+          tipo: "Indústria",
+          materiais: [],
+        });
+      });
+
+      return Array.from(grouped.values());
+    },
+  });
 
 const BrazilMap = () => {
   const [geo, setGeo] = useState<GeoData | null>(null);
@@ -52,6 +105,7 @@ const BrazilMap = () => {
   const [filtroMaterial, setFiltroMaterial] = useState<string>("all");
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
+  const { data: pontos = [], isLoading } = usePontosColeta();
 
   useEffect(() => {
     fetch("/brazil-states.geojson")
@@ -87,7 +141,13 @@ const BrazilMap = () => {
     return { paths, centroids };
   }, [geo, width, height]);
 
-  const pontosFiltrados = PONTOS.filter((p) => {
+  const materiaisDisponiveis = useMemo(() => {
+    const set = new Set<string>();
+    pontos.forEach((p) => p.materiais.forEach((m) => set.add(m)));
+    return Array.from(set).sort();
+  }, [pontos]);
+
+  const pontosFiltrados = pontos.filter((p) => {
     if (filtroUF !== "all" && p.uf !== filtroUF) return false;
     if (filtroCidade && !p.cidade.toLowerCase().includes(filtroCidade.toLowerCase())) return false;
     if (filtroMaterial !== "all" && !p.materiais.includes(filtroMaterial)) return false;
@@ -97,9 +157,9 @@ const BrazilMap = () => {
   // contagem de pontos por UF (para destaque visual no mapa)
   const pontosPorUF = useMemo(() => {
     const map: Record<string, number> = {};
-    PONTOS.forEach((p) => { map[p.uf] = (map[p.uf] || 0) + 1; });
+    pontos.forEach((p) => { map[p.uf] = (map[p.uf] || 0) + 1; });
     return map;
-  }, []);
+  }, [pontos]);
 
   const handleClickEstado = (sigla: string) => {
     setFiltroUF((prev) => (prev === sigla ? "all" : sigla));
@@ -221,7 +281,7 @@ const BrazilMap = () => {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent className="bg-popover">
                     <SelectItem value="all">Todos os materiais</SelectItem>
-                    {MATERIAIS.map((m) => (
+                    {materiaisDisponiveis.map((m) => (
                       <SelectItem key={m} value={m}>{m}</SelectItem>
                     ))}
                   </SelectContent>
@@ -245,7 +305,12 @@ const BrazilMap = () => {
                 <Badge variant="secondary">{pontosFiltrados.length}</Badge>
               </div>
               <div className="overflow-y-auto space-y-2 max-h-[420px] pr-1">
-                {pontosFiltrados.length === 0 && (
+                {isLoading && (
+                  <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Carregando pontos...
+                  </div>
+                )}
+                {!isLoading && pontosFiltrados.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-8">
                     Nenhum ponto encontrado com os filtros atuais.
                   </p>
