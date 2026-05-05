@@ -281,7 +281,7 @@ const BrazilMap = () => {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent className="bg-popover">
                     <SelectItem value="all">Todos os materiais</SelectItem>
-                    {MATERIAIS.map((m) => (
+                    {materiaisDisponiveis.map((m) => (
                       <SelectItem key={m} value={m}>{m}</SelectItem>
                     ))}
                   </SelectContent>
