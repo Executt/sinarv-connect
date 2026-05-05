@@ -28,23 +28,74 @@ const UF_MAP: Record<string, string> = {
   "São Paulo": "SP", "Sergipe": "SE", "Tocantins": "TO",
 };
 
-const MATERIAIS = ["Papel/Papelão", "Plástico (PET)", "Plástico (Outros)", "Vidro", "Metal/Alumínio", "Eletrônicos", "Óleo de cozinha", "Pilhas/Baterias"];
+type Ponto = {
+  nome: string;
+  uf: string;
+  cidade: string;
+  tipo: string;
+  materiais: string[];
+};
 
-// Amostra de pontos (mock didático até integrar tabela real)
-const PONTOS = [
-  { nome: "EcoPonto Centro - SP", uf: "SP", cidade: "São Paulo", tipo: "Ponto de Coleta", materiais: ["Papel/Papelão", "Plástico (PET)", "Vidro", "Metal/Alumínio"] },
-  { nome: "Coopamare", uf: "SP", cidade: "São Paulo", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Plástico (Outros)", "Metal/Alumínio"] },
-  { nome: "EcoPonto Tijuca", uf: "RJ", cidade: "Rio de Janeiro", tipo: "Ponto de Coleta", materiais: ["Vidro", "Eletrônicos", "Pilhas/Baterias"] },
-  { nome: "Cooperativa Cataforte", uf: "RJ", cidade: "Rio de Janeiro", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Plástico (PET)"] },
-  { nome: "ASMARE", uf: "MG", cidade: "Belo Horizonte", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Metal/Alumínio", "Plástico (Outros)"] },
-  { nome: "EcoPonto Pampulha", uf: "MG", cidade: "Belo Horizonte", tipo: "Ponto de Coleta", materiais: ["Óleo de cozinha", "Eletrônicos"] },
-  { nome: "Reciclo Curitiba", uf: "PR", cidade: "Curitiba", tipo: "Cooperativa", materiais: ["Vidro", "Papel/Papelão", "Plástico (PET)"] },
-  { nome: "EcoPonto Boa Viagem", uf: "PE", cidade: "Recife", tipo: "Ponto de Coleta", materiais: ["Plástico (PET)", "Metal/Alumínio"] },
-  { nome: "Cooperativa Verde DF", uf: "DF", cidade: "Brasília", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Vidro", "Eletrônicos"] },
-  { nome: "EcoPonto Salvador Norte", uf: "BA", cidade: "Salvador", tipo: "Ponto de Coleta", materiais: ["Plástico (PET)", "Pilhas/Baterias", "Óleo de cozinha"] },
-  { nome: "Recicla Porto Alegre", uf: "RS", cidade: "Porto Alegre", tipo: "Cooperativa", materiais: ["Papel/Papelão", "Vidro", "Metal/Alumínio"] },
-  { nome: "EcoPonto Manaus", uf: "AM", cidade: "Manaus", tipo: "Ponto de Coleta", materiais: ["Eletrônicos", "Pilhas/Baterias"] },
-];
+const usePontosColeta = () =>
+  useQuery({
+    queryKey: ["mapa-pontos-coleta"],
+    queryFn: async (): Promise<Ponto[]> => {
+      // pontos via contenedor_localizacoes (contenedores físicos)
+      const { data: locs, error } = await supabase
+        .from("contenedor_localizacoes")
+        .select("nome_local, cidade, uf, contenedor_id, contenedores(material)")
+        .eq("status_operacional", "Ativo");
+      if (error) throw error;
+
+      const grouped = new Map<string, Ponto>();
+      (locs || []).forEach((l: any) => {
+        const key = `${l.nome_local}|${l.cidade}|${l.uf}`;
+        const material = l.contenedores?.material;
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            nome: l.nome_local,
+            cidade: l.cidade,
+            uf: l.uf,
+            tipo: "Ponto de Coleta",
+            materiais: [],
+          });
+        }
+        if (material && !grouped.get(key)!.materiais.includes(material)) {
+          grouped.get(key)!.materiais.push(material);
+        }
+      });
+
+      // cooperativas
+      const { data: coops } = await supabase
+        .from("cooperativas")
+        .select("nome, cidade, estado");
+      (coops || []).forEach((c: any) => {
+        grouped.set(`coop-${c.nome}`, {
+          nome: c.nome,
+          cidade: c.cidade,
+          uf: c.estado,
+          tipo: "Cooperativa",
+          materiais: [],
+        });
+      });
+
+      // indústrias
+      const { data: inds } = await supabase
+        .from("industrias")
+        .select("nome, cidade, estado");
+      (inds || []).forEach((i: any) => {
+        grouped.set(`ind-${i.nome}`, {
+          nome: i.nome,
+          cidade: i.cidade,
+          uf: i.estado,
+          tipo: "Indústria",
+          materiais: [],
+        });
+      });
+
+      return Array.from(grouped.values());
+    },
+  });
 
 const BrazilMap = () => {
   const [geo, setGeo] = useState<GeoData | null>(null);
