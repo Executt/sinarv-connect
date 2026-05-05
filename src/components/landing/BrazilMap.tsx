@@ -105,6 +105,7 @@ const BrazilMap = () => {
   const [filtroMaterial, setFiltroMaterial] = useState<string>("all");
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
+  const { data: pontos = [], isLoading } = usePontosColeta();
 
   useEffect(() => {
     fetch("/brazil-states.geojson")
@@ -140,7 +141,13 @@ const BrazilMap = () => {
     return { paths, centroids };
   }, [geo, width, height]);
 
-  const pontosFiltrados = PONTOS.filter((p) => {
+  const materiaisDisponiveis = useMemo(() => {
+    const set = new Set<string>();
+    pontos.forEach((p) => p.materiais.forEach((m) => set.add(m)));
+    return Array.from(set).sort();
+  }, [pontos]);
+
+  const pontosFiltrados = pontos.filter((p) => {
     if (filtroUF !== "all" && p.uf !== filtroUF) return false;
     if (filtroCidade && !p.cidade.toLowerCase().includes(filtroCidade.toLowerCase())) return false;
     if (filtroMaterial !== "all" && !p.materiais.includes(filtroMaterial)) return false;
@@ -150,9 +157,9 @@ const BrazilMap = () => {
   // contagem de pontos por UF (para destaque visual no mapa)
   const pontosPorUF = useMemo(() => {
     const map: Record<string, number> = {};
-    PONTOS.forEach((p) => { map[p.uf] = (map[p.uf] || 0) + 1; });
+    pontos.forEach((p) => { map[p.uf] = (map[p.uf] || 0) + 1; });
     return map;
-  }, []);
+  }, [pontos]);
 
   const handleClickEstado = (sigla: string) => {
     setFiltroUF((prev) => (prev === sigla ? "all" : sigla));
