@@ -305,7 +305,12 @@ const BrazilMap = () => {
                 <Badge variant="secondary">{pontosFiltrados.length}</Badge>
               </div>
               <div className="overflow-y-auto space-y-2 max-h-[420px] pr-1">
-                {pontosFiltrados.length === 0 && (
+                {isLoading && (
+                  <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Carregando pontos...
+                  </div>
+                )}
+                {!isLoading && pontosFiltrados.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-8">
                     Nenhum ponto encontrado com os filtros atuais.
                   </p>
