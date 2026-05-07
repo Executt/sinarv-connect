@@ -546,6 +546,17 @@ const BrazilMap = () => {
               </SheetHeader>
 
               <div className="mt-6 space-y-4">
+                {(() => {
+                  const status = piorStatus(pontoSelecionado);
+                  const styles = STATUS_STYLES[status];
+                  return (
+                    <div className={`rounded-md border p-3 flex items-center gap-2 ${styles.badge}`}>
+                      {status === "ok" ? <Gauge className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                      <span className="text-sm font-medium">Status geral: {styles.label}</span>
+                    </div>
+                  );
+                })()}
+
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="border border-border rounded-md p-3">
                     <p className="text-xs text-muted-foreground">Materiais</p>
@@ -567,25 +578,38 @@ const BrazilMap = () => {
                     </p>
                   ) : (
                     <div className="space-y-3">
-                      {pontoSelecionado.materiais.map((m) => (
-                        <div key={m.material} className="border border-border rounded-md p-3 space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="text-sm font-medium">{m.material}</p>
-                              {m.contenedor && <p className="text-xs text-muted-foreground">{m.contenedor}</p>}
+                      {pontoSelecionado.materiais.map((m) => {
+                        const lim = getLimitePara(m.material);
+                        const status = getStatus(m.nivelPreenchimento, lim);
+                        const styles = STATUS_STYLES[status];
+                        return (
+                          <div key={m.material} className={`border rounded-md p-3 space-y-2 ${status === "ok" ? "border-border" : styles.ring}`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium">{m.material}</p>
+                                {m.contenedor && <p className="text-xs text-muted-foreground">{m.contenedor}</p>}
+                              </div>
+                              <Badge className={`text-xs border ${styles.badge}`}>
+                                {status !== "ok" && <AlertTriangle className="h-3 w-3 mr-1" />}
+                                {m.nivelPreenchimento}% · {styles.label}
+                              </Badge>
                             </div>
-                            <Badge variant="outline" className="text-xs">{m.nivelPreenchimento}%</Badge>
+                            <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+                              <div className={`h-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, m.nivelPreenchimento)}%` }} />
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{m.litrosEstimados} L de {m.capacidadeLitros} L</span>
+                              <span className="inline-flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {m.ultimaColeta ? `Coleta: ${fmtData(m.ultimaColeta)}` : `Atualiz.: ${fmtData(m.atualizadoEm)}`}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">
+                              Limites: atenção ≥ {lim.atencao}% · crítico ≥ {lim.critico}%
+                            </p>
                           </div>
-                          <Progress value={m.nivelPreenchimento} className="h-2" />
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>{m.litrosEstimados} L de {m.capacidadeLitros} L</span>
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {m.ultimaColeta ? `Coleta: ${fmtData(m.ultimaColeta)}` : `Atualiz.: ${fmtData(m.atualizadoEm)}`}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
