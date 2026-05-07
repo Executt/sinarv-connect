@@ -166,6 +166,29 @@ const BrazilMap = () => {
   const [width, setWidth] = useState(600);
   const { data: pontos = [], isLoading } = usePontosColeta();
 
+  const [limiteGlobal, setLimiteGlobal] = useState<Limites>(DEFAULT_LIMITES);
+  const [limitesPorMaterial, setLimitesPorMaterial] = useState<Record<string, Limites>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LIMITES_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.global) setLimiteGlobal(parsed.global);
+        if (parsed.porMaterial) setLimitesPorMaterial(parsed.porMaterial);
+      }
+    } catch {}
+  }, []);
+
+  const persistLimites = (global: Limites, porMaterial: Record<string, Limites>) => {
+    try {
+      localStorage.setItem(LIMITES_STORAGE_KEY, JSON.stringify({ global, porMaterial }));
+    } catch {}
+  };
+
+  const getLimitePara = (material: string): Limites =>
+    limitesPorMaterial[material] || limiteGlobal;
+
   useEffect(() => {
     fetch("/brazil-states.geojson").then((r) => r.json()).then(setGeo).catch(() => setGeo(null));
   }, []);
