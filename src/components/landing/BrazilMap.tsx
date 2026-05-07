@@ -490,29 +490,41 @@ const BrazilMap = () => {
                 {!isLoading && pontosFiltrados.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-8">Nenhum ponto encontrado com os filtros atuais.</p>
                 )}
-                {pontosFiltrados.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setPontoSelecionado(p)}
-                    className="w-full text-left border border-border rounded-md p-3 hover:border-primary/40 hover:bg-accent/30 transition-colors"
-                  >
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{p.nome}</p>
-                        <p className="text-xs text-muted-foreground">{p.cidade} — {p.uf} · <span className="text-primary">{p.tipo}</span></p>
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {p.materiais.slice(0, 4).map((m) => (
-                            <Badge key={m.material} variant="outline" className="text-[10px] py-0 px-1.5">{m.material}</Badge>
-                          ))}
-                          {p.materiais.length > 4 && (
-                            <Badge variant="outline" className="text-[10px] py-0 px-1.5">+{p.materiais.length - 4}</Badge>
-                          )}
+                {pontosFiltrados.map((p) => {
+                  const status = piorStatus(p);
+                  const styles = STATUS_STYLES[status];
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setPontoSelecionado(p)}
+                      className={`w-full text-left border rounded-md p-3 transition-colors hover:bg-accent/30 ${status === "ok" ? "border-border hover:border-primary/40" : styles.ring}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <MapPin className={`h-4 w-4 mt-0.5 shrink-0 ${status === "ok" ? "text-primary" : styles.text}`} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium truncate">{p.nome}</p>
+                            {status !== "ok" && (
+                              <Badge className={`text-[10px] py-0 px-1.5 border ${styles.badge}`}>
+                                {status === "critico" && <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />}
+                                {styles.label}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{p.cidade} — {p.uf} · <span className="text-primary">{p.tipo}</span></p>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {p.materiais.slice(0, 4).map((m) => (
+                              <Badge key={m.material} variant="outline" className="text-[10px] py-0 px-1.5">{m.material}</Badge>
+                            ))}
+                            {p.materiais.length > 4 && (
+                              <Badge variant="outline" className="text-[10px] py-0 px-1.5">+{p.materiais.length - 4}</Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </Card>
