@@ -239,16 +239,38 @@ const BrazilMap = () => {
     return map;
   }, [pontos]);
 
+  const piorStatus = (p: Ponto): StatusNivel => {
+    let pior: StatusNivel = "ok";
+    p.materiais.forEach((m) => {
+      const s = getStatus(m.nivelPreenchimento, getLimitePara(m.material));
+      if (s === "critico") pior = "critico";
+      else if (s === "atencao" && pior === "ok") pior = "atencao";
+    });
+    return pior;
+  };
+
+  const totaisAlertas = useMemo(() => {
+    let atencao = 0, critico = 0;
+    pontos.forEach((p) => {
+      const s = piorStatus(p);
+      if (s === "critico") critico++;
+      else if (s === "atencao") atencao++;
+    });
+    return { atencao, critico };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pontos, limiteGlobal, limitesPorMaterial]);
+
   const marcadores = useMemo(() => {
     if (!projection) return [];
     return pontosFiltrados
       .filter((p) => p.lat != null && p.lng != null)
       .map((p) => {
         const xy = projection([Number(p.lng), Number(p.lat)] as [number, number]);
-        return xy ? { ponto: p, x: xy[0], y: xy[1] } : null;
+        return xy ? { ponto: p, x: xy[0], y: xy[1], status: piorStatus(p) } : null;
       })
-      .filter((v): v is { ponto: Ponto; x: number; y: number } => !!v);
-  }, [pontosFiltrados, projection]);
+      .filter((v): v is { ponto: Ponto; x: number; y: number; status: StatusNivel } => !!v);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pontosFiltrados, projection, limiteGlobal, limitesPorMaterial]);
 
   return (
     <section id="mapa" className="bg-surface py-16 md:py-20">
