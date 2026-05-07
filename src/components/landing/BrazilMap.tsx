@@ -335,12 +335,99 @@ const BrazilMap = () => {
                 <div className="h-[500px] flex items-center justify-center text-muted-foreground">Carregando mapa...</div>
               )}
             </div>
-            <div className="flex flex-wrap gap-2 mt-3 text-xs text-muted-foreground items-center">
-              <span>Densidade de pontos:</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "hsl(var(--primary) / 0.15)" }} /> baixa</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "hsl(var(--primary) / 0.4)" }} /> média</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "hsl(var(--primary) / 0.6)" }} /> alta</span>
-              {marcadores.length > 0 && <Badge variant="secondary" className="ml-auto">{marcadores.length} marcadores</Badge>}
+            <div className="flex flex-wrap gap-3 mt-3 text-xs items-center">
+              <span className="text-muted-foreground">Status:</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-success" /> Normal</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-warning" /> Atenção (≥{limiteGlobal.atencao}%)</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-destructive" /> Crítico (≥{limiteGlobal.critico}%)</span>
+              <div className="ml-auto flex items-center gap-2">
+                {totaisAlertas.critico > 0 && (
+                  <Badge className="bg-destructive/10 text-destructive border-destructive/30 border gap-1">
+                    <AlertTriangle className="h-3 w-3" /> {totaisAlertas.critico} crítico(s)
+                  </Badge>
+                )}
+                {totaisAlertas.atencao > 0 && (
+                  <Badge className="bg-warning/10 text-warning border-warning/30 border">
+                    {totaisAlertas.atencao} em atenção
+                  </Badge>
+                )}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-7 gap-1">
+                      <Settings2 className="h-3 w-3" /> Limites
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-80 bg-popover">
+                    <div className="space-y-3">
+                      <div>
+                        <h5 className="text-sm font-semibold">Limites de preenchimento</h5>
+                        <p className="text-xs text-muted-foreground">Define quando alertar visualmente cada ponto.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground">Padrão (todos os materiais)</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] text-warning">Atenção (%)</label>
+                            <Input type="number" min={0} max={100} value={limiteGlobal.atencao}
+                              onChange={(e) => {
+                                const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                const next = { ...limiteGlobal, atencao: v };
+                                setLimiteGlobal(next); persistLimites(next, limitesPorMaterial);
+                              }} className="h-8" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-destructive">Crítico (%)</label>
+                            <Input type="number" min={0} max={100} value={limiteGlobal.critico}
+                              onChange={(e) => {
+                                const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                const next = { ...limiteGlobal, critico: v };
+                                setLimiteGlobal(next); persistLimites(next, limitesPorMaterial);
+                              }} className="h-8" />
+                          </div>
+                        </div>
+                      </div>
+                      {materiaisDisponiveis.length > 0 && (
+                        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                          <p className="text-xs font-medium text-muted-foreground">Por material (opcional)</p>
+                          {materiaisDisponiveis.map((mat) => {
+                            const lim = limitesPorMaterial[mat] || limiteGlobal;
+                            const custom = !!limitesPorMaterial[mat];
+                            return (
+                              <div key={mat} className="border border-border rounded-md p-2">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-medium">{mat}</span>
+                                  {custom && (
+                                    <Button variant="ghost" size="sm" className="h-5 text-[10px]"
+                                      onClick={() => {
+                                        const next = { ...limitesPorMaterial };
+                                        delete next[mat];
+                                        setLimitesPorMaterial(next); persistLimites(limiteGlobal, next);
+                                      }}>resetar</Button>
+                                  )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-1.5">
+                                  <Input type="number" min={0} max={100} value={lim.atencao}
+                                    onChange={(e) => {
+                                      const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                      const next = { ...limitesPorMaterial, [mat]: { ...lim, atencao: v } };
+                                      setLimitesPorMaterial(next); persistLimites(limiteGlobal, next);
+                                    }} className="h-7 text-xs" />
+                                  <Input type="number" min={0} max={100} value={lim.critico}
+                                    onChange={(e) => {
+                                      const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                      const next = { ...limitesPorMaterial, [mat]: { ...lim, critico: v } };
+                                      setLimitesPorMaterial(next); persistLimites(limiteGlobal, next);
+                                    }} className="h-7 text-xs" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </Card>
 
