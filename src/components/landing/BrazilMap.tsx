@@ -161,6 +161,7 @@ const BrazilMap = () => {
   const [filtroUF, setFiltroUF] = useState<string>("all");
   const [filtroCidade, setFiltroCidade] = useState<string>("");
   const [filtroMaterial, setFiltroMaterial] = useState<string>("all");
+  const [filtroStatus, setFiltroStatus] = useState<string>("all");
   const [pontoSelecionado, setPontoSelecionado] = useState<Ponto | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
