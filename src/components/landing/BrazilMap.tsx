@@ -314,13 +314,22 @@ const BrazilMap = () => {
                       {c.sigla}
                     </text>
                   ))}
-                  {marcadores.map(({ ponto, x, y }) => (
-                    <g key={ponto.id} className="cursor-pointer" onClick={() => setPontoSelecionado(ponto)}>
-                      <circle cx={x} cy={y} r={6} fill="hsl(var(--card))" stroke="hsl(var(--primary))" strokeWidth={2} />
-                      <circle cx={x} cy={y} r={3} fill="hsl(var(--primary))" />
-                      <title>{`${ponto.nome} — ${ponto.cidade}/${ponto.uf}`}</title>
-                    </g>
-                  ))}
+                  {marcadores.map(({ ponto, x, y, status }) => {
+                    const cor = STATUS_STYLES[status].marker;
+                    return (
+                      <g key={ponto.id} className="cursor-pointer" onClick={() => setPontoSelecionado(ponto)}>
+                        {status === "critico" && (
+                          <circle cx={x} cy={y} r={10} fill={cor} opacity={0.35}>
+                            <animate attributeName="r" values="6;14;6" dur="1.6s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.45;0;0.45" dur="1.6s" repeatCount="indefinite" />
+                          </circle>
+                        )}
+                        <circle cx={x} cy={y} r={6} fill="hsl(var(--card))" stroke={cor} strokeWidth={2} />
+                        <circle cx={x} cy={y} r={3} fill={cor} />
+                        <title>{`${ponto.nome} — ${ponto.cidade}/${ponto.uf} · ${STATUS_STYLES[status].label}`}</title>
+                      </g>
+                    );
+                  })}
                 </svg>
               ) : (
                 <div className="h-[500px] flex items-center justify-center text-muted-foreground">Carregando mapa...</div>
