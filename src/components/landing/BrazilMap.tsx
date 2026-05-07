@@ -55,6 +55,42 @@ type Ponto = {
 const fmtData = (s: string | null) =>
   s ? new Date(s).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
+const DEFAULT_LIMITES = { atencao: 70, critico: 90 };
+const LIMITES_STORAGE_KEY = "sinarv:limites-preenchimento";
+
+type Limites = { atencao: number; critico: number };
+type StatusNivel = "ok" | "atencao" | "critico";
+
+const getStatus = (nivel: number, lim: Limites): StatusNivel =>
+  nivel >= lim.critico ? "critico" : nivel >= lim.atencao ? "atencao" : "ok";
+
+const STATUS_STYLES: Record<StatusNivel, { label: string; badge: string; text: string; bg: string; ring: string; marker: string }> = {
+  ok: {
+    label: "Normal",
+    badge: "bg-success/10 text-success border-success/30",
+    text: "text-success",
+    bg: "bg-success",
+    ring: "border-success/40",
+    marker: "hsl(var(--success))",
+  },
+  atencao: {
+    label: "Atenção",
+    badge: "bg-warning/10 text-warning border-warning/30",
+    text: "text-warning",
+    bg: "bg-warning",
+    ring: "border-warning/50",
+    marker: "hsl(var(--warning))",
+  },
+  critico: {
+    label: "Crítico",
+    badge: "bg-destructive/10 text-destructive border-destructive/30",
+    text: "text-destructive",
+    bg: "bg-destructive",
+    ring: "border-destructive/60",
+    marker: "hsl(var(--destructive))",
+  },
+};
+
 const usePontosColeta = () =>
   useQuery({
     queryKey: ["mapa-pontos-coleta"],
