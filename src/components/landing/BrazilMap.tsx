@@ -478,8 +478,20 @@ const BrazilMap = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {(filtroUF !== "all" || filtroCidade || filtroMaterial !== "all") && (
-                <Button variant="ghost" size="sm" onClick={() => { setFiltroUF("all"); setFiltroCidade(""); setFiltroMaterial("all"); }} className="w-full">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">Status do ponto</label>
+                <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    <SelectItem value="all">Todos os status</SelectItem>
+                    <SelectItem value="alerta">Atenção + Crítico</SelectItem>
+                    <SelectItem value="atencao">Somente Atenção</SelectItem>
+                    <SelectItem value="critico">Somente Crítico</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {(filtroUF !== "all" || filtroCidade || filtroMaterial !== "all" || filtroStatus !== "all") && (
+                <Button variant="ghost" size="sm" onClick={() => { setFiltroUF("all"); setFiltroCidade(""); setFiltroMaterial("all"); setFiltroStatus("all"); }} className="w-full">
                   Limpar filtros
                 </Button>
               )}
