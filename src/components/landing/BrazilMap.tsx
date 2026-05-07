@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { Card } from "@/components/ui/card";
-import { MapPin, Search, Filter, Loader2, Calendar, Gauge } from "lucide-react";
+import { MapPin, Search, Filter, Loader2, Calendar, Gauge, AlertTriangle, Settings2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +54,42 @@ type Ponto = {
 
 const fmtData = (s: string | null) =>
   s ? new Date(s).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+
+const DEFAULT_LIMITES = { atencao: 70, critico: 90 };
+const LIMITES_STORAGE_KEY = "sinarv:limites-preenchimento";
+
+type Limites = { atencao: number; critico: number };
+type StatusNivel = "ok" | "atencao" | "critico";
+
+const getStatus = (nivel: number, lim: Limites): StatusNivel =>
+  nivel >= lim.critico ? "critico" : nivel >= lim.atencao ? "atencao" : "ok";
+
+const STATUS_STYLES: Record<StatusNivel, { label: string; badge: string; text: string; bg: string; ring: string; marker: string }> = {
+  ok: {
+    label: "Normal",
+    badge: "bg-success/10 text-success border-success/30",
+    text: "text-success",
+    bg: "bg-success",
+    ring: "border-success/40",
+    marker: "hsl(var(--success))",
+  },
+  atencao: {
+    label: "Atenção",
+    badge: "bg-warning/10 text-warning border-warning/30",
+    text: "text-warning",
+    bg: "bg-warning",
+    ring: "border-warning/50",
+    marker: "hsl(var(--warning))",
+  },
+  critico: {
+    label: "Crítico",
+    badge: "bg-destructive/10 text-destructive border-destructive/30",
+    text: "text-destructive",
+    bg: "bg-destructive",
+    ring: "border-destructive/60",
+    marker: "hsl(var(--destructive))",
+  },
+};
 
 const usePontosColeta = () =>
   useQuery({
@@ -129,6 +166,29 @@ const BrazilMap = () => {
   const [width, setWidth] = useState(600);
   const { data: pontos = [], isLoading } = usePontosColeta();
 
+  const [limiteGlobal, setLimiteGlobal] = useState<Limites>(DEFAULT_LIMITES);
+  const [limitesPorMaterial, setLimitesPorMaterial] = useState<Record<string, Limites>>({});
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LIMITES_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.global) setLimiteGlobal(parsed.global);
+        if (parsed.porMaterial) setLimitesPorMaterial(parsed.porMaterial);
+      }
+    } catch {}
+  }, []);
+
+  const persistLimites = (global: Limites, porMaterial: Record<string, Limites>) => {
+    try {
+      localStorage.setItem(LIMITES_STORAGE_KEY, JSON.stringify({ global, porMaterial }));
+    } catch {}
+  };
+
+  const getLimitePara = (material: string): Limites =>
+    limitesPorMaterial[material] || limiteGlobal;
+
   useEffect(() => {
     fetch("/brazil-states.geojson").then((r) => r.json()).then(setGeo).catch(() => setGeo(null));
   }, []);
@@ -179,16 +239,38 @@ const BrazilMap = () => {
     return map;
   }, [pontos]);
 
+  const piorStatus = (p: Ponto): StatusNivel => {
+    let pior: StatusNivel = "ok";
+    p.materiais.forEach((m) => {
+      const s = getStatus(m.nivelPreenchimento, getLimitePara(m.material));
+      if (s === "critico") pior = "critico";
+      else if (s === "atencao" && pior === "ok") pior = "atencao";
+    });
+    return pior;
+  };
+
+  const totaisAlertas = useMemo(() => {
+    let atencao = 0, critico = 0;
+    pontos.forEach((p) => {
+      const s = piorStatus(p);
+      if (s === "critico") critico++;
+      else if (s === "atencao") atencao++;
+    });
+    return { atencao, critico };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pontos, limiteGlobal, limitesPorMaterial]);
+
   const marcadores = useMemo(() => {
     if (!projection) return [];
     return pontosFiltrados
       .filter((p) => p.lat != null && p.lng != null)
       .map((p) => {
         const xy = projection([Number(p.lng), Number(p.lat)] as [number, number]);
-        return xy ? { ponto: p, x: xy[0], y: xy[1] } : null;
+        return xy ? { ponto: p, x: xy[0], y: xy[1], status: piorStatus(p) } : null;
       })
-      .filter((v): v is { ponto: Ponto; x: number; y: number } => !!v);
-  }, [pontosFiltrados, projection]);
+      .filter((v): v is { ponto: Ponto; x: number; y: number; status: StatusNivel } => !!v);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pontosFiltrados, projection, limiteGlobal, limitesPorMaterial]);
 
   return (
     <section id="mapa" className="bg-surface py-16 md:py-20">
@@ -232,24 +314,120 @@ const BrazilMap = () => {
                       {c.sigla}
                     </text>
                   ))}
-                  {marcadores.map(({ ponto, x, y }) => (
-                    <g key={ponto.id} className="cursor-pointer" onClick={() => setPontoSelecionado(ponto)}>
-                      <circle cx={x} cy={y} r={6} fill="hsl(var(--card))" stroke="hsl(var(--primary))" strokeWidth={2} />
-                      <circle cx={x} cy={y} r={3} fill="hsl(var(--primary))" />
-                      <title>{`${ponto.nome} — ${ponto.cidade}/${ponto.uf}`}</title>
-                    </g>
-                  ))}
+                  {marcadores.map(({ ponto, x, y, status }) => {
+                    const cor = STATUS_STYLES[status].marker;
+                    return (
+                      <g key={ponto.id} className="cursor-pointer" onClick={() => setPontoSelecionado(ponto)}>
+                        {status === "critico" && (
+                          <circle cx={x} cy={y} r={10} fill={cor} opacity={0.35}>
+                            <animate attributeName="r" values="6;14;6" dur="1.6s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.45;0;0.45" dur="1.6s" repeatCount="indefinite" />
+                          </circle>
+                        )}
+                        <circle cx={x} cy={y} r={6} fill="hsl(var(--card))" stroke={cor} strokeWidth={2} />
+                        <circle cx={x} cy={y} r={3} fill={cor} />
+                        <title>{`${ponto.nome} — ${ponto.cidade}/${ponto.uf} · ${STATUS_STYLES[status].label}`}</title>
+                      </g>
+                    );
+                  })}
                 </svg>
               ) : (
                 <div className="h-[500px] flex items-center justify-center text-muted-foreground">Carregando mapa...</div>
               )}
             </div>
-            <div className="flex flex-wrap gap-2 mt-3 text-xs text-muted-foreground items-center">
-              <span>Densidade de pontos:</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "hsl(var(--primary) / 0.15)" }} /> baixa</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "hsl(var(--primary) / 0.4)" }} /> média</span>
-              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ background: "hsl(var(--primary) / 0.6)" }} /> alta</span>
-              {marcadores.length > 0 && <Badge variant="secondary" className="ml-auto">{marcadores.length} marcadores</Badge>}
+            <div className="flex flex-wrap gap-3 mt-3 text-xs items-center">
+              <span className="text-muted-foreground">Status:</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-success" /> Normal</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-warning" /> Atenção (≥{limiteGlobal.atencao}%)</span>
+              <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-destructive" /> Crítico (≥{limiteGlobal.critico}%)</span>
+              <div className="ml-auto flex items-center gap-2">
+                {totaisAlertas.critico > 0 && (
+                  <Badge className="bg-destructive/10 text-destructive border-destructive/30 border gap-1">
+                    <AlertTriangle className="h-3 w-3" /> {totaisAlertas.critico} crítico(s)
+                  </Badge>
+                )}
+                {totaisAlertas.atencao > 0 && (
+                  <Badge className="bg-warning/10 text-warning border-warning/30 border">
+                    {totaisAlertas.atencao} em atenção
+                  </Badge>
+                )}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-7 gap-1">
+                      <Settings2 className="h-3 w-3" /> Limites
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-80 bg-popover">
+                    <div className="space-y-3">
+                      <div>
+                        <h5 className="text-sm font-semibold">Limites de preenchimento</h5>
+                        <p className="text-xs text-muted-foreground">Define quando alertar visualmente cada ponto.</p>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground">Padrão (todos os materiais)</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] text-warning">Atenção (%)</label>
+                            <Input type="number" min={0} max={100} value={limiteGlobal.atencao}
+                              onChange={(e) => {
+                                const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                const next = { ...limiteGlobal, atencao: v };
+                                setLimiteGlobal(next); persistLimites(next, limitesPorMaterial);
+                              }} className="h-8" />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-destructive">Crítico (%)</label>
+                            <Input type="number" min={0} max={100} value={limiteGlobal.critico}
+                              onChange={(e) => {
+                                const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                const next = { ...limiteGlobal, critico: v };
+                                setLimiteGlobal(next); persistLimites(next, limitesPorMaterial);
+                              }} className="h-8" />
+                          </div>
+                        </div>
+                      </div>
+                      {materiaisDisponiveis.length > 0 && (
+                        <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                          <p className="text-xs font-medium text-muted-foreground">Por material (opcional)</p>
+                          {materiaisDisponiveis.map((mat) => {
+                            const lim = limitesPorMaterial[mat] || limiteGlobal;
+                            const custom = !!limitesPorMaterial[mat];
+                            return (
+                              <div key={mat} className="border border-border rounded-md p-2">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-medium">{mat}</span>
+                                  {custom && (
+                                    <Button variant="ghost" size="sm" className="h-5 text-[10px]"
+                                      onClick={() => {
+                                        const next = { ...limitesPorMaterial };
+                                        delete next[mat];
+                                        setLimitesPorMaterial(next); persistLimites(limiteGlobal, next);
+                                      }}>resetar</Button>
+                                  )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-1.5">
+                                  <Input type="number" min={0} max={100} value={lim.atencao}
+                                    onChange={(e) => {
+                                      const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                      const next = { ...limitesPorMaterial, [mat]: { ...lim, atencao: v } };
+                                      setLimitesPorMaterial(next); persistLimites(limiteGlobal, next);
+                                    }} className="h-7 text-xs" />
+                                  <Input type="number" min={0} max={100} value={lim.critico}
+                                    onChange={(e) => {
+                                      const v = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+                                      const next = { ...limitesPorMaterial, [mat]: { ...lim, critico: v } };
+                                      setLimitesPorMaterial(next); persistLimites(limiteGlobal, next);
+                                    }} className="h-7 text-xs" />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </Card>
 
@@ -312,29 +490,41 @@ const BrazilMap = () => {
                 {!isLoading && pontosFiltrados.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-8">Nenhum ponto encontrado com os filtros atuais.</p>
                 )}
-                {pontosFiltrados.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => setPontoSelecionado(p)}
-                    className="w-full text-left border border-border rounded-md p-3 hover:border-primary/40 hover:bg-accent/30 transition-colors"
-                  >
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium truncate">{p.nome}</p>
-                        <p className="text-xs text-muted-foreground">{p.cidade} — {p.uf} · <span className="text-primary">{p.tipo}</span></p>
-                        <div className="flex flex-wrap gap-1 mt-1.5">
-                          {p.materiais.slice(0, 4).map((m) => (
-                            <Badge key={m.material} variant="outline" className="text-[10px] py-0 px-1.5">{m.material}</Badge>
-                          ))}
-                          {p.materiais.length > 4 && (
-                            <Badge variant="outline" className="text-[10px] py-0 px-1.5">+{p.materiais.length - 4}</Badge>
-                          )}
+                {pontosFiltrados.map((p) => {
+                  const status = piorStatus(p);
+                  const styles = STATUS_STYLES[status];
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => setPontoSelecionado(p)}
+                      className={`w-full text-left border rounded-md p-3 transition-colors hover:bg-accent/30 ${status === "ok" ? "border-border hover:border-primary/40" : styles.ring}`}
+                    >
+                      <div className="flex items-start gap-2">
+                        <MapPin className={`h-4 w-4 mt-0.5 shrink-0 ${status === "ok" ? "text-primary" : styles.text}`} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium truncate">{p.nome}</p>
+                            {status !== "ok" && (
+                              <Badge className={`text-[10px] py-0 px-1.5 border ${styles.badge}`}>
+                                {status === "critico" && <AlertTriangle className="h-2.5 w-2.5 mr-0.5" />}
+                                {styles.label}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{p.cidade} — {p.uf} · <span className="text-primary">{p.tipo}</span></p>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {p.materiais.slice(0, 4).map((m) => (
+                              <Badge key={m.material} variant="outline" className="text-[10px] py-0 px-1.5">{m.material}</Badge>
+                            ))}
+                            {p.materiais.length > 4 && (
+                              <Badge variant="outline" className="text-[10px] py-0 px-1.5">+{p.materiais.length - 4}</Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </Card>
@@ -356,6 +546,17 @@ const BrazilMap = () => {
               </SheetHeader>
 
               <div className="mt-6 space-y-4">
+                {(() => {
+                  const status = piorStatus(pontoSelecionado);
+                  const styles = STATUS_STYLES[status];
+                  return (
+                    <div className={`rounded-md border p-3 flex items-center gap-2 ${styles.badge}`}>
+                      {status === "ok" ? <Gauge className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                      <span className="text-sm font-medium">Status geral: {styles.label}</span>
+                    </div>
+                  );
+                })()}
+
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div className="border border-border rounded-md p-3">
                     <p className="text-xs text-muted-foreground">Materiais</p>
@@ -377,25 +578,38 @@ const BrazilMap = () => {
                     </p>
                   ) : (
                     <div className="space-y-3">
-                      {pontoSelecionado.materiais.map((m) => (
-                        <div key={m.material} className="border border-border rounded-md p-3 space-y-2">
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="text-sm font-medium">{m.material}</p>
-                              {m.contenedor && <p className="text-xs text-muted-foreground">{m.contenedor}</p>}
+                      {pontoSelecionado.materiais.map((m) => {
+                        const lim = getLimitePara(m.material);
+                        const status = getStatus(m.nivelPreenchimento, lim);
+                        const styles = STATUS_STYLES[status];
+                        return (
+                          <div key={m.material} className={`border rounded-md p-3 space-y-2 ${status === "ok" ? "border-border" : styles.ring}`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium">{m.material}</p>
+                                {m.contenedor && <p className="text-xs text-muted-foreground">{m.contenedor}</p>}
+                              </div>
+                              <Badge className={`text-xs border ${styles.badge}`}>
+                                {status !== "ok" && <AlertTriangle className="h-3 w-3 mr-1" />}
+                                {m.nivelPreenchimento}% · {styles.label}
+                              </Badge>
                             </div>
-                            <Badge variant="outline" className="text-xs">{m.nivelPreenchimento}%</Badge>
+                            <div className="relative h-2 w-full overflow-hidden rounded-full bg-secondary">
+                              <div className={`h-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, m.nivelPreenchimento)}%` }} />
+                            </div>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>{m.litrosEstimados} L de {m.capacidadeLitros} L</span>
+                              <span className="inline-flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {m.ultimaColeta ? `Coleta: ${fmtData(m.ultimaColeta)}` : `Atualiz.: ${fmtData(m.atualizadoEm)}`}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground">
+                              Limites: atenção ≥ {lim.atencao}% · crítico ≥ {lim.critico}%
+                            </p>
                           </div>
-                          <Progress value={m.nivelPreenchimento} className="h-2" />
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <span>{m.litrosEstimados} L de {m.capacidadeLitros} L</span>
-                            <span className="inline-flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {m.ultimaColeta ? `Coleta: ${fmtData(m.ultimaColeta)}` : `Atualiz.: ${fmtData(m.atualizadoEm)}`}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
