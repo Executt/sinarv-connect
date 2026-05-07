@@ -231,6 +231,14 @@ const BrazilMap = () => {
     if (filtroUF !== "all" && p.uf !== filtroUF) return false;
     if (filtroCidade && !p.cidade.toLowerCase().includes(filtroCidade.toLowerCase())) return false;
     if (filtroMaterial !== "all" && !p.materiais.some((m) => m.material === filtroMaterial)) return false;
+    if (filtroStatus !== "all") {
+      const status = piorStatus(p);
+      if (filtroStatus === "alerta") {
+        if (status === "ok") return false;
+      } else if (status !== filtroStatus) {
+        return false;
+      }
+    }
     return true;
   });
 
