@@ -620,13 +620,18 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                       Sem dados de telemetria para este ponto.
                     </p>
                   ) : (
-                    <div className="space-y-3">
-                      {pontoSelecionado.materiais.map((m) => {
+                    <div ref={materiaisListRef} className="space-y-3">
+                      {pontoSelecionado.materiais.map((m, idx) => {
                         const lim = getLimitePara(m.material);
                         const status = getStatus(m.nivelPreenchimento, lim);
                         const styles = STATUS_STYLES[status];
+                        const isPrimeiroAlerta = idx === indicePrimeiroAlerta;
                         return (
-                          <div key={m.material} className={`border rounded-md p-3 space-y-2 ${status === "ok" ? "border-border" : styles.ring}`}>
+                          <div
+                            key={m.material}
+                            ref={isPrimeiroAlerta ? primeiroAlertaRef : undefined}
+                            className={`border rounded-md p-3 space-y-2 transition-shadow ${status === "ok" ? "border-border" : styles.ring} ${isPrimeiroAlerta ? "ring-2 ring-offset-2 ring-offset-background " + (status === "critico" ? "ring-destructive/60" : "ring-warning/60") : ""}`}
+                          >
                             <div className="flex items-start justify-between gap-2">
                               <div>
                                 <p className="text-sm font-medium">{m.material}</p>
