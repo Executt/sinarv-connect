@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -317,7 +318,8 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
           <Card className={embedded ? "p-3 bg-card" : "lg:col-span-3 p-4 bg-card"}>
             <div ref={containerRef} className="w-full">
               {geo ? (
-                <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Mapa do Brasil interativo">
+                <TooltipProvider delayDuration={150}>
+                  <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Mapa do Brasil interativo">
                   {paths.map((p) => {
                     const isHovered = hovered === p.sigla;
                     const isSelected = filtroUF === p.sigla;
@@ -348,39 +350,81 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   {marcadores.map(({ ponto, x, y, status }) => {
                     const cor = STATUS_STYLES[status].marker;
                     const isSelecionado = pontoSelecionado?.id === ponto.id;
+                    const statusLabel = STATUS_STYLES[status].label;
+                    const materiaisTooltip = ponto.materiais.slice(0, 3);
+                    const maisCount = ponto.materiais.length - materiaisTooltip.length;
                     return (
-                      <g key={ponto.id} className="cursor-pointer" onClick={() => setPontoSelecionado(ponto)}>
-                        {status === "critico" && (
-                          <circle cx={x} cy={y} r={10} fill={cor} opacity={0.35}>
-                            <animate attributeName="r" values="6;14;6" dur="1.6s" repeatCount="indefinite" />
-                            <animate attributeName="opacity" values="0.45;0;0.45" dur="1.6s" repeatCount="indefinite" />
-                          </circle>
-                        )}
-                        {isSelecionado && (
-                          <>
-                            <circle cx={x} cy={y} r={16} fill="none" stroke={cor} strokeWidth={2} opacity={0.55}>
-                              <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
-                              <animate attributeName="opacity" values="0.7;0.15;0.7" dur="2s" repeatCount="indefinite" />
-                            </circle>
-                            <circle cx={x} cy={y} r={11} fill="none" stroke={cor} strokeWidth={2.5} opacity={0.9} />
-                            <circle cx={x} cy={y} r={9} fill="none" stroke="hsl(var(--card))" strokeWidth={1.5} />
-                          </>
-                        )}
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r={isSelecionado ? 7.5 : 6}
-                          fill="hsl(var(--card))"
-                          stroke={cor}
-                          strokeWidth={isSelecionado ? 3 : 2}
-                          style={{ transition: "r 200ms ease, stroke-width 200ms ease" }}
-                        />
-                        <circle cx={x} cy={y} r={isSelecionado ? 4 : 3} fill={cor} style={{ transition: "r 200ms ease" }} />
-                        <title>{`${ponto.nome} — ${ponto.cidade}/${ponto.uf} · ${STATUS_STYLES[status].label}`}</title>
-                      </g>
+                      <Tooltip key={ponto.id}>
+                        <TooltipTrigger asChild>
+                          <g
+                            className="cursor-pointer outline-none"
+                            onClick={() => setPontoSelecionado(ponto)}
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`${ponto.nome} — ${ponto.cidade}/${ponto.uf}`}
+                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPontoSelecionado(ponto); }}
+                          >
+                            {status === "critico" && (
+                              <circle cx={x} cy={y} r={10} fill={cor} opacity={0.35}>
+                                <animate attributeName="r" values="6;14;6" dur="1.6s" repeatCount="indefinite" />
+                                <animate attributeName="opacity" values="0.45;0;0.45" dur="1.6s" repeatCount="indefinite" />
+                              </circle>
+                            )}
+                            {isSelecionado && (
+                              <>
+                                <circle cx={x} cy={y} r={16} fill="none" stroke={cor} strokeWidth={2} opacity={0.55}>
+                                  <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
+                                  <animate attributeName="opacity" values="0.7;0.15;0.7" dur="2s" repeatCount="indefinite" />
+                                </circle>
+                                <circle cx={x} cy={y} r={11} fill="none" stroke={cor} strokeWidth={2.5} opacity={0.9} />
+                                <circle cx={x} cy={y} r={9} fill="none" stroke="hsl(var(--card))" strokeWidth={1.5} />
+                              </>
+                            )}
+                            <circle
+                              cx={x}
+                              cy={y}
+                              r={isSelecionado ? 7.5 : 6}
+                              fill="hsl(var(--card))"
+                              stroke={cor}
+                              strokeWidth={isSelecionado ? 3 : 2}
+                              style={{ transition: "r 200ms ease, stroke-width 200ms ease" }}
+                            />
+                            <circle cx={x} cy={y} r={isSelecionado ? 4 : 3} fill={cor} style={{ transition: "r 200ms ease" }} />
+                          </g>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" sideOffset={8} className="max-w-[260px] p-3 space-y-2 bg-popover border border-border shadow-lg">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm font-semibold leading-tight">{ponto.nome}</p>
+                            <Badge className={`text-[10px] py-0 px-1.5 border ${STATUS_STYLES[status].badge}`}>{statusLabel}</Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{ponto.cidade} — {ponto.uf}</p>
+                          {ponto.materiais.length > 0 && (
+                            <div className="space-y-1 pt-1 border-t border-border">
+                              {materiaisTooltip.map((m) => {
+                                const lim = getLimitePara(m.material);
+                                const ms = getStatus(m.nivelPreenchimento, lim);
+                                const msStyle = STATUS_STYLES[ms];
+                                return (
+                                  <div key={m.material} className="flex items-center justify-between gap-2 text-xs">
+                                    <span className="truncate max-w-[120px]">{m.material}</span>
+                                    <span className="shrink-0 inline-flex items-center gap-1">
+                                      <span className={`w-1.5 h-1.5 rounded-full ${msStyle.bg}`} />
+                                      {m.litrosEstimados} L <span className="text-muted-foreground">/ {m.capacidadeLitros} L</span>
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                              {maisCount > 0 && (
+                                <p className="text-[10px] text-muted-foreground">+{maisCount} material(is)</p>
+                              )}
+                            </div>
+                          )}
+                        </TooltipContent>
+                      </Tooltip>
                     );
                   })}
-                </svg>
+                  </svg>
+                </TooltipProvider>
               ) : (
                 <div className="h-[500px] flex items-center justify-center text-muted-foreground">Carregando mapa...</div>
               )}
