@@ -347,6 +347,7 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   ))}
                   {marcadores.map(({ ponto, x, y, status }) => {
                     const cor = STATUS_STYLES[status].marker;
+                    const isSelecionado = pontoSelecionado?.id === ponto.id;
                     return (
                       <g key={ponto.id} className="cursor-pointer" onClick={() => setPontoSelecionado(ponto)}>
                         {status === "critico" && (
@@ -355,8 +356,26 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                             <animate attributeName="opacity" values="0.45;0;0.45" dur="1.6s" repeatCount="indefinite" />
                           </circle>
                         )}
-                        <circle cx={x} cy={y} r={6} fill="hsl(var(--card))" stroke={cor} strokeWidth={2} />
-                        <circle cx={x} cy={y} r={3} fill={cor} />
+                        {isSelecionado && (
+                          <>
+                            <circle cx={x} cy={y} r={16} fill="none" stroke={cor} strokeWidth={2} opacity={0.55}>
+                              <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
+                              <animate attributeName="opacity" values="0.7;0.15;0.7" dur="2s" repeatCount="indefinite" />
+                            </circle>
+                            <circle cx={x} cy={y} r={11} fill="none" stroke={cor} strokeWidth={2.5} opacity={0.9} />
+                            <circle cx={x} cy={y} r={9} fill="none" stroke="hsl(var(--card))" strokeWidth={1.5} />
+                          </>
+                        )}
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r={isSelecionado ? 7.5 : 6}
+                          fill="hsl(var(--card))"
+                          stroke={cor}
+                          strokeWidth={isSelecionado ? 3 : 2}
+                          style={{ transition: "r 200ms ease, stroke-width 200ms ease" }}
+                        />
+                        <circle cx={x} cy={y} r={isSelecionado ? 4 : 3} fill={cor} style={{ transition: "r 200ms ease" }} />
                         <title>{`${ponto.nome} — ${ponto.cidade}/${ponto.uf} · ${STATUS_STYLES[status].label}`}</title>
                       </g>
                     );
