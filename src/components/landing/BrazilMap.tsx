@@ -155,8 +155,12 @@ const usePontosColeta = () =>
     },
   });
 
-const BrazilMap = () => {
+type BrazilMapProps = { embedded?: boolean; hideHeading?: boolean };
+
+const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {}) => {
   const [geo, setGeo] = useState<GeoData | null>(null);
+  const materiaisListRef = useRef<HTMLDivElement>(null);
+  const primeiroAlertaRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [filtroUF, setFiltroUF] = useState<string>("all");
   const [filtroCidade, setFiltroCidade] = useState<string>("");
