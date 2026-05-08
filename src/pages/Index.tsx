@@ -1,6 +1,5 @@
 import GovHeader from "@/components/landing/GovHeader";
 import HeroSection from "@/components/landing/HeroSection";
-import BrazilMap from "@/components/landing/BrazilMap";
 import SustainabilityIndicators from "@/components/landing/SustainabilityIndicators";
 import GovFooter from "@/components/landing/GovFooter";
 
@@ -10,7 +9,6 @@ const Index = () => {
       <GovHeader />
       <main className="flex-1">
         <HeroSection />
-        <BrazilMap />
         <SustainabilityIndicators />
       </main>
       <GovFooter />

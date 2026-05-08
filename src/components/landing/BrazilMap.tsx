@@ -155,8 +155,12 @@ const usePontosColeta = () =>
     },
   });
 
-const BrazilMap = () => {
+type BrazilMapProps = { embedded?: boolean; hideHeading?: boolean };
+
+const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {}) => {
   const [geo, setGeo] = useState<GeoData | null>(null);
+  const materiaisListRef = useRef<HTMLDivElement>(null);
+  const primeiroAlertaRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [filtroUF, setFiltroUF] = useState<string>("all");
   const [filtroCidade, setFiltroCidade] = useState<string>("");
@@ -281,18 +285,36 @@ const BrazilMap = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pontosFiltrados, projection, limiteGlobal, limitesPorMaterial]);
 
-  return (
-    <section id="mapa" className="bg-surface py-16 md:py-20">
-      <div className="container max-w-7xl mx-auto px-4">
-        <div className="text-center mb-10">
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Encontre Pontos de Coleta no Brasil</h3>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Clique em um marcador no mapa para ver detalhes do ponto, materiais coletados e telemetria mais recente.
-          </p>
-        </div>
+  const indicePrimeiroAlerta = useMemo(() => {
+    if (!pontoSelecionado) return -1;
+    return pontoSelecionado.materiais.findIndex(
+      (m) => getStatus(m.nivelPreenchimento, getLimitePara(m.material)) !== "ok"
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pontoSelecionado, limiteGlobal, limitesPorMaterial]);
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <Card className="lg:col-span-3 p-4 bg-card">
+  useEffect(() => {
+    if (!pontoSelecionado || indicePrimeiroAlerta < 0) return;
+    const t = setTimeout(() => {
+      primeiroAlertaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 350);
+    return () => clearTimeout(t);
+  }, [pontoSelecionado, indicePrimeiroAlerta]);
+
+  return (
+    <section id="mapa" className={embedded ? "" : "bg-surface py-16 md:py-20"}>
+      <div className={embedded ? "w-full" : "container max-w-7xl mx-auto px-4"}>
+        {!hideHeading && (
+          <div className="text-center mb-10">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Encontre Pontos de Coleta no Brasil</h3>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Clique em um marcador no mapa para ver detalhes do ponto, materiais coletados e telemetria mais recente.
+            </p>
+          </div>
+        )}
+
+        <div className={embedded ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 lg:grid-cols-5 gap-6"}>
+          <Card className={embedded ? "p-3 bg-card" : "lg:col-span-3 p-4 bg-card"}>
             <div ref={containerRef} className="w-full">
               {geo ? (
                 <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Mapa do Brasil interativo">
@@ -440,7 +462,7 @@ const BrazilMap = () => {
             </div>
           </Card>
 
-          <Card className="lg:col-span-2 p-4 bg-card flex flex-col">
+          <Card className={embedded ? "p-3 bg-card flex flex-col" : "lg:col-span-2 p-4 bg-card flex flex-col"}>
             <div className="flex items-center gap-2 mb-4">
               <Filter className="h-4 w-4 text-primary" />
               <h4 className="font-semibold">Filtros</h4>
@@ -598,13 +620,18 @@ const BrazilMap = () => {
                       Sem dados de telemetria para este ponto.
                     </p>
                   ) : (
-                    <div className="space-y-3">
-                      {pontoSelecionado.materiais.map((m) => {
+                    <div ref={materiaisListRef} className="space-y-3">
+                      {pontoSelecionado.materiais.map((m, idx) => {
                         const lim = getLimitePara(m.material);
                         const status = getStatus(m.nivelPreenchimento, lim);
                         const styles = STATUS_STYLES[status];
+                        const isPrimeiroAlerta = idx === indicePrimeiroAlerta;
                         return (
-                          <div key={m.material} className={`border rounded-md p-3 space-y-2 ${status === "ok" ? "border-border" : styles.ring}`}>
+                          <div
+                            key={m.material}
+                            ref={isPrimeiroAlerta ? primeiroAlertaRef : undefined}
+                            className={`border rounded-md p-3 space-y-2 transition-shadow ${status === "ok" ? "border-border" : styles.ring} ${isPrimeiroAlerta ? "ring-2 ring-offset-2 ring-offset-background " + (status === "critico" ? "ring-destructive/60" : "ring-warning/60") : ""}`}
+                          >
                             <div className="flex items-start justify-between gap-2">
                               <div>
                                 <p className="text-sm font-medium">{m.material}</p>
