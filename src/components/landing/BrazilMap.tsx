@@ -462,7 +462,7 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
             </div>
           </Card>
 
-          <Card className="lg:col-span-2 p-4 bg-card flex flex-col">
+          <Card className={embedded ? "p-3 bg-card flex flex-col" : "lg:col-span-2 p-4 bg-card flex flex-col"}>
             <div className="flex items-center gap-2 mb-4">
               <Filter className="h-4 w-4 text-primary" />
               <h4 className="font-semibold">Filtros</h4>
