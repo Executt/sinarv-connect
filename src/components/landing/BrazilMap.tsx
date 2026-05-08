@@ -318,7 +318,8 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
           <Card className={embedded ? "p-3 bg-card" : "lg:col-span-3 p-4 bg-card"}>
             <div ref={containerRef} className="w-full">
               {geo ? (
-                <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Mapa do Brasil interativo">
+                <TooltipProvider delayDuration={150}>
+                  <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Mapa do Brasil interativo">
                   {paths.map((p) => {
                     const isHovered = hovered === p.sigla;
                     const isSelected = filtroUF === p.sigla;
