@@ -313,8 +313,8 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <Card className="lg:col-span-3 p-4 bg-card">
+        <div className={embedded ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 lg:grid-cols-5 gap-6"}>
+          <Card className={embedded ? "p-3 bg-card" : "lg:col-span-3 p-4 bg-card"}>
             <div ref={containerRef} className="w-full">
               {geo ? (
                 <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} role="img" aria-label="Mapa do Brasil interativo">
