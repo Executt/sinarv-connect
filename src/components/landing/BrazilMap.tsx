@@ -285,15 +285,33 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pontosFiltrados, projection, limiteGlobal, limitesPorMaterial]);
 
+  const indicePrimeiroAlerta = useMemo(() => {
+    if (!pontoSelecionado) return -1;
+    return pontoSelecionado.materiais.findIndex(
+      (m) => getStatus(m.nivelPreenchimento, getLimitePara(m.material)) !== "ok"
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pontoSelecionado, limiteGlobal, limitesPorMaterial]);
+
+  useEffect(() => {
+    if (!pontoSelecionado || indicePrimeiroAlerta < 0) return;
+    const t = setTimeout(() => {
+      primeiroAlertaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 350);
+    return () => clearTimeout(t);
+  }, [pontoSelecionado, indicePrimeiroAlerta]);
+
   return (
-    <section id="mapa" className="bg-surface py-16 md:py-20">
-      <div className="container max-w-7xl mx-auto px-4">
-        <div className="text-center mb-10">
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Encontre Pontos de Coleta no Brasil</h3>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Clique em um marcador no mapa para ver detalhes do ponto, materiais coletados e telemetria mais recente.
-          </p>
-        </div>
+    <section id="mapa" className={embedded ? "" : "bg-surface py-16 md:py-20"}>
+      <div className={embedded ? "w-full" : "container max-w-7xl mx-auto px-4"}>
+        {!hideHeading && (
+          <div className="text-center mb-10">
+            <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Encontre Pontos de Coleta no Brasil</h3>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Clique em um marcador no mapa para ver detalhes do ponto, materiais coletados e telemetria mais recente.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <Card className="lg:col-span-3 p-4 bg-card">
