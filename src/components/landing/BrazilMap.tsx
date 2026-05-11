@@ -303,6 +303,12 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
     return () => clearTimeout(t);
   }, [pontoSelecionado, indicePrimeiroAlerta]);
 
+  useEffect(() => {
+    if (!pinnedTooltipId) return;
+    const p = pontos.find((x) => x.id === pinnedTooltipId);
+    if (p) setPontoSelecionado(p);
+  }, [pinnedTooltipId, pontos]);
+
   return (
     <section id="mapa" className={embedded ? "" : "bg-surface py-16 md:py-20"}>
       <div className={embedded ? "w-full" : "container max-w-7xl mx-auto px-4"}>
