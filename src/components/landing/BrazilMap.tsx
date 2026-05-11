@@ -728,6 +728,116 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   </div>
                 </div>
 
+                {pontoSelecionado.materiais.length > 0 && (() => {
+                  const totalCap = pontoSelecionado.materiais.reduce((s, m) => s + m.capacidadeLitros, 0);
+                  const totalUsado = pontoSelecionado.materiais.reduce((s, m) => s + m.litrosEstimados, 0);
+                  const pct = totalCap > 0 ? Math.round((totalUsado / totalCap) * 100) : 0;
+                  const status = getStatus(pct, limiteGlobal);
+                  const styles = STATUS_STYLES[status];
+                  return (
+                    <div className="border border-border rounded-md p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <Gauge className="h-4 w-4 text-primary" /> Capacidade total
+                        </h4>
+                        <Badge className={`text-xs border ${styles.badge}`}>{pct}% · {styles.label}</Badge>
+                      </div>
+                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
+                        <div className={`h-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, pct)}%` }} />
+                        <div className="absolute top-0 h-full border-l border-warning/70" style={{ left: `${limiteGlobal.atencao}%` }} />
+                        <div className="absolute top-0 h-full border-l border-destructive/70" style={{ left: `${limiteGlobal.critico}%` }} />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{totalUsado.toLocaleString("pt-BR")} L em uso</span>
+                        <span>de {totalCap.toLocaleString("pt-BR")} L</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {pontoSelecionado.materiais.length > 0 && (() => {
+                  // Histórico sintético determinístico (14 dias) por ponto + eventos de coleta
+                  const seedStr = pontoSelecionado.id;
+                  let seed = 0;
+                  for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+                  const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed & 0xffff) / 0xffff; };
+                  const totalCap = pontoSelecionado.materiais.reduce((s, m) => s + m.capacidadeLitros, 0);
+                  const totalUsado = pontoSelecionado.materiais.reduce((s, m) => s + m.litrosEstimados, 0);
+                  const pctAtual = totalCap > 0 ? (totalUsado / totalCap) * 100 : 0;
+                  const dias = 14;
+                  let nivel = Math.max(5, pctAtual - 30 - rand() * 20);
+                  const data: { dia: string; nivel: number; coleta?: number }[] = [];
+                  for (let i = dias - 1; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    const label = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+                    // tendência rumo ao valor atual + ruído
+                    const incremento = ((pctAtual - nivel) / Math.max(1, i + 1)) + (rand() * 8 - 2);
+                    nivel = Math.max(0, Math.min(100, nivel + incremento));
+                    let coleta: number | undefined;
+                    if (i !== 0 && nivel > limiteGlobal.atencao && rand() < 0.18) {
+                      coleta = Math.round(nivel);
+                      nivel = Math.max(5, nivel - (35 + rand() * 25));
+                    }
+                    data.push({ dia: label, nivel: Math.round(nivel), coleta });
+                  }
+                  // garantir que o último ponto reflita o valor atual
+                  data[data.length - 1].nivel = Math.round(pctAtual);
+                  const eventos = data.filter((d) => d.coleta != null);
+                  return (
+                    <div className="border border-border rounded-md p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-primary" /> Histórico de telemetria
+                        </h4>
+                        <span className="text-[10px] text-muted-foreground">últimos 14 dias</span>
+                      </div>
+                      <div className="h-36 -mx-1">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="fillNivel" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                            <XAxis dataKey="dia" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} interval={2} axisLine={false} tickLine={false} />
+                            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} ticks={[0, 50, 100]} axisLine={false} tickLine={false} />
+                            <ReTooltip
+                              contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }}
+                              formatter={(v: number, n) => n === "coleta" ? [`${v}% antes`, "Coleta"] : [`${v}%`, "Nível"]}
+                            />
+                            <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" />
+                            <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" />
+                            <Area type="monotone" dataKey="nivel" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#fillNivel)" />
+                            <Area type="monotone" dataKey="coleta" stroke="hsl(var(--success))" strokeWidth={0} fill="hsl(var(--success))" fillOpacity={0.6} dot={{ r: 4, fill: "hsl(var(--success))" }} />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                      <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> Nível médio</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Evento de coleta</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-warning" /> Atenção</span>
+                        <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-destructive" /> Crítico</span>
+                      </div>
+                      {eventos.length > 0 && (
+                        <div className="pt-2 border-t border-border space-y-1">
+                          <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                            <Truck className="h-3 w-3" /> Eventos recentes
+                          </p>
+                          {eventos.slice(-3).reverse().map((e, i) => (
+                            <div key={i} className="flex items-center justify-between text-[11px]">
+                              <span className="text-muted-foreground">{e.dia}</span>
+                              <span>Coleta · esvaziou de <strong>{e.coleta}%</strong></span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <div>
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                     <Gauge className="h-4 w-4 text-primary" /> Telemetria por material
