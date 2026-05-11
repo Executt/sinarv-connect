@@ -168,6 +168,7 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
   const [filtroMaterial, setFiltroMaterial] = useState<string>("all");
   const [filtroStatus, setFiltroStatus] = useState<string>("all");
   const [pontoSelecionado, setPontoSelecionado] = useState<Ponto | null>(null);
+  const [pinnedTooltipId, setPinnedTooltipId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(600);
   const { data: pontos = [], isLoading } = usePontosColeta();
