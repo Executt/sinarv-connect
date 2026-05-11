@@ -351,19 +351,33 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   {marcadores.map(({ ponto, x, y, status }) => {
                     const cor = STATUS_STYLES[status].marker;
                     const isSelecionado = pontoSelecionado?.id === ponto.id;
+                    const isPinned = pinnedTooltipId === ponto.id;
                     const statusLabel = STATUS_STYLES[status].label;
                     const materiaisTooltip = ponto.materiais.slice(0, 3);
                     const maisCount = ponto.materiais.length - materiaisTooltip.length;
                     return (
-                      <Tooltip key={ponto.id}>
+                      <Tooltip
+                        key={ponto.id}
+                        open={isPinned ? true : undefined}
+                        onOpenChange={(o) => { if (isPinned && !o) return; }}
+                      >
                         <TooltipTrigger asChild>
                           <g
                             className="cursor-pointer outline-none"
-                            onClick={() => setPontoSelecionado(ponto)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPinnedTooltipId((prev) => (prev === ponto.id ? null : ponto.id));
+                            }}
                             tabIndex={0}
                             role="button"
                             aria-label={`${ponto.nome} — ${ponto.cidade}/${ponto.uf}`}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setPontoSelecionado(ponto); }}
+                            aria-pressed={isPinned}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setPinnedTooltipId((prev) => (prev === ponto.id ? null : ponto.id));
+                              }
+                            }}
                           >
                             {status === "critico" && (
                               <circle cx={x} cy={y} r={10} fill={cor} opacity={0.35}>
@@ -371,7 +385,7 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                                 <animate attributeName="opacity" values="0.45;0;0.45" dur="1.6s" repeatCount="indefinite" />
                               </circle>
                             )}
-                            {isSelecionado && (
+                            {(isSelecionado || isPinned) && (
                               <>
                                 <circle cx={x} cy={y} r={16} fill="none" stroke={cor} strokeWidth={2} opacity={0.55}>
                                   <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite" />
@@ -384,16 +398,21 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                             <circle
                               cx={x}
                               cy={y}
-                              r={isSelecionado ? 7.5 : 6}
+                              r={isSelecionado || isPinned ? 7.5 : 6}
                               fill="hsl(var(--card))"
                               stroke={cor}
-                              strokeWidth={isSelecionado ? 3 : 2}
+                              strokeWidth={isSelecionado || isPinned ? 3 : 2}
                               style={{ transition: "r 200ms ease, stroke-width 200ms ease" }}
                             />
-                            <circle cx={x} cy={y} r={isSelecionado ? 4 : 3} fill={cor} style={{ transition: "r 200ms ease" }} />
+                            <circle cx={x} cy={y} r={isSelecionado || isPinned ? 4 : 3} fill={cor} style={{ transition: "r 200ms ease" }} />
                           </g>
                         </TooltipTrigger>
-                        <TooltipContent side="top" sideOffset={8} className="max-w-[260px] p-3 space-y-2 bg-popover border border-border shadow-lg">
+                        <TooltipContent
+                          side="top"
+                          sideOffset={8}
+                          className="max-w-[280px] p-3 space-y-2 bg-popover border border-border shadow-lg"
+                          onPointerDownOutside={(e) => { if (isPinned) e.preventDefault(); }}
+                        >
                           <div className="flex items-start justify-between gap-2">
                             <p className="text-sm font-semibold leading-tight">{ponto.nome}</p>
                             <Badge className={`text-[10px] py-0 px-1.5 border ${STATUS_STYLES[status].badge}`}>{statusLabel}</Badge>
@@ -407,7 +426,7 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                                 const msStyle = STATUS_STYLES[ms];
                                 return (
                                   <div key={m.material} className="flex items-center justify-between gap-2 text-xs">
-                                    <span className="truncate max-w-[120px]">{m.material}</span>
+                                    <span className="truncate max-w-[140px]">{m.material}</span>
                                     <span className="shrink-0 inline-flex items-center gap-1">
                                       <span className={`w-1.5 h-1.5 rounded-full ${msStyle.bg}`} />
                                       {m.litrosEstimados} L <span className="text-muted-foreground">/ {m.capacidadeLitros} L</span>
@@ -420,6 +439,33 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                               )}
                             </div>
                           )}
+                          <div className="flex items-center gap-2 pt-2 border-t border-border">
+                            <Button
+                              size="sm"
+                              className="h-7 text-xs flex-1 gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPontoSelecionado(ponto);
+                              }}
+                            >
+                              <ExternalLink className="h-3 w-3" /> Ver detalhes
+                            </Button>
+                            {isPinned ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs gap-1"
+                                onClick={(e) => { e.stopPropagation(); setPinnedTooltipId(null); }}
+                                aria-label="Desafixar tooltip"
+                              >
+                                <Pin className="h-3 w-3 fill-current" /> Fixado
+                              </Button>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground inline-flex items-center gap-1">
+                                <Pin className="h-3 w-3" /> clique p/ fixar
+                              </span>
+                            )}
+                          </div>
                         </TooltipContent>
                       </Tooltip>
                     );
