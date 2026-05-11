@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { Card } from "@/components/ui/card";
-import { MapPin, Search, Filter, Loader2, Calendar, Gauge, AlertTriangle, Settings2 } from "lucide-react";
+import { MapPin, Search, Filter, Loader2, Calendar, Gauge, AlertTriangle, Settings2, Pin, ExternalLink } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
