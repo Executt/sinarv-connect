@@ -144,7 +144,7 @@ const usePontosColeta = () =>
       (coops || []).forEach((c: any) => {
         grouped.set(`coop-${c.id}`, {
           id: c.id, nome: c.nome, cidade: c.cidade, uf: c.estado,
-          tipo: "Cooperativa", materiais: [], atualizadoEm: c.updated_at,
+          tipo: "Cooperativa", materiais: [], atualizadoEm: c.updated_at, localizacaoIds: [],
         });
       });
 
@@ -152,7 +152,7 @@ const usePontosColeta = () =>
       (inds || []).forEach((i: any) => {
         grouped.set(`ind-${i.id}`, {
           id: i.id, nome: i.nome, cidade: i.cidade, uf: i.estado,
-          tipo: "Indústria", materiais: [], atualizadoEm: i.updated_at,
+          tipo: "Indústria", materiais: [], atualizadoEm: i.updated_at, localizacaoIds: [],
         });
       });
 
