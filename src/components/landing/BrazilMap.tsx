@@ -919,6 +919,22 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                           <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Evento de coleta</span>
                           <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-warning" /> Atenção</span>
                           <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-destructive" /> Crítico</span>
+                          <span className="inline-flex items-center gap-1"><AlertTriangle className="h-2.5 w-2.5 text-warning" /> Cruzamento de limite</span>
+                        </div>
+                      )}
+                      {!historicoLoading && !semDados && crossings.length > 0 && (
+                        <div className="pt-2 border-t border-border space-y-1">
+                          <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3" /> Cruzamentos de limite
+                          </p>
+                          {crossings.slice(-4).reverse().map((c, i) => (
+                            <div key={`cl-${i}`} className="flex items-center justify-between text-[11px]">
+                              <span className="text-muted-foreground">{c.dia}</span>
+                              <span className={c.tipo === "critico" ? "text-destructive" : "text-warning"}>
+                                {c.direcao === "subiu" ? "Ultrapassou" : "Voltou abaixo de"} {c.tipo === "critico" ? "Crítico" : "Atenção"} ({c.y}%)
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       )}
                       {eventos.length > 0 && (
