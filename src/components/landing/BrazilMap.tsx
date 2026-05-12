@@ -52,6 +52,7 @@ type Ponto = {
   lng?: number | null;
   materiais: MaterialInfo[];
   atualizadoEm: string | null;
+  localizacaoIds: string[];
 };
 
 const fmtData = (s: string | null) =>
