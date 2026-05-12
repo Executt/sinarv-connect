@@ -796,15 +796,40 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                         </h4>
                         <Badge className={`text-xs border ${styles.badge}`}>{pct}% · {styles.label}</Badge>
                       </div>
-                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
-                        <div className={`h-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, pct)}%` }} />
-                        <div className="absolute top-0 h-full border-l border-warning/70" style={{ left: `${limiteGlobal.atencao}%` }} />
-                        <div className="absolute top-0 h-full border-l border-destructive/70" style={{ left: `${limiteGlobal.critico}%` }} />
+                      <div className="pt-5 pb-1">
+                        <div className="relative h-3 w-full rounded-full bg-secondary">
+                          <div className={`h-full rounded-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, pct)}%` }} />
+                          {/* limites */}
+                          <div className="absolute -top-0.5 h-4 border-l-2 border-warning" style={{ left: `${limiteGlobal.atencao}%` }} />
+                          <div className="absolute -top-0.5 h-4 border-l-2 border-destructive" style={{ left: `${limiteGlobal.critico}%` }} />
+                          <span className="absolute -top-4 -translate-x-1/2 text-[9px] font-medium text-warning whitespace-nowrap" style={{ left: `${limiteGlobal.atencao}%` }}>
+                            Atenção {limiteGlobal.atencao}%
+                          </span>
+                          <span className="absolute -top-4 -translate-x-1/2 text-[9px] font-medium text-destructive whitespace-nowrap" style={{ left: `${limiteGlobal.critico}%` }}>
+                            Crítico {limiteGlobal.critico}%
+                          </span>
+                          {/* marcador atual */}
+                          <div
+                            className={`absolute -bottom-1.5 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${pct >= limiteGlobal.critico ? "border-b-destructive" : pct >= limiteGlobal.atencao ? "border-b-warning" : "border-b-success"}`}
+                            style={{ left: `${Math.min(100, pct)}%` }}
+                            aria-hidden
+                          />
+                        </div>
+                        <div className="flex justify-between text-[9px] text-muted-foreground mt-3">
+                          <span>0%</span><span>50%</span><span>100%</span>
+                        </div>
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{totalUsado.toLocaleString("pt-BR")} L em uso</span>
                         <span>de {totalCap.toLocaleString("pt-BR")} L</span>
                       </div>
+                      {(pct >= limiteGlobal.atencao) && (
+                        <p className={`text-[11px] ${pct >= limiteGlobal.critico ? "text-destructive" : "text-warning"}`}>
+                          {pct >= limiteGlobal.critico
+                            ? `Acima do limite crítico em ${pct - limiteGlobal.critico} ponto(s) percentual(is).`
+                            : `Acima do limite de atenção em ${pct - limiteGlobal.atencao} ponto(s) percentual(is).`}
+                        </p>
+                      )}
                     </div>
                   );
                 })()}
