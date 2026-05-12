@@ -893,10 +893,22 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                                 contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }}
                                 formatter={(v: number, n) => n === "coleta" ? [`${v}% antes`, "Coleta"] : [`${v}%`, "Nível"]}
                               />
-                              <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" />
-                              <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" />
+                              <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" label={{ value: `Atenção ${limiteGlobal.atencao}%`, position: "insideTopRight", fill: "hsl(var(--warning))", fontSize: 9 }} />
+                              <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: `Crítico ${limiteGlobal.critico}%`, position: "insideTopRight", fill: "hsl(var(--destructive))", fontSize: 9 }} />
                               <Area type="monotone" dataKey="nivel" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#fillNivel)" />
                               <Area type="monotone" dataKey="coleta" stroke="hsl(var(--success))" strokeWidth={0} fill="hsl(var(--success))" fillOpacity={0.6} dot={{ r: 4, fill: "hsl(var(--success))" }} />
+                              {crossings.map((c, i) => (
+                                <ReferenceDot
+                                  key={`cx-${i}`}
+                                  x={c.dia}
+                                  y={c.y}
+                                  r={4}
+                                  fill={c.tipo === "critico" ? "hsl(var(--destructive))" : "hsl(var(--warning))"}
+                                  stroke="hsl(var(--card))"
+                                  strokeWidth={1.5}
+                                  ifOverflow="extendDomain"
+                                />
+                              ))}
                             </AreaChart>
                           </ResponsiveContainer>
                         </div>
