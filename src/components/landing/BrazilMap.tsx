@@ -361,6 +361,9 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
     if (p) setPontoSelecionado(p);
   }, [pinnedTooltipId, pontos]);
 
+  const locIdsSelecionado = pontoSelecionado?.localizacaoIds || [];
+  const { data: historicoReal = [], isLoading: historicoLoading } = useHistoricoTelemetria(locIdsSelecionado);
+
   return (
     <section id="mapa" className={embedded ? "" : "bg-surface py-16 md:py-20"}>
       <div className={embedded ? "w-full" : "container max-w-7xl mx-auto px-4"}>
