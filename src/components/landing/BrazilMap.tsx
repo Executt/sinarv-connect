@@ -838,6 +838,26 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   const data = historicoReal;
                   const eventos = data.filter((d) => d.coleta != null);
                   const semDados = !historicoLoading && data.every((d) => d.nivel === 0) && eventos.length === 0;
+                  // Detecta cruzamentos do nível com os limites de atenção e crítico
+                  type Cross = { dia: string; y: number; tipo: "atencao" | "critico"; direcao: "subiu" | "desceu" };
+                  const crossings: Cross[] = [];
+                  for (let i = 1; i < data.length; i++) {
+                    const prev = data[i - 1].nivel;
+                    const curr = data[i].nivel;
+                    ([
+                      { y: limiteGlobal.atencao, tipo: "atencao" as const },
+                      { y: limiteGlobal.critico, tipo: "critico" as const },
+                    ]).forEach(({ y, tipo }) => {
+                      if ((prev < y && curr >= y) || (prev > y && curr <= y)) {
+                        crossings.push({
+                          dia: data[i].dia,
+                          y,
+                          tipo,
+                          direcao: curr >= prev ? "subiu" : "desceu",
+                        });
+                      }
+                    });
+                  }
                   return (
                     <div className="border border-border rounded-md p-3 space-y-2">
                       <div className="flex items-center justify-between">
