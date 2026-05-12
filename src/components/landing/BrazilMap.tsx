@@ -119,9 +119,11 @@ const usePontosColeta = () =>
             lng: l.longitude,
             materiais: [],
             atualizadoEm: l.updated_at,
+            localizacaoIds: [],
           });
         }
         const p = grouped.get(key)!;
+        if (!p.localizacaoIds.includes(l.id)) p.localizacaoIds.push(l.id);
         if (l.updated_at && (!p.atualizadoEm || l.updated_at > p.atualizadoEm)) p.atualizadoEm = l.updated_at;
         if (material && !p.materiais.some((m) => m.material === material)) {
           const cap = Number(l.capacidade_litros) || 0;
