@@ -160,6 +160,54 @@ const usePontosColeta = () =>
     },
   });
 
+type HistoricoPonto = { dia: string; ts: number; nivel: number; coleta?: number };
+
+const useHistoricoTelemetria = (locIds: string[]) =>
+  useQuery({
+    queryKey: ["telemetria-historico", [...locIds].sort().join(",")],
+    enabled: locIds.length > 0,
+    queryFn: async (): Promise<HistoricoPonto[]> => {
+      const desde = new Date();
+      desde.setDate(desde.getDate() - 14);
+      const { data, error } = await supabase
+        .from("telemetria_historico" as any)
+        .select("contenedor_localizacao_id, registrado_em, nivel_preenchimento, evento, nivel_antes")
+        .in("contenedor_localizacao_id", locIds)
+        .gte("registrado_em", desde.toISOString())
+        .order("registrado_em", { ascending: true });
+      if (error) throw error;
+
+      // agrupa por dia: média do nível, e captura coleta (maior nivel_antes do dia)
+      const byDay = new Map<string, { soma: number; n: number; coleta?: number }>();
+      (data || []).forEach((r: any) => {
+        const d = new Date(r.registrado_em);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const cur = byDay.get(key) || { soma: 0, n: 0 };
+        cur.soma += Number(r.nivel_preenchimento) || 0;
+        cur.n += 1;
+        if (r.evento === "coleta" && r.nivel_antes != null) {
+          cur.coleta = Math.max(cur.coleta || 0, Number(r.nivel_antes));
+        }
+        byDay.set(key, cur);
+      });
+
+      const out: HistoricoPonto[] = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const agg = byDay.get(key);
+        out.push({
+          dia: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+          ts: d.getTime(),
+          nivel: agg ? Math.round(agg.soma / agg.n) : 0,
+          coleta: agg?.coleta,
+        });
+      }
+      return out;
+    },
+  });
+
 type BrazilMapProps = { embedded?: boolean; hideHeading?: boolean };
 
 const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {}) => {
