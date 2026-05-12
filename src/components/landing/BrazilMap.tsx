@@ -52,6 +52,7 @@ type Ponto = {
   lng?: number | null;
   materiais: MaterialInfo[];
   atualizadoEm: string | null;
+  localizacaoIds: string[];
 };
 
 const fmtData = (s: string | null) =>
@@ -118,9 +119,11 @@ const usePontosColeta = () =>
             lng: l.longitude,
             materiais: [],
             atualizadoEm: l.updated_at,
+            localizacaoIds: [],
           });
         }
         const p = grouped.get(key)!;
+        if (!p.localizacaoIds.includes(l.id)) p.localizacaoIds.push(l.id);
         if (l.updated_at && (!p.atualizadoEm || l.updated_at > p.atualizadoEm)) p.atualizadoEm = l.updated_at;
         if (material && !p.materiais.some((m) => m.material === material)) {
           const cap = Number(l.capacidade_litros) || 0;
@@ -141,7 +144,7 @@ const usePontosColeta = () =>
       (coops || []).forEach((c: any) => {
         grouped.set(`coop-${c.id}`, {
           id: c.id, nome: c.nome, cidade: c.cidade, uf: c.estado,
-          tipo: "Cooperativa", materiais: [], atualizadoEm: c.updated_at,
+          tipo: "Cooperativa", materiais: [], atualizadoEm: c.updated_at, localizacaoIds: [],
         });
       });
 
@@ -149,11 +152,59 @@ const usePontosColeta = () =>
       (inds || []).forEach((i: any) => {
         grouped.set(`ind-${i.id}`, {
           id: i.id, nome: i.nome, cidade: i.cidade, uf: i.estado,
-          tipo: "Indústria", materiais: [], atualizadoEm: i.updated_at,
+          tipo: "Indústria", materiais: [], atualizadoEm: i.updated_at, localizacaoIds: [],
         });
       });
 
       return Array.from(grouped.values());
+    },
+  });
+
+type HistoricoPonto = { dia: string; ts: number; nivel: number; coleta?: number };
+
+const useHistoricoTelemetria = (locIds: string[]) =>
+  useQuery({
+    queryKey: ["telemetria-historico", [...locIds].sort().join(",")],
+    enabled: locIds.length > 0,
+    queryFn: async (): Promise<HistoricoPonto[]> => {
+      const desde = new Date();
+      desde.setDate(desde.getDate() - 14);
+      const { data, error } = await supabase
+        .from("telemetria_historico" as any)
+        .select("contenedor_localizacao_id, registrado_em, nivel_preenchimento, evento, nivel_antes")
+        .in("contenedor_localizacao_id", locIds)
+        .gte("registrado_em", desde.toISOString())
+        .order("registrado_em", { ascending: true });
+      if (error) throw error;
+
+      // agrupa por dia: média do nível, e captura coleta (maior nivel_antes do dia)
+      const byDay = new Map<string, { soma: number; n: number; coleta?: number }>();
+      (data || []).forEach((r: any) => {
+        const d = new Date(r.registrado_em);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const cur = byDay.get(key) || { soma: 0, n: 0 };
+        cur.soma += Number(r.nivel_preenchimento) || 0;
+        cur.n += 1;
+        if (r.evento === "coleta" && r.nivel_antes != null) {
+          cur.coleta = Math.max(cur.coleta || 0, Number(r.nivel_antes));
+        }
+        byDay.set(key, cur);
+      });
+
+      const out: HistoricoPonto[] = [];
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const agg = byDay.get(key);
+        out.push({
+          dia: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+          ts: d.getTime(),
+          nivel: agg ? Math.round(agg.soma / agg.n) : 0,
+          coleta: agg?.coleta,
+        });
+      }
+      return out;
     },
   });
 
@@ -309,6 +360,9 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
     const p = pontos.find((x) => x.id === pinnedTooltipId);
     if (p) setPontoSelecionado(p);
   }, [pinnedTooltipId, pontos]);
+
+  const locIdsSelecionado = pontoSelecionado?.localizacaoIds || [];
+  const { data: historicoReal = [], isLoading: historicoLoading } = useHistoricoTelemetria(locIdsSelecionado);
 
   return (
     <section id="mapa" className={embedded ? "" : "bg-surface py-16 md:py-20"}>
@@ -755,72 +809,61 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   );
                 })()}
 
-                {pontoSelecionado.materiais.length > 0 && (() => {
-                  // Histórico sintético determinístico (14 dias) por ponto + eventos de coleta
-                  const seedStr = pontoSelecionado.id;
-                  let seed = 0;
-                  for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
-                  const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return (seed & 0xffff) / 0xffff; };
-                  const totalCap = pontoSelecionado.materiais.reduce((s, m) => s + m.capacidadeLitros, 0);
-                  const totalUsado = pontoSelecionado.materiais.reduce((s, m) => s + m.litrosEstimados, 0);
-                  const pctAtual = totalCap > 0 ? (totalUsado / totalCap) * 100 : 0;
-                  const dias = 14;
-                  let nivel = Math.max(5, pctAtual - 30 - rand() * 20);
-                  const data: { dia: string; nivel: number; coleta?: number }[] = [];
-                  for (let i = dias - 1; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(d.getDate() - i);
-                    const label = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-                    // tendência rumo ao valor atual + ruído
-                    const incremento = ((pctAtual - nivel) / Math.max(1, i + 1)) + (rand() * 8 - 2);
-                    nivel = Math.max(0, Math.min(100, nivel + incremento));
-                    let coleta: number | undefined;
-                    if (i !== 0 && nivel > limiteGlobal.atencao && rand() < 0.18) {
-                      coleta = Math.round(nivel);
-                      nivel = Math.max(5, nivel - (35 + rand() * 25));
-                    }
-                    data.push({ dia: label, nivel: Math.round(nivel), coleta });
-                  }
-                  // garantir que o último ponto reflita o valor atual
-                  data[data.length - 1].nivel = Math.round(pctAtual);
+                {pontoSelecionado.localizacaoIds.length > 0 && (() => {
+                  const data = historicoReal;
                   const eventos = data.filter((d) => d.coleta != null);
+                  const semDados = !historicoLoading && data.every((d) => d.nivel === 0) && eventos.length === 0;
                   return (
                     <div className="border border-border rounded-md p-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <h4 className="text-sm font-semibold flex items-center gap-2">
                           <TrendingUp className="h-4 w-4 text-primary" /> Histórico de telemetria
                         </h4>
-                        <span className="text-[10px] text-muted-foreground">últimos 14 dias</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {historicoLoading ? "carregando..." : "últimos 14 dias · dados reais"}
+                        </span>
                       </div>
-                      <div className="h-36 -mx-1">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="fillNivel" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                            <XAxis dataKey="dia" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} interval={2} axisLine={false} tickLine={false} />
-                            <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} ticks={[0, 50, 100]} axisLine={false} tickLine={false} />
-                            <ReTooltip
-                              contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }}
-                              formatter={(v: number, n) => n === "coleta" ? [`${v}% antes`, "Coleta"] : [`${v}%`, "Nível"]}
-                            />
-                            <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" />
-                            <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" />
-                            <Area type="monotone" dataKey="nivel" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#fillNivel)" />
-                            <Area type="monotone" dataKey="coleta" stroke="hsl(var(--success))" strokeWidth={0} fill="hsl(var(--success))" fillOpacity={0.6} dot={{ r: 4, fill: "hsl(var(--success))" }} />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground">
-                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> Nível médio</span>
-                        <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Evento de coleta</span>
-                        <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-warning" /> Atenção</span>
-                        <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-destructive" /> Crítico</span>
-                      </div>
+                      {historicoLoading ? (
+                        <div className="h-36 flex items-center justify-center text-xs text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" /> Buscando telemetria...
+                        </div>
+                      ) : semDados ? (
+                        <p className="text-xs text-muted-foreground py-6 text-center">
+                          Sem leituras de telemetria registradas nos últimos 14 dias.
+                        </p>
+                      ) : (
+                        <div className="h-36 -mx-1">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id="fillNivel" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
+                                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                              <XAxis dataKey="dia" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} interval={2} axisLine={false} tickLine={false} />
+                              <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} ticks={[0, 50, 100]} axisLine={false} tickLine={false} />
+                              <ReTooltip
+                                contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }}
+                                formatter={(v: number, n) => n === "coleta" ? [`${v}% antes`, "Coleta"] : [`${v}%`, "Nível"]}
+                              />
+                              <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" />
+                              <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" />
+                              <Area type="monotone" dataKey="nivel" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#fillNivel)" />
+                              <Area type="monotone" dataKey="coleta" stroke="hsl(var(--success))" strokeWidth={0} fill="hsl(var(--success))" fillOpacity={0.6} dot={{ r: 4, fill: "hsl(var(--success))" }} />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+                      {!historicoLoading && !semDados && (
+                        <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+                          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> Nível médio</span>
+                          <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Evento de coleta</span>
+                          <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-warning" /> Atenção</span>
+                          <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-destructive" /> Crítico</span>
+                        </div>
+                      )}
                       {eventos.length > 0 && (
                         <div className="pt-2 border-t border-border space-y-1">
                           <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
