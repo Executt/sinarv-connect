@@ -1307,6 +1307,36 @@ export type Database = {
         }
         Relationships: []
       }
+      telemetria_historico: {
+        Row: {
+          contenedor_localizacao_id: string
+          created_at: string
+          evento: string
+          id: string
+          nivel_antes: number | null
+          nivel_preenchimento: number
+          registrado_em: string
+        }
+        Insert: {
+          contenedor_localizacao_id: string
+          created_at?: string
+          evento?: string
+          id?: string
+          nivel_antes?: number | null
+          nivel_preenchimento?: number
+          registrado_em?: string
+        }
+        Update: {
+          contenedor_localizacao_id?: string
+          created_at?: string
+          evento?: string
+          id?: string
+          nivel_antes?: number | null
+          nivel_preenchimento?: number
+          registrado_em?: string
+        }
+        Relationships: []
+      }
       transacoes: {
         Row: {
           codigo: string
