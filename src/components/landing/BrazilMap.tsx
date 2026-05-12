@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { geoMercator, geoPath } from "d3-geo";
 import { Card } from "@/components/ui/card";
 import { MapPin, Search, Filter, Loader2, Calendar, Gauge, AlertTriangle, Settings2, Pin, ExternalLink, TrendingUp, Truck } from "lucide-react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip as ReTooltip, ReferenceLine, CartesianGrid } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip as ReTooltip, ReferenceLine, ReferenceDot, CartesianGrid } from "recharts";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -796,15 +796,40 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                         </h4>
                         <Badge className={`text-xs border ${styles.badge}`}>{pct}% · {styles.label}</Badge>
                       </div>
-                      <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
-                        <div className={`h-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, pct)}%` }} />
-                        <div className="absolute top-0 h-full border-l border-warning/70" style={{ left: `${limiteGlobal.atencao}%` }} />
-                        <div className="absolute top-0 h-full border-l border-destructive/70" style={{ left: `${limiteGlobal.critico}%` }} />
+                      <div className="pt-5 pb-1">
+                        <div className="relative h-3 w-full rounded-full bg-secondary">
+                          <div className={`h-full rounded-full ${styles.bg} transition-all`} style={{ width: `${Math.min(100, pct)}%` }} />
+                          {/* limites */}
+                          <div className="absolute -top-0.5 h-4 border-l-2 border-warning" style={{ left: `${limiteGlobal.atencao}%` }} />
+                          <div className="absolute -top-0.5 h-4 border-l-2 border-destructive" style={{ left: `${limiteGlobal.critico}%` }} />
+                          <span className="absolute -top-4 -translate-x-1/2 text-[9px] font-medium text-warning whitespace-nowrap" style={{ left: `${limiteGlobal.atencao}%` }}>
+                            Atenção {limiteGlobal.atencao}%
+                          </span>
+                          <span className="absolute -top-4 -translate-x-1/2 text-[9px] font-medium text-destructive whitespace-nowrap" style={{ left: `${limiteGlobal.critico}%` }}>
+                            Crítico {limiteGlobal.critico}%
+                          </span>
+                          {/* marcador atual */}
+                          <div
+                            className={`absolute -bottom-1.5 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${pct >= limiteGlobal.critico ? "border-b-destructive" : pct >= limiteGlobal.atencao ? "border-b-warning" : "border-b-success"}`}
+                            style={{ left: `${Math.min(100, pct)}%` }}
+                            aria-hidden
+                          />
+                        </div>
+                        <div className="flex justify-between text-[9px] text-muted-foreground mt-3">
+                          <span>0%</span><span>50%</span><span>100%</span>
+                        </div>
                       </div>
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{totalUsado.toLocaleString("pt-BR")} L em uso</span>
                         <span>de {totalCap.toLocaleString("pt-BR")} L</span>
                       </div>
+                      {(pct >= limiteGlobal.atencao) && (
+                        <p className={`text-[11px] ${pct >= limiteGlobal.critico ? "text-destructive" : "text-warning"}`}>
+                          {pct >= limiteGlobal.critico
+                            ? `Acima do limite crítico em ${pct - limiteGlobal.critico} ponto(s) percentual(is).`
+                            : `Acima do limite de atenção em ${pct - limiteGlobal.atencao} ponto(s) percentual(is).`}
+                        </p>
+                      )}
                     </div>
                   );
                 })()}
@@ -813,6 +838,26 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                   const data = historicoReal;
                   const eventos = data.filter((d) => d.coleta != null);
                   const semDados = !historicoLoading && data.every((d) => d.nivel === 0) && eventos.length === 0;
+                  // Detecta cruzamentos do nível com os limites de atenção e crítico
+                  type Cross = { dia: string; y: number; tipo: "atencao" | "critico"; direcao: "subiu" | "desceu" };
+                  const crossings: Cross[] = [];
+                  for (let i = 1; i < data.length; i++) {
+                    const prev = data[i - 1].nivel;
+                    const curr = data[i].nivel;
+                    ([
+                      { y: limiteGlobal.atencao, tipo: "atencao" as const },
+                      { y: limiteGlobal.critico, tipo: "critico" as const },
+                    ]).forEach(({ y, tipo }) => {
+                      if ((prev < y && curr >= y) || (prev > y && curr <= y)) {
+                        crossings.push({
+                          dia: data[i].dia,
+                          y,
+                          tipo,
+                          direcao: curr >= prev ? "subiu" : "desceu",
+                        });
+                      }
+                    });
+                  }
                   return (
                     <div className="border border-border rounded-md p-3 space-y-2">
                       <div className="flex items-center justify-between">
@@ -848,10 +893,22 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                                 contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, fontSize: 12 }}
                                 formatter={(v: number, n) => n === "coleta" ? [`${v}% antes`, "Coleta"] : [`${v}%`, "Nível"]}
                               />
-                              <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" />
-                              <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" />
+                              <ReferenceLine y={limiteGlobal.atencao} stroke="hsl(var(--warning))" strokeDasharray="3 3" label={{ value: `Atenção ${limiteGlobal.atencao}%`, position: "insideTopRight", fill: "hsl(var(--warning))", fontSize: 9 }} />
+                              <ReferenceLine y={limiteGlobal.critico} stroke="hsl(var(--destructive))" strokeDasharray="3 3" label={{ value: `Crítico ${limiteGlobal.critico}%`, position: "insideTopRight", fill: "hsl(var(--destructive))", fontSize: 9 }} />
                               <Area type="monotone" dataKey="nivel" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#fillNivel)" />
                               <Area type="monotone" dataKey="coleta" stroke="hsl(var(--success))" strokeWidth={0} fill="hsl(var(--success))" fillOpacity={0.6} dot={{ r: 4, fill: "hsl(var(--success))" }} />
+                              {crossings.map((c, i) => (
+                                <ReferenceDot
+                                  key={`cx-${i}`}
+                                  x={c.dia}
+                                  y={c.y}
+                                  r={4}
+                                  fill={c.tipo === "critico" ? "hsl(var(--destructive))" : "hsl(var(--warning))"}
+                                  stroke="hsl(var(--card))"
+                                  strokeWidth={1.5}
+                                  ifOverflow="extendDomain"
+                                />
+                              ))}
                             </AreaChart>
                           </ResponsiveContainer>
                         </div>
@@ -862,6 +919,22 @@ const BrazilMap = ({ embedded = false, hideHeading = false }: BrazilMapProps = {
                           <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Evento de coleta</span>
                           <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-warning" /> Atenção</span>
                           <span className="inline-flex items-center gap-1"><span className="w-2 h-0.5 bg-destructive" /> Crítico</span>
+                          <span className="inline-flex items-center gap-1"><AlertTriangle className="h-2.5 w-2.5 text-warning" /> Cruzamento de limite</span>
+                        </div>
+                      )}
+                      {!historicoLoading && !semDados && crossings.length > 0 && (
+                        <div className="pt-2 border-t border-border space-y-1">
+                          <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
+                            <AlertTriangle className="h-3 w-3" /> Cruzamentos de limite
+                          </p>
+                          {crossings.slice(-4).reverse().map((c, i) => (
+                            <div key={`cl-${i}`} className="flex items-center justify-between text-[11px]">
+                              <span className="text-muted-foreground">{c.dia}</span>
+                              <span className={c.tipo === "critico" ? "text-destructive" : "text-warning"}>
+                                {c.direcao === "subiu" ? "Ultrapassou" : "Voltou abaixo de"} {c.tipo === "critico" ? "Crítico" : "Atenção"} ({c.y}%)
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       )}
                       {eventos.length > 0 && (
