@@ -43,6 +43,32 @@ jobs:
             echo "file=supabase/scan-report.json" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Generate security report (JSON + HTML)
+        if: always()
+        env:
+          SUPABASE_SCAN_FILE: ${{ steps.scan.outputs.file }}
+        run: node scripts/security-report.mjs
+
+      - name: Upload security report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report-${{ github.run_id }}
+          path: reports/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Publish report summary
+        if: always()
+        run: |
+          if [ -f reports/security-report.json ]; then
+            echo "## 🔐 Security Report" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            node -e "const r=require('./reports/security-report.json');console.log(JSON.stringify(r.summary,null,2));" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "Full HTML + JSON available in the **security-report-${{ github.run_id }}** artifact." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Run security gate
         env:
           SUPABASE_SCAN_FILE: ${{ steps.scan.outputs.file }}
