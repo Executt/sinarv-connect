@@ -98,8 +98,9 @@ Deno.serve(async (req) => {
       }
     );
   } catch (err: any) {
+    console.error("comparar-municipios error:", err);
     return new Response(
-      JSON.stringify({ error: err.message || "Erro interno" }),
+      JSON.stringify({ error: "Erro interno no servidor. Tente novamente mais tarde." }),
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
