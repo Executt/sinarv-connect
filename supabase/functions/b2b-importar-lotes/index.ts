@@ -18,13 +18,27 @@ const BodySchema = z.object({
   lotes: z.array(LoteSchema).min(1).max(100),
 });
 
+async function sha256Hex(input: string): Promise<string> {
+  const bytes = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Auth via API key header
     const apiKey = req.headers.get("Authorization")?.replace("Bearer ", "");
     if (!apiKey) {
       return new Response(
@@ -35,9 +49,11 @@ serve(async (req: Request) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceKey);
+    const supabase = createClient(supabaseUrl, serviceKey, {
+      db: { schema: "sch_industria" as any },
+    });
+    const publicDb = createClient(supabaseUrl, serviceKey);
 
-    // Validate body
     const body = await req.json();
     const parsed = BodySchema.safeParse(body);
     if (!parsed.success) {
@@ -49,16 +65,20 @@ serve(async (req: Request) => {
 
     const { industria_cnpj, lotes } = parsed.data;
 
-    // Lookup API credential
+    // Lookup by prefix, then verify the full hash
     const keyPrefix = apiKey.substring(0, 14);
-    const { data: cred, error: credErr } = await supabase
-      .from("v_api_credential")
-      .select("*")
+    const { data: creds } = await supabase
+      .from("api_credential")
+      .select("id, industria_id, api_key_hash, status")
       .eq("api_key_prefix", keyPrefix)
-      .eq("status", "Ativa")
-      .single();
+      .eq("status", "Ativa");
 
-    if (credErr || !cred) {
+    const presentedHash = await sha256Hex(apiKey);
+    const cred = (creds || []).find((c: any) =>
+      typeof c.api_key_hash === "string" && timingSafeEqual(c.api_key_hash, presentedHash)
+    );
+
+    if (!cred) {
       return new Response(
         JSON.stringify({ error: "api_key_invalida", message: "Chave de API não encontrada ou revogada" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -67,16 +87,14 @@ serve(async (req: Request) => {
 
     const industriaId = (cred as any).industria_id;
 
-    // Process each lote
     const results: any[] = [];
     const errors: any[] = [];
 
     for (const lote of lotes) {
       let tokenValidado = false;
 
-      // Validate token if provided
       if (lote.token_rastreabilidade) {
-        const { data: tokenData } = await supabase.rpc("fn_validar_token_rastreabilidade", {
+        const { data: tokenData } = await publicDb.rpc("fn_validar_token_rastreabilidade", {
           p_token: lote.token_rastreabilidade,
         });
         tokenValidado = tokenData?.[0]?.valido === true;
@@ -84,14 +102,13 @@ serve(async (req: Request) => {
           errors.push({
             nota_fiscal: lote.numero_nota_fiscal,
             error: "token_rastreabilidade_invalido",
-            message: `Token ${lote.token_rastreabilidade} não encontrado nos despachos de cooperativas`,
+            message: "Token de rastreabilidade inválido.",
           });
           continue;
         }
       }
 
-      // Insert lote
-      const { data: inserted, error: insertErr } = await supabase
+      const { data: inserted, error: insertErr } = await publicDb
         .from("v_lote_recebido")
         .insert({
           industria_id: industriaId,
@@ -110,19 +127,19 @@ serve(async (req: Request) => {
         .single();
 
       if (insertErr) {
+        console.error("Insert lote error:", insertErr);
         errors.push({
           nota_fiscal: lote.numero_nota_fiscal,
           error: "erro_insercao",
-          message: insertErr.message,
+          message: "Erro ao inserir lote — contate o suporte.",
         });
       } else {
         results.push({ id: (inserted as any).id, nota_fiscal: lote.numero_nota_fiscal, token_validado: tokenValidado });
       }
     }
 
-    // Log the API call
     const ip = req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || "unknown";
-    await supabase.from("v_api_log").insert({
+    await publicDb.from("v_api_log").insert({
       industria_id: industriaId,
       credential_id: (cred as any).id,
       endpoint: "/api/v1/b2b/industria/importar-lotes",
@@ -133,9 +150,8 @@ serve(async (req: Request) => {
       ip_address: ip,
     });
 
-    // Update last used
     await supabase
-      .from("v_api_credential")
+      .from("api_credential")
       .update({ ultimo_uso: new Date().toISOString() } as any)
       .eq("id", (cred as any).id);
 
@@ -153,7 +169,7 @@ serve(async (req: Request) => {
   } catch (err) {
     console.error("B2B import error:", err);
     return new Response(
-      JSON.stringify({ error: "erro_interno", message: String(err) }),
+      JSON.stringify({ error: "erro_interno", message: "Erro interno no servidor." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
