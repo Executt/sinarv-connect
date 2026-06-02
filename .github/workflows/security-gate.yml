@@ -1,0 +1,50 @@
+name: Security Gate
+
+# Fails the build when any CRITICAL security finding is detected:
+#   - HIGH or CRITICAL npm dependency vulnerabilities (npm audit)
+#   - Backend scan findings with level "error" (Supabase / Lovable scanner)
+#
+# Trigger this workflow on every PR and push to main, and on a daily schedule
+# so the gate catches newly disclosed CVEs against unchanged code.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * *" # daily 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  security-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      # If a Supabase scan report has been uploaded as an artifact by a previous
+      # job or committed to the repo (e.g. supabase/scan-report.json), point the
+      # gate at it. Otherwise only npm audit runs.
+      - name: Locate Supabase scan report (optional)
+        id: scan
+        run: |
+          if [ -f supabase/scan-report.json ]; then
+            echo "file=supabase/scan-report.json" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run security gate
+        env:
+          SUPABASE_SCAN_FILE: ${{ steps.scan.outputs.file }}
+          ALLOW_HIGH_AUDIT: "false"
+        run: node scripts/security-gate.mjs
