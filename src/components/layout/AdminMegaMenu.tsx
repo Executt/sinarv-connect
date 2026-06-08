@@ -179,6 +179,8 @@ const menuGroups: MenuGroup[] = [
         description: "Triggers e automações",
         badge: "novo",
       },
+    ],
+  },
   {
     title: "IA & Agentes",
     items: [
