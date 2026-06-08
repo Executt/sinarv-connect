@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AiCrudShell } from "@/components/admin/AiCrudShell";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +35,6 @@ const AgenteSkillsField = ({ value, onChange }: { value: string[]; onChange: (v:
 };
 
 const AdminAiAgentes = () => {
-  const qc = useQueryClient();
   const { data: modelos = [] } = useQuery({
     queryKey: ["ai_modelos_options"],
     queryFn: async () => (await supabase.from("ai_modelos").select("id,nome").eq("status", "ativo").order("nome")).data ?? [],
@@ -62,6 +61,16 @@ const AdminAiAgentes = () => {
       fromRow={async (r) => {
         const { data } = await supabase.from("ai_agente_skills").select("skill_id").eq("agente_id", r.id);
         return { ...r, modelo_id: r.modelo_id ?? "", base_conhecimento_id: r.base_conhecimento_id ?? "", _skills: (data ?? []).map((x: any) => x.skill_id) };
+      }}
+      afterSave={async (form, saved) => {
+        if (!saved?.id) return;
+        await supabase.from("ai_agente_skills").delete().eq("agente_id", saved.id);
+        const skillIds: string[] = form._skills ?? [];
+        if (skillIds.length > 0) {
+          const rows = skillIds.map((sid, i) => ({ agente_id: saved.id, skill_id: sid, ordem: i }));
+          const { error } = await supabase.from("ai_agente_skills").insert(rows);
+          if (error) toast.error("Falha ao salvar skills do agente");
+        }
       }}
       columns={[
         { header: "Nome", cell: (r: any) => <span className="font-medium">{r.nome}</span> },
@@ -104,26 +113,10 @@ const AdminAiAgentes = () => {
           <div><Label>Descrição</Label><Textarea value={f.descricao ?? ""} onChange={(e) => setF({ ...f, descricao: e.target.value })} rows={2} /></div>
           <div><Label>Prompt de sistema</Label><Textarea value={f.prompt_sistema ?? ""} onChange={(e) => setF({ ...f, prompt_sistema: e.target.value })} rows={5} className="font-mono text-xs" /></div>
           <div><Label>Skills atribuídas</Label><AgenteSkillsField value={f._skills ?? []} onChange={(v) => setF({ ...f, _skills: v })} /></div>
-          <SkillsSyncTrigger form={f} />
         </>
       )}
     />
   );
-
-  function SkillsSyncTrigger({ form }: { form: any }) {
-    // Sync skills after agent save: listen to mutation invalidation via post-save hook.
-    return null;
-  }
 };
 
 export default AdminAiAgentes;
-
-// Skill sync helper exported separately — used via custom save hook if needed.
-export const syncAgenteSkills = async (agenteId: string, skillIds: string[]) => {
-  await supabase.from("ai_agente_skills").delete().eq("agente_id", agenteId);
-  if (skillIds.length > 0) {
-    const rows = skillIds.map((sid, i) => ({ agente_id: agenteId, skill_id: sid, ordem: i }));
-    const { error } = await supabase.from("ai_agente_skills").insert(rows);
-    if (error) toast.error("Falha ao salvar skills do agente");
-  }
-};
