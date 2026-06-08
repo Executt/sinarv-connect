@@ -26,8 +26,9 @@ interface Props<T> {
   renderForm: (form: any, setForm: (v: any) => void) => ReactNode;
   validate?: (form: any) => string | null;
   toRow?: (form: any) => any;
-  fromRow?: (row: any) => any;
+  fromRow?: (row: any) => any | Promise<any>;
   dialogTitle?: string;
+  afterSave?: (form: any, savedRow: any) => Promise<void> | void;
 }
 
 export function AiCrudShell<T extends { id: string }>({
