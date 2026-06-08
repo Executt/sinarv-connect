@@ -54,13 +54,17 @@ export function AiCrudShell<T extends { id: string }>({
       const err = validate?.(form);
       if (err) throw new Error(err);
       const payload = toRow ? toRow(form) : form;
+      let saved: any;
       if (editing) {
-        const { error } = await supabase.from(tableName).update(payload).eq("id", editing.id);
+        const { data, error } = await supabase.from(tableName).update(payload).eq("id", editing.id).select().single();
         if (error) throw error;
+        saved = data;
       } else {
-        const { error } = await supabase.from(tableName).insert(payload);
+        const { data, error } = await supabase.from(tableName).insert(payload).select().single();
         if (error) throw error;
+        saved = data;
       }
+      if (afterSave) await afterSave(form, saved);
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: [queryKey] }); toast.success("Salvo"); setOpen(false); setEditing(null); },
     onError: (e: any) => toast.error(e.message),
@@ -73,7 +77,7 @@ export function AiCrudShell<T extends { id: string }>({
   });
 
   const openNew = () => { setEditing(null); setForm(emptyForm); setOpen(true); };
-  const openEdit = (r: any) => { setEditing(r); setForm(fromRow ? fromRow(r) : r); setOpen(true); };
+  const openEdit = async (r: any) => { setEditing(r); setForm(fromRow ? await fromRow(r) : r); setOpen(true); };
 
   return (
     <div className="space-y-4">
