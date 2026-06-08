@@ -33,7 +33,7 @@ interface Props<T> {
 
 export function AiCrudShell<T extends { id: string }>({
   title, description, icon, tableName, queryKey, orderBy = "created_at",
-  columns, emptyForm, renderForm, validate, toRow, fromRow, dialogTitle,
+  columns, emptyForm, renderForm, validate, toRow, fromRow, dialogTitle, afterSave,
 }: Props<T>) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
