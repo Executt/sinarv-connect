@@ -179,6 +179,17 @@ const menuGroups: MenuGroup[] = [
         description: "Triggers e automações",
         badge: "novo",
       },
+  {
+    title: "IA & Agentes",
+    items: [
+      { label: "Modelos LLM", to: "/admin/ia/modelos", icon: Cpu, description: "Free, pagos e treinados", badge: "novo" },
+      { label: "Agentes", to: "/admin/ia/agentes", icon: Bot, description: "Modelo, prompt, base e skills", badge: "novo" },
+      { label: "Skills", to: "/admin/ia/skills", icon: Wand2, description: "Catálogo de ferramentas", badge: "novo" },
+      { label: "MCP", to: "/admin/ia/mcp", icon: Plug, description: "Servidores Model Context Protocol", badge: "novo" },
+      { label: "Base de Conhecimento", to: "/admin/ia/base-conhecimento", icon: BookOpen, description: "Documentos para RAG", badge: "novo" },
+      { label: "Tokens", to: "/admin/ia/tokens", icon: KeyRound, description: "API keys de provedores", badge: "novo" },
+      { label: "Cotas", to: "/admin/ia/cotas", icon: Gauge, description: "Limites por usuário", badge: "novo" },
+      { label: "Consumo", to: "/admin/ia/consumo", icon: Activity, description: "Log de chamadas e custo", badge: "novo" },
     ],
   },
 ];
