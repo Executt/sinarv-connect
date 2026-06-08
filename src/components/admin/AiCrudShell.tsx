@@ -44,7 +44,7 @@ export function AiCrudShell<T extends { id: string }>({
     queryFn: async () => {
       const { data, error } = await supabase.from(tableName).select("*").order(orderBy, { ascending: false });
       if (error) throw error;
-      return data as T[];
+      return (data ?? []) as unknown as T[];
     },
   });
 
