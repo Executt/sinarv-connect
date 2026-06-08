@@ -74,6 +74,16 @@ import AdminWebhooks from "./pages/admin/AdminWebhooks";
 import AdminSEI from "./pages/admin/AdminSEI";
 import AdminNotificacoes from "./pages/admin/AdminNotificacoes";
 
+// Admin IA
+import AdminAiModelos from "./pages/admin/AdminAiModelos";
+import AdminAiMcp from "./pages/admin/AdminAiMcp";
+import AdminAiBaseConhecimento from "./pages/admin/AdminAiBaseConhecimento";
+import AdminAiSkills from "./pages/admin/AdminAiSkills";
+import AdminAiAgentes from "./pages/admin/AdminAiAgentes";
+import AdminAiTokens from "./pages/admin/AdminAiTokens";
+import AdminAiCotas from "./pages/admin/AdminAiCotas";
+import AdminAiConsumo from "./pages/admin/AdminAiConsumo";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -180,6 +190,15 @@ const App = () => (
               <Route path="iot" element={<AdminInventarioIoT />} />
               <Route path="listas" element={<AdminListasSuspensas />} />
               <Route path="acoes-automaticas" element={<AdminAcoesAutomaticas />} />
+              {/* IA & Agentes */}
+              <Route path="ia/modelos" element={<AdminAiModelos />} />
+              <Route path="ia/mcp" element={<AdminAiMcp />} />
+              <Route path="ia/base-conhecimento" element={<AdminAiBaseConhecimento />} />
+              <Route path="ia/skills" element={<AdminAiSkills />} />
+              <Route path="ia/agentes" element={<AdminAiAgentes />} />
+              <Route path="ia/tokens" element={<AdminAiTokens />} />
+              <Route path="ia/cotas" element={<AdminAiCotas />} />
+              <Route path="ia/consumo" element={<AdminAiConsumo />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

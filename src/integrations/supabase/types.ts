@@ -41,6 +41,378 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_agente_skills: {
+        Row: {
+          agente_id: string
+          created_at: string
+          ordem: number
+          skill_id: string
+        }
+        Insert: {
+          agente_id: string
+          created_at?: string
+          ordem?: number
+          skill_id: string
+        }
+        Update: {
+          agente_id?: string
+          created_at?: string
+          ordem?: number
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_agente_skills_agente_id_fkey"
+            columns: ["agente_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agentes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_agente_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "ai_skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_agentes: {
+        Row: {
+          base_conhecimento_id: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          max_tokens: number
+          modelo_id: string | null
+          nome: string
+          prompt_sistema: string
+          status: Database["public"]["Enums"]["ai_status"]
+          temperatura: number
+          updated_at: string
+        }
+        Insert: {
+          base_conhecimento_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          max_tokens?: number
+          modelo_id?: string | null
+          nome: string
+          prompt_sistema?: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          temperatura?: number
+          updated_at?: string
+        }
+        Update: {
+          base_conhecimento_id?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          max_tokens?: number
+          modelo_id?: string | null
+          nome?: string
+          prompt_sistema?: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          temperatura?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_agentes_base_conhecimento_id_fkey"
+            columns: ["base_conhecimento_id"]
+            isOneToOne: false
+            referencedRelation: "ai_base_conhecimento"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_agentes_modelo_id_fkey"
+            columns: ["modelo_id"]
+            isOneToOne: false
+            referencedRelation: "ai_modelos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_base_conhecimento: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          modelo_embedding: string | null
+          nome: string
+          status: Database["public"]["Enums"]["ai_status"]
+          tipo: string
+          total_chunks: number
+          total_documentos: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          modelo_embedding?: string | null
+          nome: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          tipo?: string
+          total_chunks?: number
+          total_documentos?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          modelo_embedding?: string | null
+          nome?: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          tipo?: string
+          total_chunks?: number
+          total_documentos?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_consumo_log: {
+        Row: {
+          agente_id: string | null
+          created_at: string
+          custo_estimado: number
+          id: string
+          modelo_id: string | null
+          sucesso: boolean
+          tokens_input: number
+          tokens_output: number
+          user_id: string | null
+        }
+        Insert: {
+          agente_id?: string | null
+          created_at?: string
+          custo_estimado?: number
+          id?: string
+          modelo_id?: string | null
+          sucesso?: boolean
+          tokens_input?: number
+          tokens_output?: number
+          user_id?: string | null
+        }
+        Update: {
+          agente_id?: string | null
+          created_at?: string
+          custo_estimado?: number
+          id?: string
+          modelo_id?: string | null
+          sucesso?: boolean
+          tokens_input?: number
+          tokens_output?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_consumo_log_agente_id_fkey"
+            columns: ["agente_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agentes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_consumo_log_modelo_id_fkey"
+            columns: ["modelo_id"]
+            isOneToOne: false
+            referencedRelation: "ai_modelos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_cotas_usuario: {
+        Row: {
+          created_at: string
+          id: string
+          limite_tokens_mes: number
+          observacoes: string | null
+          reset_em: string
+          tokens_consumidos_mes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          limite_tokens_mes?: number
+          observacoes?: string | null
+          reset_em?: string
+          tokens_consumidos_mes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          limite_tokens_mes?: number
+          observacoes?: string | null
+          reset_em?: string
+          tokens_consumidos_mes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_mcp_servers: {
+        Row: {
+          auth_secret_name: string | null
+          auth_tipo: string
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          status: Database["public"]["Enums"]["ai_status"]
+          transporte: Database["public"]["Enums"]["ai_mcp_transporte"]
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          auth_secret_name?: string | null
+          auth_tipo?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          transporte?: Database["public"]["Enums"]["ai_mcp_transporte"]
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          auth_secret_name?: string | null
+          auth_tipo?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          transporte?: Database["public"]["Enums"]["ai_mcp_transporte"]
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      ai_modelos: {
+        Row: {
+          categoria: Database["public"]["Enums"]["ai_modelo_categoria"]
+          contexto_max: number
+          created_at: string
+          custo_input_1k: number
+          custo_output_1k: number
+          descricao: string | null
+          id: string
+          identificador: string
+          nome: string
+          provedor: string
+          status: Database["public"]["Enums"]["ai_status"]
+          suporta_imagem: boolean
+          suporta_tools: boolean
+          updated_at: string
+        }
+        Insert: {
+          categoria?: Database["public"]["Enums"]["ai_modelo_categoria"]
+          contexto_max?: number
+          created_at?: string
+          custo_input_1k?: number
+          custo_output_1k?: number
+          descricao?: string | null
+          id?: string
+          identificador: string
+          nome: string
+          provedor: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          suporta_imagem?: boolean
+          suporta_tools?: boolean
+          updated_at?: string
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["ai_modelo_categoria"]
+          contexto_max?: number
+          created_at?: string
+          custo_input_1k?: number
+          custo_output_1k?: number
+          descricao?: string | null
+          id?: string
+          identificador?: string
+          nome?: string
+          provedor?: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          suporta_imagem?: boolean
+          suporta_tools?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_skills: {
+        Row: {
+          categoria: string
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          schema_entrada: Json
+          status: Database["public"]["Enums"]["ai_status"]
+          updated_at: string
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          schema_entrada?: Json
+          status?: Database["public"]["Enums"]["ai_status"]
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          schema_entrada?: Json
+          status?: Database["public"]["Enums"]["ai_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_tokens_provedores: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          provedor: string
+          rotulo: string
+          secret_name: string
+          status: Database["public"]["Enums"]["ai_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          provedor: string
+          rotulo: string
+          secret_name: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          provedor?: string
+          rotulo?: string
+          secret_name?: string
+          status?: Database["public"]["Enums"]["ai_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       alertas: {
         Row: {
           codigo: string
@@ -2508,6 +2880,9 @@ export type Database = {
       }
     }
     Enums: {
+      ai_mcp_transporte: "http" | "sse" | "stdio"
+      ai_modelo_categoria: "free" | "pago" | "treinado"
+      ai_status: "ativo" | "inativo" | "manutencao"
       alert_severity: "critical" | "high" | "medium" | "low"
       alert_status: "active" | "acknowledged" | "resolved"
       app_role:
@@ -2646,6 +3021,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_mcp_transporte: ["http", "sse", "stdio"],
+      ai_modelo_categoria: ["free", "pago", "treinado"],
+      ai_status: ["ativo", "inativo", "manutencao"],
       alert_severity: ["critical", "high", "medium", "low"],
       alert_status: ["active", "acknowledged", "resolved"],
       app_role: [

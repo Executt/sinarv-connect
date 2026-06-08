@@ -26,6 +26,16 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin/iot": { title: "Inventário IoT", subtitle: "Modelos de dispositivos e instâncias instaladas" },
   "/admin/listas": { title: "Listas Suspensas", subtitle: "Catálogos de opções reutilizáveis" },
   "/admin/acoes-automaticas": { title: "Ações Automáticas", subtitle: "Gatilhos, condições e ações" },
+
+  // IA & Agentes
+  "/admin/ia/modelos": { title: "Modelos LLM", subtitle: "Modelos free, pagos e treinados" },
+  "/admin/ia/mcp": { title: "Servidores MCP", subtitle: "Model Context Protocol — conectores" },
+  "/admin/ia/base-conhecimento": { title: "Base de Conhecimento", subtitle: "Documentos e fontes para RAG" },
+  "/admin/ia/skills": { title: "Skills", subtitle: "Catálogo de ferramentas disponíveis aos agentes" },
+  "/admin/ia/agentes": { title: "Agentes de IA", subtitle: "Configuração de agentes com modelo, prompt, base e skills" },
+  "/admin/ia/tokens": { title: "Tokens de Provedores", subtitle: "Referências a API keys no cofre de segredos" },
+  "/admin/ia/cotas": { title: "Cotas de Tokens", subtitle: "Limites mensais de consumo por usuário" },
+  "/admin/ia/consumo": { title: "Consumo de IA", subtitle: "Log de chamadas, tokens e custo estimado" },
 };
 
 const AdminLayout = () => (
