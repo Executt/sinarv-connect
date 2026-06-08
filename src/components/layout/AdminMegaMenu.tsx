@@ -19,6 +19,11 @@ import {
   MapPin,
   Cpu,
   Zap,
+  Bot,
+  BookOpen,
+  Wand2,
+  Gauge,
+  Activity,
 } from "lucide-react";
 
 interface MenuItem {
