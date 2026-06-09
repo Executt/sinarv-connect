@@ -117,6 +117,18 @@ const DashboardBenchmarks = () => {
   const { data: municipios, isLoading: loadingMunicipios } = useMunicipios();
   const { data: selos, isLoading: loadingSelos } = useSelos();
   const { data: municipiosRanked, isLoading: loadingMunRanked } = useMunicipiosRanked();
+  const { data: economia } = useEconomiaEstado();
+
+  const economiaByUF = useMemo(() => {
+    const map = new Map<string, { rs_per_capita: number; volume_m3: number }>();
+    economia?.forEach((e) => {
+      map.set(e.uf, {
+        rs_per_capita: Number(e.economia_per_capita_rs || 0),
+        volume_m3: Number(e.volume_reciclado_m3 || 0),
+      });
+    });
+    return map;
+  }, [economia]);
 
   const [mun1, setMun1] = useState<string>("");
   const [mun2, setMun2] = useState<string>("");
