@@ -359,6 +359,12 @@ const DashboardBenchmarks = () => {
                         <TableCell className="text-xs text-right">
                           {Number(e.taxa_desvio_aterro).toFixed(1)}%
                         </TableCell>
+                        <TableCell className="text-xs text-right text-gray-700">
+                          {(((economiaByUF.get(e.uf)?.volume_m3 ?? 0)) / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                        </TableCell>
+                        <TableCell className="text-xs text-right font-semibold" style={{ color: FIORI_GREEN }}>
+                          {(economiaByUF.get(e.uf)?.rs_per_capita ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}
+                        </TableCell>
                         <TableCell className="text-center">
                           {e.meta_pnrs_cumprida ? (
                             <Badge className="text-[10px] px-2 py-0.5" style={{ backgroundColor: FIORI_GREEN, color: "white" }}>
