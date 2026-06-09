@@ -337,6 +337,8 @@ const DashboardBenchmarks = () => {
                       <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>População</TableHead>
                       <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>kg/hab/ano</TableHead>
                       <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Desvio Aterro</TableHead>
+                      <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_GREEN }}>Volume (mil m³)</TableHead>
+                      <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_GREEN }}>R$/hab/ano</TableHead>
                       <TableHead className="text-xs font-semibold text-center" style={{ color: FIORI_BLUE_DARK }}>Meta PNRS</TableHead>
                     </TableRow>
                   </TableHeader>
