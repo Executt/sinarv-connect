@@ -970,6 +970,51 @@ export type Database = {
         }
         Relationships: []
       }
+      economia_fatores_material: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          custo_aterro_evitado_rs_ton: number
+          densidade_ton_m3: number
+          fonte: string | null
+          id: string
+          material: string
+          uf: string | null
+          updated_at: string
+          valor_reciclado_rs_ton: number
+          vigencia_fim: string | null
+          vigencia_inicio: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          custo_aterro_evitado_rs_ton?: number
+          densidade_ton_m3: number
+          fonte?: string | null
+          id?: string
+          material: string
+          uf?: string | null
+          updated_at?: string
+          valor_reciclado_rs_ton?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          custo_aterro_evitado_rs_ton?: number
+          densidade_ton_m3?: number
+          fonte?: string | null
+          id?: string
+          material?: string
+          uf?: string | null
+          updated_at?: string
+          valor_reciclado_rs_ton?: number
+          vigencia_fim?: string | null
+          vigencia_inicio?: string
+        }
+        Relationships: []
+      }
       entidades_perfis: {
         Row: {
           ativo: boolean
@@ -2851,6 +2896,20 @@ export type Database = {
           uf?: string | null
           volume_coletado_ton?: number | null
           volume_reciclado_ton?: number | null
+        }
+        Relationships: []
+      }
+      vw_economia_estado: {
+        Row: {
+          ano_referencia: number | null
+          economia_per_capita_rs: number | null
+          economia_total_rs: number | null
+          estado_ibge: string | null
+          nome_estado: string | null
+          populacao: number | null
+          uf: string | null
+          volume_reciclado_m3: number | null
+          volume_reciclado_ton: number | null
         }
         Relationships: []
       }
