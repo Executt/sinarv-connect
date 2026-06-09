@@ -1,12 +1,14 @@
-import { TrendingUp, Recycle, Scale, Leaf } from "lucide-react";
+import { TrendingUp, Recycle, Scale, Leaf, DollarSign, Box } from "lucide-react";
 import { useInView, useCountUp } from "@/hooks/use-in-view";
-import { useIndicadores } from "@/hooks/use-sinarv-data";
+import { useIndicadores, useEconomiaEstado } from "@/hooks/use-sinarv-data";
 
 const iconMap: Record<string, typeof Recycle> = {
   "Toneladas Recicladas Hoje": Recycle,
   "CO₂ Evitado (mês)": Leaf,
   "Cooperativas Ativas": TrendingUp,
   "Empregos Gerados": Scale,
+  "Economia Gerada (R$ mi)": DollarSign,
+  "Volume Desviado (mil m³)": Box,
 };
 
 const fallbackIndicators = [
