@@ -64,3 +64,26 @@ export const useIndicadores = () =>
       return data;
     },
   });
+
+export const useEconomiaEstado = () =>
+  useQuery({
+    queryKey: ["vw_economia_estado"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("vw_economia_estado")
+        .select("*")
+        .order("economia_total_rs", { ascending: false });
+      if (error) throw error;
+      return data as Array<{
+        estado_ibge: string;
+        uf: string;
+        nome_estado: string;
+        populacao: number;
+        volume_reciclado_ton: number;
+        volume_reciclado_m3: number;
+        economia_total_rs: number;
+        economia_per_capita_rs: number;
+        ano_referencia: number;
+      }>;
+    },
+  });

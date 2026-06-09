@@ -1,12 +1,14 @@
-import { TrendingUp, Recycle, Scale, Leaf } from "lucide-react";
+import { TrendingUp, Recycle, Scale, Leaf, DollarSign, Box } from "lucide-react";
 import { useInView, useCountUp } from "@/hooks/use-in-view";
-import { useIndicadores } from "@/hooks/use-sinarv-data";
+import { useIndicadores, useEconomiaEstado } from "@/hooks/use-sinarv-data";
 
 const iconMap: Record<string, typeof Recycle> = {
   "Toneladas Recicladas Hoje": Recycle,
   "CO₂ Evitado (mês)": Leaf,
   "Cooperativas Ativas": TrendingUp,
   "Empregos Gerados": Scale,
+  "Economia Gerada (R$ mi)": DollarSign,
+  "Volume Desviado (mil m³)": Box,
 };
 
 const fallbackIndicators = [
@@ -45,10 +47,26 @@ const CounterCard = ({ label, numericValue, suffix, index, inView }: { label: st
 const SustainabilityIndicators = () => {
   const { ref, inView } = useInView();
   const { data: dbIndicators } = useIndicadores();
+  const { data: economia } = useEconomiaEstado();
 
-  const indicators = dbIndicators && dbIndicators.length > 0
+  const baseIndicators = dbIndicators && dbIndicators.length > 0
     ? dbIndicators.map((ind) => ({ label: ind.label, value: Number(ind.value), suffix: ind.suffix }))
     : fallbackIndicators;
+
+  const totalEconomiaMi = economia
+    ? Math.round(economia.reduce((sum, e) => sum + Number(e.economia_total_rs || 0), 0) / 1_000_000)
+    : 0;
+  const totalVolumeMilM3 = economia
+    ? Math.round(economia.reduce((sum, e) => sum + Number(e.volume_reciclado_m3 || 0), 0) / 1_000)
+    : 0;
+
+  const indicators = totalEconomiaMi > 0
+    ? [
+        ...baseIndicators,
+        { label: "Economia Gerada (R$ mi)", value: totalEconomiaMi, suffix: "" },
+        { label: "Volume Desviado (mil m³)", value: totalVolumeMilM3, suffix: "" },
+      ]
+    : baseIndicators;
 
   return (
     <section id="indicadores" className="bg-background py-16 md:py-20">

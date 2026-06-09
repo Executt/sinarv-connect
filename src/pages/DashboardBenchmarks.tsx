@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEconomiaEstado } from "@/hooks/use-sinarv-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -117,6 +118,18 @@ const DashboardBenchmarks = () => {
   const { data: municipios, isLoading: loadingMunicipios } = useMunicipios();
   const { data: selos, isLoading: loadingSelos } = useSelos();
   const { data: municipiosRanked, isLoading: loadingMunRanked } = useMunicipiosRanked();
+  const { data: economia } = useEconomiaEstado();
+
+  const economiaByUF = useMemo(() => {
+    const map = new Map<string, { rs_per_capita: number; volume_m3: number }>();
+    economia?.forEach((e) => {
+      map.set(e.uf, {
+        rs_per_capita: Number(e.economia_per_capita_rs || 0),
+        volume_m3: Number(e.volume_reciclado_m3 || 0),
+      });
+    });
+    return map;
+  }, [economia]);
 
   const [mun1, setMun1] = useState<string>("");
   const [mun2, setMun2] = useState<string>("");
@@ -324,6 +337,8 @@ const DashboardBenchmarks = () => {
                       <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>População</TableHead>
                       <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>kg/hab/ano</TableHead>
                       <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_BLUE_DARK }}>Desvio Aterro</TableHead>
+                      <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_GREEN }}>Volume (mil m³)</TableHead>
+                      <TableHead className="text-xs font-semibold text-right" style={{ color: FIORI_GREEN }}>R$/hab/ano</TableHead>
                       <TableHead className="text-xs font-semibold text-center" style={{ color: FIORI_BLUE_DARK }}>Meta PNRS</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -343,6 +358,12 @@ const DashboardBenchmarks = () => {
                         </TableCell>
                         <TableCell className="text-xs text-right">
                           {Number(e.taxa_desvio_aterro).toFixed(1)}%
+                        </TableCell>
+                        <TableCell className="text-xs text-right text-gray-700">
+                          {(((economiaByUF.get(e.uf)?.volume_m3 ?? 0)) / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}
+                        </TableCell>
+                        <TableCell className="text-xs text-right font-semibold" style={{ color: FIORI_GREEN }}>
+                          {(economiaByUF.get(e.uf)?.rs_per_capita ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}
                         </TableCell>
                         <TableCell className="text-center">
                           {e.meta_pnrs_cumprida ? (
