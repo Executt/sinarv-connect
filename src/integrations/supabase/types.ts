@@ -1490,6 +1490,113 @@ export type Database = {
           },
         ]
       }
+      lixao_volume_historico: {
+        Row: {
+          created_at: string
+          id: string
+          lixao_id: string
+          mes_referencia: string
+          observacoes: string | null
+          residuo_recuperavel_pct: number | null
+          updated_at: string
+          volume_estocado_m3: number
+          volume_recuperado_m3: number
+          volume_removido_m3: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lixao_id: string
+          mes_referencia: string
+          observacoes?: string | null
+          residuo_recuperavel_pct?: number | null
+          updated_at?: string
+          volume_estocado_m3: number
+          volume_recuperado_m3?: number
+          volume_removido_m3?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lixao_id?: string
+          mes_referencia?: string
+          observacoes?: string | null
+          residuo_recuperavel_pct?: number | null
+          updated_at?: string
+          volume_estocado_m3?: number
+          volume_recuperado_m3?: number
+          volume_removido_m3?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lixao_volume_historico_lixao_id_fkey"
+            columns: ["lixao_id"]
+            isOneToOne: false
+            referencedRelation: "lixoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lixoes: {
+        Row: {
+          area_ha: number | null
+          created_at: string
+          data_abertura: string | null
+          data_encerramento_prevista: string | null
+          data_encerramento_real: string | null
+          fonte: string | null
+          id: string
+          latitude: number
+          longitude: number
+          municipio: string
+          nome: string
+          observacoes: string | null
+          status: Database["public"]["Enums"]["lixao_status"]
+          tipo: Database["public"]["Enums"]["lixao_tipo"]
+          uf: string
+          updated_at: string
+          volume_estocado_m3_inicial: number | null
+        }
+        Insert: {
+          area_ha?: number | null
+          created_at?: string
+          data_abertura?: string | null
+          data_encerramento_prevista?: string | null
+          data_encerramento_real?: string | null
+          fonte?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          municipio: string
+          nome: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["lixao_status"]
+          tipo?: Database["public"]["Enums"]["lixao_tipo"]
+          uf: string
+          updated_at?: string
+          volume_estocado_m3_inicial?: number | null
+        }
+        Update: {
+          area_ha?: number | null
+          created_at?: string
+          data_abertura?: string | null
+          data_encerramento_prevista?: string | null
+          data_encerramento_real?: string | null
+          fonte?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          municipio?: string
+          nome?: string
+          observacoes?: string | null
+          status?: Database["public"]["Enums"]["lixao_status"]
+          tipo?: Database["public"]["Enums"]["lixao_tipo"]
+          uf?: string
+          updated_at?: string
+          volume_estocado_m3_inicial?: number | null
+        }
+        Relationships: []
+      }
       lotes: {
         Row: {
           codigo: string
@@ -2913,6 +3020,25 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_lixoes_correlacao: {
+        Row: {
+          correlacao_reciclagem_pct: number | null
+          economia_estimada_rs: number | null
+          lixoes_ativos: number | null
+          lixoes_em_encerramento: number | null
+          lixoes_encerrados: number | null
+          lixoes_recuperados: number | null
+          taxa_desvio_aterro_uf: number | null
+          taxa_reducao_pct: number | null
+          uf: string | null
+          volume_estocado_m3_total: number | null
+          volume_inicial_m3_total: number | null
+          volume_reciclado_ton_uf: number | null
+          volume_recuperado_m3_total: number | null
+          volume_removido_m3_total: number | null
+        }
+        Relationships: []
+      }
       vw_ranking_estadual: {
         Row: {
           ano_referencia: number | null
@@ -2951,6 +3077,12 @@ export type Database = {
         | "ponto_coleta"
         | "super_admin"
       audit_status: "Conforme" | "Não Conforme" | "Pendente" | "Em Análise"
+      lixao_status: "ativo" | "em_encerramento" | "encerrado" | "recuperado"
+      lixao_tipo:
+        | "lixao"
+        | "aterro_controlado"
+        | "aterro_sanitario"
+        | "transbordo"
       lote_status: "Coletado" | "Em Processamento" | "Em Trânsito" | "Entregue"
       transaction_status: "Concluída" | "Em Trânsito" | "Pendente" | "Auditoria"
     }
@@ -3093,6 +3225,13 @@ export const Constants = {
         "super_admin",
       ],
       audit_status: ["Conforme", "Não Conforme", "Pendente", "Em Análise"],
+      lixao_status: ["ativo", "em_encerramento", "encerrado", "recuperado"],
+      lixao_tipo: [
+        "lixao",
+        "aterro_controlado",
+        "aterro_sanitario",
+        "transbordo",
+      ],
       lote_status: ["Coletado", "Em Processamento", "Em Trânsito", "Entregue"],
       transaction_status: ["Concluída", "Em Trânsito", "Pendente", "Auditoria"],
     },

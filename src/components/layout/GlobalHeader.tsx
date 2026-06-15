@@ -46,6 +46,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Alertas", to: "/dashboard/alertas" },
       { label: "Usuários", to: "/dashboard/usuarios" },
       { label: "Benchmarks", to: "/dashboard/benchmarks" },
+      { label: "Lixões", to: "/dashboard/lixoes" },
     ],
   },
   "/cooperativa": {
