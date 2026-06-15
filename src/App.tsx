@@ -115,6 +115,7 @@ const App = () => (
               <Route path="alertas" element={<Alertas />} />
               <Route path="usuarios" element={<DashboardUsuarios />} />
               <Route path="benchmarks" element={<DashboardBenchmarks />} />
+              <Route path="lixoes" element={<DashboardLixoes />} />
             </Route>
 
             {/* Cooperativa - requires 'cooperativa' role */}
