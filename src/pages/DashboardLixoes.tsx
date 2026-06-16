@@ -89,6 +89,7 @@ type Correlacao = {
 const DashboardLixoes = () => {
   const [filtroUF, setFiltroUF] = useState<string>("todas");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
 
   const { data: lixoes = [] } = useQuery({
     queryKey: ["lixoes"],
