@@ -520,6 +520,166 @@ const DashboardLixoes = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* === Painel de detalhes do lixão === */}
+      <Sheet open={!!selectedLixao} onOpenChange={(o) => !o && setSelectedLixaoId(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+          {selectedLixao && (
+            <>
+              <SheetHeader className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <MapPin className="h-5 w-5 mt-0.5" style={{ color: STATUS_COLOR[selectedLixao.status] }} />
+                  <div className="flex-1">
+                    <SheetTitle>{selectedLixao.nome}</SheetTitle>
+                    <SheetDescription>
+                      {selectedLixao.municipio} — {selectedLixao.uf}
+                    </SheetDescription>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">{TIPO_LABEL[selectedLixao.tipo]}</Badge>
+                  <Badge style={{ background: STATUS_COLOR[selectedLixao.status], color: "#fff" }}>
+                    {STATUS_LABEL[selectedLixao.status]}
+                  </Badge>
+                  {selectedLixao.area_ha && (
+                    <Badge variant="secondary">{selectedLixao.area_ha} ha</Badge>
+                  )}
+                </div>
+              </SheetHeader>
+
+              {/* KPIs do lixão */}
+              <div className="grid grid-cols-2 gap-3 mt-6">
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-muted-foreground">Volume inicial</p>
+                    <p className="text-lg font-bold">{fmtNum(selectedKpis.inicial)} m³</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-muted-foreground">Volume atual</p>
+                    <p className="text-lg font-bold">{fmtNum(selectedKpis.atual)} m³</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-muted-foreground">Taxa de redução</p>
+                    <p className="text-lg font-bold" style={{ color: FIORI_GREEN }}>
+                      {selectedKpis.reducao.toFixed(1)}%
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-4">
+                    <p className="text-xs text-muted-foreground">Recuperação p/ reciclagem</p>
+                    <p className="text-lg font-bold" style={{ color: FIORI_BLUE }}>
+                      {selectedKpis.taxaRecup.toFixed(1)}%
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {fmtNum(selectedKpis.recuperadoAcum)} m³ de {fmtNum(selectedKpis.removidoAcum)} m³ removidos
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Histórico de volume */}
+              <Card className="mt-4">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">Histórico mensal de volume (m³)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedHistorico.length === 0 ? (
+                    <p className="text-xs text-muted-foreground py-8 text-center">
+                      Sem histórico registrado para este lixão.
+                    </p>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <LineChart data={selectedHistorico}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="mes" fontSize={11} />
+                        <YAxis fontSize={11} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                        <Tooltip formatter={(v: number) => `${fmtNum(v)} m³`} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                        <Line type="monotone" dataKey="estocado" stroke={FIORI_RED} name="Estocado" strokeWidth={2} />
+                        <Line type="monotone" dataKey="removido" stroke={FIORI_BLUE} name="Removido" strokeWidth={2} />
+                        <Line type="monotone" dataKey="recuperado" stroke={FIORI_GREEN} name="Recuperado" strokeWidth={2} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Volume coletado por mês */}
+              {selectedHistorico.length > 0 && (
+                <Card className="mt-4">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm">Volume coletado mensalmente (m³)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={180}>
+                      <BarChart data={selectedHistorico}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="mes" fontSize={11} />
+                        <YAxis fontSize={11} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                        <Tooltip formatter={(v: number) => `${fmtNum(v)} m³`} />
+                        <Bar dataKey="removido" fill={FIORI_BLUE} name="Removido" />
+                        <Bar dataKey="recuperado" fill={FIORI_GREEN} name="Recuperado" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Correlação com reciclagem do estado */}
+              {selectedUFCorrelacao && (
+                <Card className="mt-4">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Recycle className="h-4 w-4" style={{ color: FIORI_GREEN }} />
+                      Correlação com reciclagem — {selectedLixao.uf}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Reciclado no estado</span>
+                      <span className="font-medium">
+                        {fmtNum(Number(selectedUFCorrelacao.volume_reciclado_ton_uf))} ton
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Taxa de desvio de aterro (UF)</span>
+                      <span className="font-medium" style={{ color: FIORI_BLUE }}>
+                        {Number(selectedUFCorrelacao.taxa_desvio_aterro_uf).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Correlação remoção × reciclagem</span>
+                      <span className="font-medium" style={{ color: FIORI_GREEN }}>
+                        {Number(selectedUFCorrelacao.correlacao_reciclagem_pct).toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2">
+                      <span className="text-muted-foreground flex items-center gap-1">
+                        <DollarSign className="h-3.5 w-3.5" />
+                        Economia estimada (UF)
+                      </span>
+                      <span className="font-bold" style={{ color: FIORI_ORANGE }}>
+                        {fmtBRL(Number(selectedUFCorrelacao.economia_estimada_rs))}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {selectedLixao.data_encerramento_real && (
+                <p className="text-xs text-muted-foreground mt-4">
+                  Encerrado em {new Date(selectedLixao.data_encerramento_real).toLocaleDateString("pt-BR")}
+                </p>
+              )}
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
