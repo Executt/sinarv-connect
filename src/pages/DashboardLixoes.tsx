@@ -351,6 +351,9 @@ const DashboardLixoes = () => {
                         fillOpacity: 0.55,
                         weight: 2,
                       }}
+                      eventHandlers={{
+                        click: () => setSelectedLixaoId(l.id),
+                      }}
                     >
                       <Popup>
                         <div className="space-y-1">
@@ -373,6 +376,12 @@ const DashboardLixoes = () => {
                               Encerrado em {new Date(l.data_encerramento_real).toLocaleDateString("pt-BR")}
                             </div>
                           )}
+                          <button
+                            onClick={() => setSelectedLixaoId(l.id)}
+                            className="mt-2 text-xs font-medium text-primary hover:underline"
+                          >
+                            Ver detalhes →
+                          </button>
                         </div>
                       </Popup>
                     </CircleMarker>
