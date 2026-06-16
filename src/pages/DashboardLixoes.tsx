@@ -180,6 +180,45 @@ const DashboardLixoes = () => {
     [correlacao]
   );
 
+  // --- Detail panel data for selected landfill ---
+  const selectedLixao = useMemo(
+    () => lixoes.find((l) => l.id === selectedLixaoId) ?? null,
+    [lixoes, selectedLixaoId]
+  );
+
+  const selectedHistorico = useMemo(() => {
+    if (!selectedLixaoId) return [];
+    return historico
+      .filter((h) => h.lixao_id === selectedLixaoId)
+      .map((h) => ({
+        mes: h.mes_referencia.substring(0, 7),
+        estocado: Number(h.volume_estocado_m3),
+        removido: Number(h.volume_removido_m3),
+        recuperado: Number(h.volume_recuperado_m3),
+      }))
+      .sort((a, b) => a.mes.localeCompare(b.mes));
+  }, [historico, selectedLixaoId]);
+
+  const selectedKpis = useMemo(() => {
+    if (!selectedLixao || selectedHistorico.length === 0) {
+      return { atual: 0, inicial: 0, reducao: 0, removidoAcum: 0, recuperadoAcum: 0, taxaRecup: 0 };
+    }
+    const inicial =
+      Number(selectedLixao.volume_estocado_m3_inicial) ||
+      selectedHistorico[0].estocado;
+    const atual = selectedHistorico[selectedHistorico.length - 1].estocado;
+    const reducao = inicial > 0 ? ((inicial - atual) / inicial) * 100 : 0;
+    const removidoAcum = selectedHistorico.reduce((s, h) => s + h.removido, 0);
+    const recuperadoAcum = selectedHistorico.reduce((s, h) => s + h.recuperado, 0);
+    const taxaRecup = removidoAcum > 0 ? (recuperadoAcum / removidoAcum) * 100 : 0;
+    return { atual, inicial, reducao, removidoAcum, recuperadoAcum, taxaRecup };
+  }, [selectedLixao, selectedHistorico]);
+
+  const selectedUFCorrelacao = useMemo(
+    () => (selectedLixao ? correlacao.find((c) => c.uf === selectedLixao.uf) ?? null : null),
+    [correlacao, selectedLixao]
+  );
+
   return (
     <div className="space-y-6">
       {/* KPIs */}
