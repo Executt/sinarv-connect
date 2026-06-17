@@ -15,6 +15,7 @@ import {
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle } from "lucide-react";
+import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 
 const FIORI_BLUE = "#0A6ED1";
 const FIORI_GREEN = "#107E3E";
@@ -246,14 +247,8 @@ const DashboardLixoes = () => {
                 <RefreshCw className="h-4 w-4" />
                 Recarregar página
               </Button>
-              <Button
-                size="sm"
-                onClick={() => alert("Funcionalidade de cadastro em desenvolvimento. Contate o administrador para importar dados.")}
-                className="gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Solicitar importação
-              </Button>
+              <SolicitarImportacaoDialog />
+
             </div>
           </CardContent>
         </Card>
