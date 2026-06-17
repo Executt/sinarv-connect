@@ -15,6 +15,7 @@ import {
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle } from "lucide-react";
+import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 
 const FIORI_BLUE = "#0A6ED1";
 const FIORI_GREEN = "#107E3E";
