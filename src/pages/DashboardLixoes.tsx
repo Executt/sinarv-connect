@@ -7,13 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, Legend, ScatterChart, Scatter,
 } from "recharts";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Trash2, Recycle, TrendingDown, DollarSign, MapPin } from "lucide-react";
+import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle } from "lucide-react";
 
 const FIORI_BLUE = "#0A6ED1";
 const FIORI_GREEN = "#107E3E";
@@ -221,6 +222,43 @@ const DashboardLixoes = () => {
 
   return (
     <div className="space-y-6">
+      {/* Estado vazio — nenhum lixão cadastrado */}
+      {lixoes.length === 0 && (
+        <Card className="border-dashed">
+          <CardContent className="pt-10 pb-10 flex flex-col items-center text-center space-y-4">
+            <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+              <MapPinOff className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-semibold">Nenhum lixão cadastrado</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Os dados de lixões e aterros ainda não foram importados para o painel.
+                Verifique a conexão com o banco de dados ou solicite a carga inicial dos dados.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+                className="gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Recarregar página
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => alert("Funcionalidade de cadastro em desenvolvimento. Contate o administrador para importar dados.")}
+                className="gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Solicitar importação
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
