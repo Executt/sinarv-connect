@@ -102,6 +102,7 @@ const App = () => (
             <Route path="/selecionar-perfil" element={<SelecionarPerfil />} />
             <Route path="/transparencia/mapa-reciclagem" element={<TransparenciaMapaReciclagem />} />
             <Route path="/regras-triagem" element={<RegrasTriagem />} />
+            <Route path="/lixoes" element={<Navigate to="/dashboard/lixoes" replace />} />
 
             {/* Gov Dashboard - requires 'gov' role */}
             <Route path="/dashboard" element={

@@ -20,6 +20,7 @@ import {
   PackageOpen,
   Settings,
   Eye,
+  Trash2,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -27,6 +28,7 @@ interface NavItem {
   label: string;
   to: string;
   end?: boolean;
+  icon?: typeof LayoutDashboard;
 }
 
 interface ModuleConfig {
@@ -46,7 +48,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Alertas", to: "/dashboard/alertas" },
       { label: "Usuários", to: "/dashboard/usuarios" },
       { label: "Benchmarks", to: "/dashboard/benchmarks" },
-      { label: "Lixões", to: "/dashboard/lixoes" },
+      { label: "Lixões", to: "/dashboard/lixoes", icon: Trash2 },
     ],
   },
   "/cooperativa": {
@@ -279,17 +281,21 @@ const GlobalHeader = () => {
         {/* ─── Sub Bar: contextual nav for current module (non-admin only) ─── */}
         {config && config.navItems.length > 0 && moduleKey !== "/admin" && (
           <div className="hidden lg:flex items-center gap-0.5 px-4 lg:px-6 h-10 border-t border-[hsl(var(--topnav-border))] bg-[hsl(var(--topnav-background))] overflow-x-auto">
-            {config.navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className="px-3 h-8 flex items-center rounded-md text-xs text-[hsl(var(--topnav-muted))] hover:text-[hsl(var(--topnav-foreground))] hover:bg-[hsl(var(--topnav-hover))] transition-colors whitespace-nowrap"
-                activeClassName="text-[hsl(var(--topnav-active-foreground))] bg-[hsl(var(--topnav-active))] font-medium"
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            {config.navItems.map((item) => {
+              const ItemIcon = item.icon;
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.end}
+                  className="px-3 h-8 flex items-center gap-1.5 rounded-md text-xs text-[hsl(var(--topnav-muted))] hover:text-[hsl(var(--topnav-foreground))] hover:bg-[hsl(var(--topnav-hover))] transition-colors whitespace-nowrap"
+                  activeClassName="text-[hsl(var(--topnav-active-foreground))] bg-[hsl(var(--topnav-active))] font-medium"
+                >
+                  {ItemIcon && <ItemIcon className="h-3.5 w-3.5" strokeWidth={1.75} />}
+                  {item.label}
+                </NavLink>
+              );
+            })}
           </div>
         )}
       </header>
@@ -329,17 +335,22 @@ const GlobalHeader = () => {
                   <p className="px-4 py-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                     {config.title}
                   </p>
-                  {config.navItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      end={item.end}
-                      className="px-4 py-2.5 text-sm text-foreground hover:bg-secondary"
-                      activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
-                    >
-                      {item.label}
-                    </NavLink>
-                  ))}
+                  {config.navItems.map((item) => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        end={item.end}
+                        onClick={() => setMobileOpen(false)}
+                        className="px-4 py-2.5 text-sm text-foreground hover:bg-secondary flex items-center gap-2"
+                        activeClassName="bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                      >
+                        {ItemIcon && <ItemIcon className="h-4 w-4" strokeWidth={1.75} />}
+                        {item.label}
+                      </NavLink>
+                    );
+                  })}
                 </div>
               </>
             )}
