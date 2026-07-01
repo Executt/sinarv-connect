@@ -23,10 +23,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchRoles = async (userId: string) => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
+
+    if (error) {
+      console.error("Erro ao carregar perfis do usuário", error);
+      setRoles([]);
+      return;
+    }
+
     setRoles((data || []).map((r: any) => r.role as AppRole));
   };
 
@@ -36,19 +43,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchRoles(session.user.id), 0);
+          setLoading(true);
+          setTimeout(async () => {
+            await fetchRoles(session.user.id);
+            setLoading(false);
+          }, 0);
         } else {
           setRoles([]);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRoles(session.user.id);
+        await fetchRoles(session.user.id);
+      } else {
+        setRoles([]);
       }
       setLoading(false);
     });
