@@ -137,12 +137,22 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
     lixoes.forEach((lixao) => {
       const latitude = Number(lixao.latitude);
       const longitude = Number(lixao.longitude);
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+      if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude) ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
+      ) return;
+
+      const areaHa = Number(lixao.area_ha);
+      const radiusBase = Number.isFinite(areaHa) && areaHa > 0 ? areaHa : 30;
 
       bounds.push([latitude, longitude]);
 
       const marker = L.circleMarker([latitude, longitude], {
-        radius: Math.max(6, Math.min(20, Math.sqrt(lixao.area_ha ?? 30) * 1.2)),
+        radius: Math.max(6, Math.min(20, Math.sqrt(radiusBase) * 1.2)),
         color: STATUS_COLOR[lixao.status] ?? FIORI_GRAY,
         fillColor: STATUS_COLOR[lixao.status] ?? FIORI_GRAY,
         fillOpacity: 0.55,
@@ -291,7 +301,8 @@ const DashboardLixoes = () => {
   const serieTemporal = useMemo(() => {
     const map = new Map<string, { mes: string; estocado: number; removido: number; recuperado: number }>();
     historico.forEach((h) => {
-      const key = h.mes_referencia.substring(0, 7);
+      const key = h.mes_referencia?.substring(0, 7);
+      if (!key) return;
       const cur = map.get(key) ?? { mes: key, estocado: 0, removido: 0, recuperado: 0 };
       cur.estocado += Number(h.volume_estocado_m3);
       cur.removido += Number(h.volume_removido_m3);
@@ -321,7 +332,7 @@ const DashboardLixoes = () => {
   const selectedHistorico = useMemo(() => {
     if (!selectedLixaoId) return [];
     return historico
-      .filter((h) => h.lixao_id === selectedLixaoId)
+      .filter((h) => h.lixao_id === selectedLixaoId && h.mes_referencia)
       .map((h) => ({
         mes: h.mes_referencia.substring(0, 7),
         estocado: Number(h.volume_estocado_m3),
