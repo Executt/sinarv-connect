@@ -12,8 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, MapPin, List, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix default marker icons
@@ -36,6 +36,98 @@ const createColorIcon = (color: string) =>
     iconSize: [14, 14],
     iconAnchor: [7, 7],
   });
+
+type LocalizacoesMapProps = {
+  points: any[];
+};
+
+const LocalizacoesMap = ({ points }: LocalizacoesMapProps) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const layerGroupRef = useRef<LayerGroup | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const first = points[0];
+    const map = L.map(containerRef.current, {
+      center: first ? [Number(first.latitude), Number(first.longitude)] : [-15.78, -47.93],
+      zoom: 4,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    const layerGroup = L.layerGroup().addTo(map);
+    mapRef.current = map;
+    layerGroupRef.current = layerGroup;
+
+    setTimeout(() => map.invalidateSize(), 0);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      layerGroupRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const layerGroup = layerGroupRef.current;
+    if (!map || !layerGroup) return;
+
+    layerGroup.clearLayers();
+    const bounds: L.LatLngExpression[] = [];
+
+    points.forEach((point: any) => {
+      const latitude = Number(point.latitude);
+      const longitude = Number(point.longitude);
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+      bounds.push([latitude, longitude]);
+      const cor = point.contenedores?.cor || "gray";
+      const marker = L.marker([latitude, longitude], { icon: createColorIcon(COR_HEX[cor] || "#6b7280") });
+
+      const popup = document.createElement("div");
+      popup.className = "text-xs space-y-1 min-w-[180px]";
+
+      const nome = document.createElement("p");
+      nome.className = "font-bold";
+      nome.textContent = point.nome_local;
+      popup.appendChild(nome);
+
+      const endereco = document.createElement("p");
+      endereco.className = "text-gray-500";
+      endereco.textContent = point.endereco;
+      popup.appendChild(endereco);
+
+      const cidade = document.createElement("p");
+      cidade.textContent = `${point.cidade}/${point.uf}`;
+      popup.appendChild(cidade);
+
+      const resumo = document.createElement("div");
+      resumo.className = "flex justify-between items-center pt-1";
+      const capacidade = document.createElement("span");
+      capacidade.className = "font-medium";
+      capacidade.textContent = `${point.capacidade_litros}L`;
+      const status = document.createElement("span");
+      status.className = "px-1.5 py-0.5 rounded text-[10px] font-medium";
+      status.textContent = point.status_operacional;
+      resumo.append(capacidade, status);
+      popup.appendChild(resumo);
+
+      marker.bindPopup(popup);
+      marker.addTo(layerGroup);
+    });
+
+    if (bounds.length > 0) map.fitBounds(L.latLngBounds(bounds), { padding: [28, 28], maxZoom: 6 });
+    setTimeout(() => map.invalidateSize(), 0);
+  }, [points]);
+
+  return <div ref={containerRef} className="z-0 h-[500px] w-full" aria-label="Mapa de localizações" />;
+};
 
 const STATUS_ICON: Record<string, any> = { Ativo: CheckCircle, Inativo: XCircle, Manutenção: AlertTriangle };
 const COR_MAP: Record<string, string> = { blue: "bg-blue-500", yellow: "bg-yellow-400", green: "bg-green-600", orange: "bg-orange-500", gray: "bg-gray-600" };
@@ -191,43 +283,7 @@ const AdminLocalizacoes = () => {
           <Card className="shadow-sm overflow-hidden">
             <CardContent className="p-0">
               {mapPoints.length > 0 ? (
-                <MapContainer
-                  center={[mapPoints[0].latitude, mapPoints[0].longitude]}
-                  zoom={4}
-                  style={{ height: "500px", width: "100%" }}
-                  className="z-0"
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  {mapPoints.map((l: any) => {
-                    const cor = (l as any).contenedores?.cor || "gray";
-                    return (
-                      <Marker key={l.id} position={[l.latitude, l.longitude]} icon={createColorIcon(COR_HEX[cor] || "#6b7280")}>
-                        <Popup>
-                          <div className="text-xs space-y-1 min-w-[180px]">
-                            <p className="font-bold">{l.nome_local}</p>
-                            <p className="text-gray-500">{l.endereco}</p>
-                            <p>{l.cidade}/{l.uf}</p>
-                            <div className="flex justify-between items-center pt-1">
-                              <span className="font-medium">{l.capacidade_litros}L</span>
-                              <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${l.status_operacional === "Ativo" ? "bg-green-100 text-green-700" : l.status_operacional === "Manutenção" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
-                                {l.status_operacional}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1 pt-1">
-                              <div className="flex-1 h-1.5 bg-gray-200 rounded-full">
-                                <div className={`h-full rounded-full ${l.nivel_preenchimento >= 80 ? "bg-red-500" : l.nivel_preenchimento >= 50 ? "bg-yellow-500" : "bg-green-500"}`} style={{ width: `${l.nivel_preenchimento}%` }} />
-                              </div>
-                              <span className="text-[10px]">{l.nivel_preenchimento}%</span>
-                            </div>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    );
-                  })}
-                </MapContainer>
+                <LocalizacoesMap points={mapPoints} />
               ) : (
                 <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">
                   Nenhum ponto com coordenadas para exibir no mapa.
