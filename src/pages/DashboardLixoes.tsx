@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, Legend, ScatterChart, Scatter,
 } from "recharts";
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import L from "leaflet";
+import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle } from "lucide-react";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
@@ -86,6 +87,135 @@ type Correlacao = {
   taxa_desvio_aterro_uf: number;
   correlacao_reciclagem_pct: number;
   economia_estimada_rs: number;
+};
+
+type LixoesMapProps = {
+  lixoes: Lixao[];
+  onSelectLixao: (id: string) => void;
+};
+
+const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const layerGroupRef = useRef<LayerGroup | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: [-14.235, -51.9253],
+      zoom: 4,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap",
+    }).addTo(map);
+
+    const layerGroup = L.layerGroup().addTo(map);
+    mapRef.current = map;
+    layerGroupRef.current = layerGroup;
+
+    setTimeout(() => map.invalidateSize(), 0);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      layerGroupRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const layerGroup = layerGroupRef.current;
+    if (!map || !layerGroup) return;
+
+    layerGroup.clearLayers();
+
+    const bounds: L.LatLngExpression[] = [];
+
+    lixoes.forEach((lixao) => {
+      const latitude = Number(lixao.latitude);
+      const longitude = Number(lixao.longitude);
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+      bounds.push([latitude, longitude]);
+
+      const marker = L.circleMarker([latitude, longitude], {
+        radius: Math.max(6, Math.min(20, Math.sqrt(lixao.area_ha ?? 30) * 1.2)),
+        color: STATUS_COLOR[lixao.status] ?? FIORI_GRAY,
+        fillColor: STATUS_COLOR[lixao.status] ?? FIORI_GRAY,
+        fillOpacity: 0.55,
+        weight: 2,
+      });
+
+      marker.on("click", () => onSelectLixao(lixao.id));
+
+      const popup = document.createElement("div");
+      popup.className = "space-y-1";
+
+      const title = document.createElement("div");
+      title.className = "font-semibold";
+      title.textContent = lixao.nome;
+      popup.appendChild(title);
+
+      const location = document.createElement("div");
+      location.className = "text-xs";
+      location.textContent = `${lixao.municipio} — ${lixao.uf}`;
+      popup.appendChild(location);
+
+      const metadata = document.createElement("div");
+      metadata.className = "text-xs flex flex-wrap gap-1";
+      const tipo = document.createElement("span");
+      tipo.className = "inline-flex items-center rounded-md border px-2 py-0.5";
+      tipo.textContent = TIPO_LABEL[lixao.tipo] ?? lixao.tipo;
+      const status = document.createElement("span");
+      status.className = "inline-flex items-center rounded-md px-2 py-0.5 text-white";
+      status.style.backgroundColor = STATUS_COLOR[lixao.status] ?? FIORI_GRAY;
+      status.textContent = STATUS_LABEL[lixao.status] ?? lixao.status;
+      metadata.append(tipo, status);
+      popup.appendChild(metadata);
+
+      if (lixao.area_ha) {
+        const area = document.createElement("div");
+        area.className = "text-xs";
+        area.textContent = `Área: ${lixao.area_ha} ha`;
+        popup.appendChild(area);
+      }
+
+      if (lixao.volume_estocado_m3_inicial) {
+        const volume = document.createElement("div");
+        volume.className = "text-xs";
+        volume.textContent = `Volume inicial: ${fmtNum(Number(lixao.volume_estocado_m3_inicial))} m³`;
+        popup.appendChild(volume);
+      }
+
+      if (lixao.data_encerramento_real) {
+        const encerramento = document.createElement("div");
+        encerramento.className = "text-xs text-muted-foreground";
+        encerramento.textContent = `Encerrado em ${new Date(lixao.data_encerramento_real).toLocaleDateString("pt-BR")}`;
+        popup.appendChild(encerramento);
+      }
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "mt-2 text-xs font-medium text-primary hover:underline";
+      button.textContent = "Ver detalhes →";
+      button.addEventListener("click", () => onSelectLixao(lixao.id));
+      popup.appendChild(button);
+
+      marker.bindPopup(popup);
+      marker.addTo(layerGroup);
+    });
+
+    if (bounds.length > 0) {
+      map.fitBounds(L.latLngBounds(bounds), { padding: [28, 28], maxZoom: 5 });
+    }
+
+    setTimeout(() => map.invalidateSize(), 0);
+  }, [lixoes, onSelectLixao]);
+
+  return <div ref={containerRef} className="h-full w-full" aria-label="Mapa nacional de lixões e aterros" />;
 };
 
 const DashboardLixoes = () => {
@@ -363,63 +493,7 @@ const DashboardLixoes = () => {
             </CardHeader>
             <CardContent>
               <div style={{ height: 560, width: "100%" }} className="rounded-md overflow-hidden border">
-                <MapContainer
-                  center={[-14.235, -51.9253]}
-                  zoom={4}
-                  style={{ height: "100%", width: "100%" }}
-                  scrollWheelZoom
-                >
-                  <TileLayer
-                    attribution='&copy; OpenStreetMap'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  {lixoesFiltrados.map((l) => (
-                    <CircleMarker
-                      key={l.id}
-                      center={[Number(l.latitude), Number(l.longitude)]}
-                      radius={Math.max(6, Math.min(20, Math.sqrt((l.area_ha ?? 30)) * 1.2))}
-                      pathOptions={{
-                        color: STATUS_COLOR[l.status] ?? FIORI_GRAY,
-                        fillColor: STATUS_COLOR[l.status] ?? FIORI_GRAY,
-                        fillOpacity: 0.55,
-                        weight: 2,
-                      }}
-                      eventHandlers={{
-                        click: () => setSelectedLixaoId(l.id),
-                      }}
-                    >
-                      <Popup>
-                        <div className="space-y-1">
-                          <div className="font-semibold">{l.nome}</div>
-                          <div className="text-xs">{l.municipio} — {l.uf}</div>
-                          <div className="text-xs">
-                            <Badge variant="outline">{TIPO_LABEL[l.tipo]}</Badge>{" "}
-                            <Badge style={{ background: STATUS_COLOR[l.status], color: "#fff" }}>
-                              {STATUS_LABEL[l.status]}
-                            </Badge>
-                          </div>
-                          {l.area_ha && <div className="text-xs">Área: {l.area_ha} ha</div>}
-                          {l.volume_estocado_m3_inicial && (
-                            <div className="text-xs">
-                              Volume inicial: {fmtNum(Number(l.volume_estocado_m3_inicial))} m³
-                            </div>
-                          )}
-                          {l.data_encerramento_real && (
-                            <div className="text-xs text-muted-foreground">
-                              Encerrado em {new Date(l.data_encerramento_real).toLocaleDateString("pt-BR")}
-                            </div>
-                          )}
-                          <button
-                            onClick={() => setSelectedLixaoId(l.id)}
-                            className="mt-2 text-xs font-medium text-primary hover:underline"
-                          >
-                            Ver detalhes →
-                          </button>
-                        </div>
-                      </Popup>
-                    </CircleMarker>
-                  ))}
-                </MapContainer>
+                <LixoesLeafletMap lixoes={lixoesFiltrados} onSelectLixao={setSelectedLixaoId} />
               </div>
             </CardContent>
           </Card>
