@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -10,8 +11,8 @@ import {
   Recycle, Box, Truck, Calendar, ClipboardCheck, AlertTriangle,
   Leaf, Zap, Beaker, HardHat, Package, Info, MapPin,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
+import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Fix default marker icons
@@ -34,6 +35,86 @@ const createColorIcon = (color: string) =>
     iconSize: [12, 12],
     iconAnchor: [6, 6],
   });
+
+type EcopontosMapProps = {
+  points: any[];
+};
+
+const EcopontosMap = ({ points }: EcopontosMapProps) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const layerGroupRef = useRef<LayerGroup | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: [-15.78, -47.93],
+      zoom: 4,
+      scrollWheelZoom: true,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    }).addTo(map);
+
+    const layerGroup = L.layerGroup().addTo(map);
+    mapRef.current = map;
+    layerGroupRef.current = layerGroup;
+
+    setTimeout(() => map.invalidateSize(), 0);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      layerGroupRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const layerGroup = layerGroupRef.current;
+    if (!map || !layerGroup) return;
+
+    layerGroup.clearLayers();
+    const bounds: L.LatLngExpression[] = [];
+
+    points.forEach((point: any) => {
+      const latitude = Number(point.latitude);
+      const longitude = Number(point.longitude);
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+
+      bounds.push([latitude, longitude]);
+      const cor = point.contenedores?.cor || "gray";
+      const marker = L.marker([latitude, longitude], { icon: createColorIcon(COR_HEX[cor] || "#6b7280") });
+
+      const popup = document.createElement("div");
+      popup.className = "text-xs space-y-1 min-w-[160px]";
+
+      const nome = document.createElement("p");
+      nome.className = "font-bold";
+      nome.textContent = point.nome_local;
+      popup.appendChild(nome);
+
+      const endereco = document.createElement("p");
+      endereco.className = "text-gray-500";
+      endereco.textContent = point.endereco;
+      popup.appendChild(endereco);
+
+      const cidade = document.createElement("p");
+      cidade.textContent = `${point.cidade}/${point.uf} — ${point.capacidade_litros}L`;
+      popup.appendChild(cidade);
+
+      marker.bindPopup(popup);
+      marker.addTo(layerGroup);
+    });
+
+    if (bounds.length > 0) map.fitBounds(L.latLngBounds(bounds), { padding: [28, 28], maxZoom: 6 });
+    setTimeout(() => map.invalidateSize(), 0);
+  }, [points]);
+
+  return <div ref={containerRef} className="z-0 h-[400px] w-full" aria-label="Mapa de ecopontos ativos" />;
+};
 
 const ICON_MAP: Record<string, any> = { Recycle, Box, Beaker, Leaf, Package, Zap, AlertTriangle, HardHat };
 const COR_CLASS: Record<string, string> = {
@@ -227,37 +308,7 @@ const PontoColetaServicos = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <MapContainer
-                        center={[-15.78, -47.93]}
-                        zoom={4}
-                        style={{ height: "400px", width: "100%" }}
-                        className="z-0"
-                      >
-                        <TileLayer
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        {mapPoints.map((l: any) => {
-                          const cor = (l as any).contenedores?.cor || "gray";
-                          return (
-                            <Marker key={l.id} position={[l.latitude, l.longitude]} icon={createColorIcon(COR_HEX[cor] || "#6b7280")}>
-                              <Popup>
-                                <div className="text-xs space-y-1 min-w-[160px]">
-                                  <p className="font-bold">{l.nome_local}</p>
-                                  <p className="text-gray-500">{l.endereco}</p>
-                                  <p>{l.cidade}/{l.uf} — {l.capacidade_litros}L</p>
-                                  <div className="flex items-center gap-1 pt-1">
-                                    <div className="flex-1 h-1.5 bg-gray-200 rounded-full">
-                                      <div className={`h-full rounded-full ${l.nivel_preenchimento >= 80 ? "bg-red-500" : l.nivel_preenchimento >= 50 ? "bg-yellow-500" : "bg-green-500"}`} style={{ width: `${l.nivel_preenchimento}%` }} />
-                                    </div>
-                                    <span className="text-[10px]">{l.nivel_preenchimento}%</span>
-                                  </div>
-                                </div>
-                              </Popup>
-                            </Marker>
-                          );
-                        })}
-                      </MapContainer>
+                      <EcopontosMap points={mapPoints} />
                     </CardContent>
                   </Card>
                 );
