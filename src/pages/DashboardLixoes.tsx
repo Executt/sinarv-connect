@@ -602,10 +602,53 @@ const DashboardLixoesInner = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div style={{ height: 560, width: "100%" }} className="rounded-md overflow-hidden border">
-                <LixoesLeafletMap lixoes={lixoesFiltrados} onSelectLixao={setSelectedLixaoId} />
-              </div>
+              {(() => {
+                const validos = lixoesFiltrados.filter(hasValidCoords);
+                if (validos.length === 0) {
+                  return (
+                    <div
+                      data-testid="lixoes-map-fallback"
+                      style={{ height: 560 }}
+                      className="rounded-md border border-dashed flex flex-col items-center justify-center text-center gap-3 p-6"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
+                        <MapPinOff className="h-7 w-7 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">Sem coordenadas válidas para exibir no mapa</p>
+                        <p className="text-xs text-muted-foreground max-w-md">
+                          {lixoes.length === 0
+                            ? "Nenhum lixão foi retornado pela API."
+                            : "Os registros existentes não possuem latitude/longitude válidas ou não passaram nos filtros."}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Button size="sm" variant="outline" onClick={reloadAll} className="gap-2">
+                          <RefreshCw className="h-4 w-4" />
+                          Recarregar dados
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setFiltroUF("todas");
+                            setFiltroStatus("todos");
+                          }}
+                        >
+                          Limpar filtros
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div style={{ height: 560, width: "100%" }} className="rounded-md overflow-hidden border">
+                    <LixoesLeafletMap lixoes={validos} onSelectLixao={setSelectedLixaoId} />
+                  </div>
+                );
+              })()}
             </CardContent>
+
           </Card>
         </TabsContent>
 
