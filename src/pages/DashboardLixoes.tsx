@@ -15,8 +15,11 @@ import {
 import L from "leaflet";
 import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle } from "lucide-react";
+import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
+import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
+import { useAuth } from "@/hooks/use-auth";
+import { Badge as UIBadge } from "@/components/ui/badge";
 
 const FIORI_BLUE = "#0A6ED1";
 const FIORI_GREEN = "#107E3E";
