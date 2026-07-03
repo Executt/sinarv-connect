@@ -95,6 +95,23 @@ type Correlacao = {
 type LixoesMapProps = {
   lixoes: Lixao[];
   onSelectLixao: (id: string) => void;
+  onReload?: () => void;
+};
+
+const hasValidCoords = (l: Lixao) => {
+  const lat = Number(l.latitude);
+  const lng = Number(l.longitude);
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  );
+};
+  lixoes: Lixao[];
+  onSelectLixao: (id: string) => void;
 };
 
 const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
