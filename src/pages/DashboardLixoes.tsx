@@ -411,7 +411,58 @@ const DashboardLixoesInner = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="dashboard-lixoes-root" data-role={activeRole}>
+      {/* Indicador de role + status API */}
+      <div
+        className="flex flex-wrap items-center gap-2 text-xs"
+        data-testid="lixoes-status-bar"
+        data-loading={isLoading ? "true" : "false"}
+        data-error={loadError ? "true" : "false"}
+      >
+        <Badge variant="outline" className="gap-1">
+          <ShieldCheck className="h-3 w-3" />
+          Perfil: <span className="font-semibold ml-1">{activeRole}</span>
+        </Badge>
+        {isLoading ? (
+          <Badge variant="secondary" className="gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Carregando dados…
+          </Badge>
+        ) : loadError ? (
+          <Badge variant="destructive" className="gap-1">
+            <AlertTriangle className="h-3 w-3" />
+            Erro ao carregar dados
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="gap-1">
+            <CheckCircle2 className="h-3 w-3" style={{ color: FIORI_GREEN }} />
+            Dados carregados ({lixoes.length} lixões)
+          </Badge>
+        )}
+        <Button variant="ghost" size="sm" onClick={reloadAll} className="h-7 gap-1 px-2">
+          <RefreshCw className="h-3 w-3" />
+          Atualizar
+        </Button>
+      </div>
+
+      {loadError && (
+        <Card className="border-destructive/50">
+          <CardContent className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Falha ao carregar dados da API</p>
+              <p className="text-xs text-muted-foreground">
+                {(loadError as Error)?.message ?? "Erro desconhecido ao consultar o banco."}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={reloadAll} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Estado vazio — nenhum lixão cadastrado */}
       {lixoes.length === 0 && (
         <Card className="border-dashed">
