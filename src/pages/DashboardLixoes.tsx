@@ -110,9 +110,6 @@ const hasValidCoords = (l: Lixao) => {
     lng <= 180
   );
 };
-  lixoes: Lixao[];
-  onSelectLixao: (id: string) => void;
-};
 
 const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
