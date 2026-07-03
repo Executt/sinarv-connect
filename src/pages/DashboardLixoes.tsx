@@ -19,7 +19,7 @@ import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
 import { useAuth } from "@/hooks/use-auth";
-import { Badge as UIBadge } from "@/components/ui/badge";
+
 
 const FIORI_BLUE = "#0A6ED1";
 const FIORI_GREEN = "#107E3E";
