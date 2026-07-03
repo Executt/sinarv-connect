@@ -15,8 +15,11 @@ import {
 import L from "leaflet";
 import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle } from "lucide-react";
+import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
+import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
+import { useAuth } from "@/hooks/use-auth";
+
 
 const FIORI_BLUE = "#0A6ED1";
 const FIORI_GREEN = "#107E3E";
@@ -92,6 +95,20 @@ type Correlacao = {
 type LixoesMapProps = {
   lixoes: Lixao[];
   onSelectLixao: (id: string) => void;
+  onReload?: () => void;
+};
+
+const hasValidCoords = (l: Lixao) => {
+  const lat = Number(l.latitude);
+  const lng = Number(l.longitude);
+  return (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  );
 };
 
 const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
@@ -228,12 +245,20 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
   return <div ref={containerRef} className="h-full w-full" aria-label="Mapa nacional de lixões e aterros" />;
 };
 
-const DashboardLixoes = () => {
+const DashboardLixoesInner = () => {
   const [filtroUF, setFiltroUF] = useState<string>("todas");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
 
-  const { data: lixoes = [] } = useQuery({
+  const { roles, isSuperAdmin } = useAuth();
+  const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info("[DashboardLixoes] Role ativa:", activeRole, "| Roles do usuário:", roles);
+  }, [activeRole, roles]);
+
+  const lixoesQuery = useQuery({
     queryKey: ["lixoes"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -244,8 +269,9 @@ const DashboardLixoes = () => {
       return (data ?? []) as unknown as Lixao[];
     },
   });
+  const lixoes = lixoesQuery.data ?? [];
 
-  const { data: historico = [] } = useQuery({
+  const historicoQuery = useQuery({
     queryKey: ["lixao_volume_historico"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -256,8 +282,9 @@ const DashboardLixoes = () => {
       return (data ?? []) as unknown as Hist[];
     },
   });
+  const historico = historicoQuery.data ?? [];
 
-  const { data: correlacao = [] } = useQuery({
+  const correlacaoQuery = useQuery({
     queryKey: ["vw_lixoes_correlacao"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -268,6 +295,27 @@ const DashboardLixoes = () => {
       return (data ?? []) as unknown as Correlacao[];
     },
   });
+  const correlacao = correlacaoQuery.data ?? [];
+
+  const isLoading = lixoesQuery.isLoading || historicoQuery.isLoading || correlacaoQuery.isLoading;
+  const loadError = lixoesQuery.error || historicoQuery.error || correlacaoQuery.error;
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info("[DashboardLixoes] Status API:", {
+      lixoes: lixoesQuery.status,
+      historico: historicoQuery.status,
+      correlacao: correlacaoQuery.status,
+      count: lixoes.length,
+    });
+  }, [lixoesQuery.status, historicoQuery.status, correlacaoQuery.status, lixoes.length]);
+
+  const reloadAll = () => {
+    lixoesQuery.refetch();
+    historicoQuery.refetch();
+    correlacaoQuery.refetch();
+  };
+
 
   const ufs = useMemo(
     () => Array.from(new Set(lixoes.map((l) => l.uf))).sort(),
@@ -363,7 +411,58 @@ const DashboardLixoes = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="dashboard-lixoes-root" data-role={activeRole}>
+      {/* Indicador de role + status API */}
+      <div
+        className="flex flex-wrap items-center gap-2 text-xs"
+        data-testid="lixoes-status-bar"
+        data-loading={isLoading ? "true" : "false"}
+        data-error={loadError ? "true" : "false"}
+      >
+        <Badge variant="outline" className="gap-1">
+          <ShieldCheck className="h-3 w-3" />
+          Perfil: <span className="font-semibold ml-1">{activeRole}</span>
+        </Badge>
+        {isLoading ? (
+          <Badge variant="secondary" className="gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Carregando dados…
+          </Badge>
+        ) : loadError ? (
+          <Badge variant="destructive" className="gap-1">
+            <AlertTriangle className="h-3 w-3" />
+            Erro ao carregar dados
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="gap-1">
+            <CheckCircle2 className="h-3 w-3" style={{ color: FIORI_GREEN }} />
+            Dados carregados ({lixoes.length} lixões)
+          </Badge>
+        )}
+        <Button variant="ghost" size="sm" onClick={reloadAll} className="h-7 gap-1 px-2">
+          <RefreshCw className="h-3 w-3" />
+          Atualizar
+        </Button>
+      </div>
+
+      {loadError && (
+        <Card className="border-destructive/50">
+          <CardContent className="pt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Falha ao carregar dados da API</p>
+              <p className="text-xs text-muted-foreground">
+                {(loadError as Error)?.message ?? "Erro desconhecido ao consultar o banco."}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={reloadAll} className="gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Tentar novamente
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Estado vazio — nenhum lixão cadastrado */}
       {lixoes.length === 0 && (
         <Card className="border-dashed">
@@ -503,10 +602,53 @@ const DashboardLixoes = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div style={{ height: 560, width: "100%" }} className="rounded-md overflow-hidden border">
-                <LixoesLeafletMap lixoes={lixoesFiltrados} onSelectLixao={setSelectedLixaoId} />
-              </div>
+              {(() => {
+                const validos = lixoesFiltrados.filter(hasValidCoords);
+                if (validos.length === 0) {
+                  return (
+                    <div
+                      data-testid="lixoes-map-fallback"
+                      style={{ height: 560 }}
+                      className="rounded-md border border-dashed flex flex-col items-center justify-center text-center gap-3 p-6"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
+                        <MapPinOff className="h-7 w-7 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">Sem coordenadas válidas para exibir no mapa</p>
+                        <p className="text-xs text-muted-foreground max-w-md">
+                          {lixoes.length === 0
+                            ? "Nenhum lixão foi retornado pela API."
+                            : "Os registros existentes não possuem latitude/longitude válidas ou não passaram nos filtros."}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        <Button size="sm" variant="outline" onClick={reloadAll} className="gap-2">
+                          <RefreshCw className="h-4 w-4" />
+                          Recarregar dados
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setFiltroUF("todas");
+                            setFiltroStatus("todos");
+                          }}
+                        >
+                          Limpar filtros
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div style={{ height: 560, width: "100%" }} className="rounded-md overflow-hidden border">
+                    <LixoesLeafletMap lixoes={validos} onSelectLixao={setSelectedLixaoId} />
+                  </div>
+                );
+              })()}
             </CardContent>
+
           </Card>
         </TabsContent>
 
@@ -801,5 +943,11 @@ const DashboardLixoes = () => {
     </div>
   );
 };
+
+const DashboardLixoes = () => (
+  <LixoesErrorBoundary>
+    <DashboardLixoesInner />
+  </LixoesErrorBoundary>
+);
 
 export default DashboardLixoes;
