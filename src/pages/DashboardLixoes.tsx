@@ -944,4 +944,10 @@ const DashboardLixoesInner = () => {
   );
 };
 
+const DashboardLixoes = () => (
+  <LixoesErrorBoundary>
+    <DashboardLixoesInner />
+  </LixoesErrorBoundary>
+);
+
 export default DashboardLixoes;
