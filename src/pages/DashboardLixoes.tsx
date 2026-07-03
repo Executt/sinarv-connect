@@ -245,12 +245,20 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
   return <div ref={containerRef} className="h-full w-full" aria-label="Mapa nacional de lixões e aterros" />;
 };
 
-const DashboardLixoes = () => {
+const DashboardLixoesInner = () => {
   const [filtroUF, setFiltroUF] = useState<string>("todas");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
 
-  const { data: lixoes = [] } = useQuery({
+  const { roles, isSuperAdmin } = useAuth();
+  const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info("[DashboardLixoes] Role ativa:", activeRole, "| Roles do usuário:", roles);
+  }, [activeRole, roles]);
+
+  const lixoesQuery = useQuery({
     queryKey: ["lixoes"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -261,8 +269,9 @@ const DashboardLixoes = () => {
       return (data ?? []) as unknown as Lixao[];
     },
   });
+  const lixoes = lixoesQuery.data ?? [];
 
-  const { data: historico = [] } = useQuery({
+  const historicoQuery = useQuery({
     queryKey: ["lixao_volume_historico"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -273,8 +282,9 @@ const DashboardLixoes = () => {
       return (data ?? []) as unknown as Hist[];
     },
   });
+  const historico = historicoQuery.data ?? [];
 
-  const { data: correlacao = [] } = useQuery({
+  const correlacaoQuery = useQuery({
     queryKey: ["vw_lixoes_correlacao"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -285,6 +295,27 @@ const DashboardLixoes = () => {
       return (data ?? []) as unknown as Correlacao[];
     },
   });
+  const correlacao = correlacaoQuery.data ?? [];
+
+  const isLoading = lixoesQuery.isLoading || historicoQuery.isLoading || correlacaoQuery.isLoading;
+  const loadError = lixoesQuery.error || historicoQuery.error || correlacaoQuery.error;
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info("[DashboardLixoes] Status API:", {
+      lixoes: lixoesQuery.status,
+      historico: historicoQuery.status,
+      correlacao: correlacaoQuery.status,
+      count: lixoes.length,
+    });
+  }, [lixoesQuery.status, historicoQuery.status, correlacaoQuery.status, lixoes.length]);
+
+  const reloadAll = () => {
+    lixoesQuery.refetch();
+    historicoQuery.refetch();
+    correlacaoQuery.refetch();
+  };
+
 
   const ufs = useMemo(
     () => Array.from(new Set(lixoes.map((l) => l.uf))).sort(),
