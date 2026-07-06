@@ -23,6 +23,7 @@ import Auditoria from "./pages/DashboardAuditoria";
 import Alertas from "./pages/DashboardAlertas";
 import DashboardBenchmarks from "./pages/DashboardBenchmarks";
 import DashboardLixoes from "./pages/DashboardLixoes";
+import DashboardRadarRejeitos from "./pages/DashboardRadarRejeitos";
 
 // Module layouts
 import CooperativaLayout from "./components/modules/CooperativaLayout";
