@@ -193,7 +193,8 @@ function RadarMap({
 }
 
 function RadarRejeitosInner() {
-  const { role } = useAuth();
+  const { roles } = useAuth();
+  const role = roles.includes("super_admin") ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "—");
   const qc = useQueryClient();
   const [ultimosPings, setUltimosPings] = useState<Record<string, Ping>>({});
 
