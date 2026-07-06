@@ -119,15 +119,24 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    const brazilBounds = L.latLngBounds([-33.75, -73.99], [5.27, -34.79]);
     const map = L.map(containerRef.current, {
       center: [-14.235, -51.9253],
       zoom: 4,
+      minZoom: 4,
+      maxZoom: 10,
       scrollWheelZoom: true,
+      maxBounds: brazilBounds,
+      maxBoundsViscosity: 1.0,
     });
+    map.fitBounds(brazilBounds);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "&copy; OpenStreetMap",
+      bounds: brazilBounds,
+      noWrap: true,
     }).addTo(map);
+
 
     const layerGroup = L.layerGroup().addTo(map);
     mapRef.current = map;
