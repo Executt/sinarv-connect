@@ -452,6 +452,66 @@ export type Database = {
         }
         Relationships: []
       }
+      alertas_geofencing: {
+        Row: {
+          carga_id: string | null
+          created_at: string
+          distancia_desvio_m: number | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          mensagem: string
+          severidade: Database["public"]["Enums"]["alerta_severidade"]
+          status: Database["public"]["Enums"]["alerta_geo_status"]
+          tipo: Database["public"]["Enums"]["alerta_geo_tipo"]
+          updated_at: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          carga_id?: string | null
+          created_at?: string
+          distancia_desvio_m?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          mensagem: string
+          severidade?: Database["public"]["Enums"]["alerta_severidade"]
+          status?: Database["public"]["Enums"]["alerta_geo_status"]
+          tipo: Database["public"]["Enums"]["alerta_geo_tipo"]
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          carga_id?: string | null
+          created_at?: string
+          distancia_desvio_m?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          mensagem?: string
+          severidade?: Database["public"]["Enums"]["alerta_severidade"]
+          status?: Database["public"]["Enums"]["alerta_geo_status"]
+          tipo?: Database["public"]["Enums"]["alerta_geo_tipo"]
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alertas_geofencing_carga_id_fkey"
+            columns: ["carga_id"]
+            isOneToOne: false
+            referencedRelation: "cargas_perigosas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alertas_geofencing_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos_frota"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_acoes_automaticas: {
         Row: {
           acao_config: Json
@@ -784,6 +844,65 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      cargas_perigosas: {
+        Row: {
+          categoria: Database["public"]["Enums"]["carga_categoria"]
+          created_at: string
+          destino_final: string
+          detalhamento: string
+          id: string
+          origem_identificacao_hash: string | null
+          origem_localidade: string | null
+          origem_tipo: string
+          peso_declarado_kg: number | null
+          peso_destino_kg: number | null
+          peso_origem_kg: number | null
+          status: Database["public"]["Enums"]["carga_status"]
+          updated_at: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          categoria: Database["public"]["Enums"]["carga_categoria"]
+          created_at?: string
+          destino_final: string
+          detalhamento: string
+          id?: string
+          origem_identificacao_hash?: string | null
+          origem_localidade?: string | null
+          origem_tipo: string
+          peso_declarado_kg?: number | null
+          peso_destino_kg?: number | null
+          peso_origem_kg?: number | null
+          status?: Database["public"]["Enums"]["carga_status"]
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          categoria?: Database["public"]["Enums"]["carga_categoria"]
+          created_at?: string
+          destino_final?: string
+          detalhamento?: string
+          id?: string
+          origem_identificacao_hash?: string | null
+          origem_localidade?: string | null
+          origem_tipo?: string
+          peso_declarado_kg?: number | null
+          peso_destino_kg?: number | null
+          peso_origem_kg?: number | null
+          status?: Database["public"]["Enums"]["carga_status"]
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cargas_perigosas_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos_frota"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       configuracoes_integracoes: {
         Row: {
@@ -1831,6 +1950,104 @@ export type Database = {
         }
         Relationships: []
       }
+      rotas_planejadas: {
+        Row: {
+          carga_id: string
+          created_at: string
+          destino_lat: number
+          destino_lng: number
+          id: string
+          origem_lat: number
+          origem_lng: number
+          raio_tolerancia_m: number
+          updated_at: string
+          waypoints: Json
+        }
+        Insert: {
+          carga_id: string
+          created_at?: string
+          destino_lat: number
+          destino_lng: number
+          id?: string
+          origem_lat: number
+          origem_lng: number
+          raio_tolerancia_m?: number
+          updated_at?: string
+          waypoints?: Json
+        }
+        Update: {
+          carga_id?: string
+          created_at?: string
+          destino_lat?: number
+          destino_lng?: number
+          id?: string
+          origem_lat?: number
+          origem_lng?: number
+          raio_tolerancia_m?: number
+          updated_at?: string
+          waypoints?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rotas_planejadas_carga_id_fkey"
+            columns: ["carga_id"]
+            isOneToOne: false
+            referencedRelation: "cargas_perigosas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      telemetria_frota: {
+        Row: {
+          carga_id: string | null
+          id: string
+          lat: number
+          lng: number
+          peso_carga_kg: number | null
+          recebido_em: string
+          status_porta: Database["public"]["Enums"]["porta_status"]
+          veiculo_id: string
+          velocidade_kmh: number | null
+        }
+        Insert: {
+          carga_id?: string | null
+          id?: string
+          lat: number
+          lng: number
+          peso_carga_kg?: number | null
+          recebido_em?: string
+          status_porta?: Database["public"]["Enums"]["porta_status"]
+          veiculo_id: string
+          velocidade_kmh?: number | null
+        }
+        Update: {
+          carga_id?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          peso_carga_kg?: number | null
+          recebido_em?: string
+          status_porta?: Database["public"]["Enums"]["porta_status"]
+          veiculo_id?: string
+          velocidade_kmh?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telemetria_frota_carga_id_fkey"
+            columns: ["carga_id"]
+            isOneToOne: false
+            referencedRelation: "cargas_perigosas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "telemetria_frota_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos_frota"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       telemetria_historico: {
         Row: {
           contenedor_localizacao_id: string
@@ -1981,6 +2198,39 @@ export type Database = {
           ultimo_login?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      veiculos_frota: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          placa: string
+          tipo_licenca: string | null
+          tracker_id: string
+          transportadora: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          placa: string
+          tipo_licenca?: string | null
+          tracker_id: string
+          transportadora: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          placa?: string
+          tipo_licenca?: string | null
+          tracker_id?: string
+          transportadora?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3070,6 +3320,13 @@ export type Database = {
       ai_status: "ativo" | "inativo" | "manutencao"
       alert_severity: "critical" | "high" | "medium" | "low"
       alert_status: "active" | "acknowledged" | "resolved"
+      alerta_geo_status: "active" | "acknowledged" | "resolved"
+      alerta_geo_tipo:
+        | "desvio_rota"
+        | "porta_aberta"
+        | "peso_divergente"
+        | "parada_nao_autorizada"
+      alerta_severidade: "low" | "medium" | "high" | "critical"
       app_role:
         | "gov"
         | "cooperativa"
@@ -3077,6 +3334,13 @@ export type Database = {
         | "ponto_coleta"
         | "super_admin"
       audit_status: "Conforme" | "Não Conforme" | "Pendente" | "Em Análise"
+      carga_categoria: "contaminado_perigoso" | "hospitalar" | "quimico"
+      carga_status:
+        | "planejada"
+        | "em_transito"
+        | "entregue"
+        | "divergente"
+        | "cancelada"
       lixao_status: "ativo" | "em_encerramento" | "encerrado" | "recuperado"
       lixao_tipo:
         | "lixao"
@@ -3084,6 +3348,7 @@ export type Database = {
         | "aterro_sanitario"
         | "transbordo"
       lote_status: "Coletado" | "Em Processamento" | "Em Trânsito" | "Entregue"
+      porta_status: "fechada" | "aberta"
       transaction_status: "Concluída" | "Em Trânsito" | "Pendente" | "Auditoria"
     }
     CompositeTypes: {
@@ -3217,6 +3482,14 @@ export const Constants = {
       ai_status: ["ativo", "inativo", "manutencao"],
       alert_severity: ["critical", "high", "medium", "low"],
       alert_status: ["active", "acknowledged", "resolved"],
+      alerta_geo_status: ["active", "acknowledged", "resolved"],
+      alerta_geo_tipo: [
+        "desvio_rota",
+        "porta_aberta",
+        "peso_divergente",
+        "parada_nao_autorizada",
+      ],
+      alerta_severidade: ["low", "medium", "high", "critical"],
       app_role: [
         "gov",
         "cooperativa",
@@ -3225,6 +3498,14 @@ export const Constants = {
         "super_admin",
       ],
       audit_status: ["Conforme", "Não Conforme", "Pendente", "Em Análise"],
+      carga_categoria: ["contaminado_perigoso", "hospitalar", "quimico"],
+      carga_status: [
+        "planejada",
+        "em_transito",
+        "entregue",
+        "divergente",
+        "cancelada",
+      ],
       lixao_status: ["ativo", "em_encerramento", "encerrado", "recuperado"],
       lixao_tipo: [
         "lixao",
@@ -3233,6 +3514,7 @@ export const Constants = {
         "transbordo",
       ],
       lote_status: ["Coletado", "Em Processamento", "Em Trânsito", "Entregue"],
+      porta_status: ["fechada", "aberta"],
       transaction_status: ["Concluída", "Em Trânsito", "Pendente", "Auditoria"],
     },
   },

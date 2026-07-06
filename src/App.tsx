@@ -23,6 +23,7 @@ import Auditoria from "./pages/DashboardAuditoria";
 import Alertas from "./pages/DashboardAlertas";
 import DashboardBenchmarks from "./pages/DashboardBenchmarks";
 import DashboardLixoes from "./pages/DashboardLixoes";
+import DashboardRadarRejeitos from "./pages/DashboardRadarRejeitos";
 
 // Module layouts
 import CooperativaLayout from "./components/modules/CooperativaLayout";
@@ -117,6 +118,7 @@ const App = () => (
               <Route path="usuarios" element={<DashboardUsuarios />} />
               <Route path="benchmarks" element={<DashboardBenchmarks />} />
               <Route path="lixoes" element={<DashboardLixoes />} />
+              <Route path="radar-rejeitos" element={<DashboardRadarRejeitos />} />
             </Route>
 
             {/* Cooperativa - requires 'cooperativa' role */}
