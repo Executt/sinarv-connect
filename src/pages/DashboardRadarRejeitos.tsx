@@ -88,9 +88,13 @@ function RadarMap({
     const map = L.map(containerRef.current, {
       center: [-14.235, -51.9253], zoom: 4,
       maxBounds: brBounds, maxBoundsViscosity: 1.0,
+      zoomControl: true,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap", noWrap: true, bounds: brBounds,
+    // Dark governmental base — CartoDB Dark Matter
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: "© OpenStreetMap © CARTO",
+      subdomains: "abcd",
+      noWrap: true, bounds: brBounds, maxZoom: 19,
     }).addTo(map);
     map.fitBounds(brBounds);
 
@@ -102,9 +106,9 @@ function RadarMap({
 
     L.control.layers(undefined, {
       "🟢 Destinações finais": destinos,
-      "🟠 Demanda comunitária": demanda,
-      "🔴 Descarte irregular": irregular,
-      "🟣 Frota em tempo real": frota,
+      "🏥 Demanda / geradores": demanda,
+      "⚠️ Descarte irregular": irregular,
+      "🚛 Frota em tempo real": frota,
       "Rotas planejadas": rotas,
     }, { collapsed: false, position: "topright" }).addTo(map);
 
@@ -113,31 +117,34 @@ function RadarMap({
     return () => { map.remove(); mapRef.current = null; layersRef.current = null; };
   }, []);
 
-  // camada 1 — destinos (mock: usa destinos das rotas)
+
+  // camada 1 — destinos (mock: usa destinos das rotas) — VERDE NEON
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.destinos.clearLayers();
     rotas.forEach((r) => {
       if (!validCoord(r.destino_lat, r.destino_lng)) return;
       L.circleMarker([Number(r.destino_lat), Number(r.destino_lng)], {
-        radius: 8, color: "#107E3E", fillColor: "#107E3E", fillOpacity: 0.75, weight: 2,
+        radius: 9, color: "#00FF88", fillColor: "#00FF88", fillOpacity: 0.85, weight: 2,
+        className: "radar-neon-glow",
       }).bindPopup(`<b>Destino final</b><br/>${cargas.find(c => c.id === r.carga_id)?.destino_final ?? ""}`)
         .addTo(L_.destinos);
     });
   }, [rotas, cargas]);
 
-  // camada 2 — demanda (mock)
+  // camada 2 — hospitais / demanda (mock) — CIANO NEON
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.demanda.clearLayers();
     DEMANDA_MOCK.forEach((d) => {
-      L.circle([d.lat, d.lng], {
-        radius: d.peso * 8000, color: "#E9730C", fillColor: "#E9730C", fillOpacity: 0.2, weight: 1,
-      }).bindPopup(`<b>Demanda comunitária</b><br/>Cluster de ${d.peso} pedidos`).addTo(L_.demanda);
+      L.circleMarker([d.lat, d.lng], {
+        radius: 7, color: "#00E5FF", fillColor: "#00E5FF", fillOpacity: 0.8, weight: 2,
+        className: "radar-neon-glow",
+      }).bindPopup(`<b>Gerador / demanda</b><br/>Cluster de ${d.peso} pedidos`).addTo(L_.demanda);
     });
   }, []);
 
-  // camada 3 — descartes irregulares (mock)
+  // camada 3 — descartes irregulares (mock) — VERMELHO NEON
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.irregular.clearLayers();
@@ -145,13 +152,13 @@ function RadarMap({
       L.marker([p.lat, p.lng], {
         icon: L.divIcon({
           className: "",
-          html: `<div style="background:#BB0000;color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600">⚠</div>`,
+          html: `<div style="background:#FF3355;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;box-shadow:0 0 12px #FF3355">⚠</div>`,
         }),
       }).bindPopup(`<b>Descarte irregular</b><br/>${p.tipo}`).addTo(L_.irregular);
     });
   }, []);
 
-  // camada 4 — frota realtime + rotas
+  // camada 4 — frota realtime + rotas — ROXO NEON (vermelho pulsante em alerta)
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.frota.clearLayers();
@@ -161,7 +168,7 @@ function RadarMap({
       if (!validCoord(r.origem_lat, r.origem_lng) || !validCoord(r.destino_lat, r.destino_lng)) return;
       L.polyline(
         [[Number(r.origem_lat), Number(r.origem_lng)], [Number(r.destino_lat), Number(r.destino_lng)]],
-        { color: "#0A6ED1", weight: 2, opacity: 0.4, dashArray: "6 4" },
+        { color: "#00E5FF", weight: 2, opacity: 0.45, dashArray: "6 4" },
       ).addTo(L_.rotas);
     });
 
@@ -172,11 +179,11 @@ function RadarMap({
         a.status === "active" && a.veiculo_id === p.veiculo_id &&
         (a.severidade === "critical" || a.severidade === "high"),
       );
-      const cor = alertaAtivo ? "#BB0000" : "#7B4FBF";
+      const cor = alertaAtivo ? "#FF3355" : "#B266FF";
       L.marker([Number(p.lat), Number(p.lng)], {
         icon: L.divIcon({
           className: "",
-          html: `<div style="background:${cor};color:white;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;box-shadow:0 0 0 3px ${cor}33;${alertaAtivo ? "animation:pulse 1.2s infinite" : ""}">🚛 ${veiculo?.placa ?? "?"}</div>`,
+          html: `<div style="background:${cor};color:white;padding:4px 9px;border-radius:14px;font-size:11px;font-weight:800;box-shadow:0 0 0 3px ${cor}44, 0 0 16px ${cor};${alertaAtivo ? "animation:radarPulse 1s infinite" : ""}">🚛 ${veiculo?.placa ?? "?"}</div>`,
         }),
       }).bindPopup(
         `<b>${veiculo?.placa ?? "veículo"}</b><br/>${veiculo?.transportadora ?? ""}<br/>Porta: ${p.status_porta}<br/>Peso: ${p.peso_carga_kg ?? "—"} kg<br/><small>${new Date(p.recebido_em).toLocaleString("pt-BR")}</small>`,
@@ -186,11 +193,15 @@ function RadarMap({
 
   return (
     <div className="relative">
-      <style>{`@keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.15) } }`}</style>
+      <style>{`
+        @keyframes radarPulse { 0%,100% { transform: scale(1); filter: brightness(1) } 50% { transform: scale(1.2); filter: brightness(1.4) } }
+        .radar-neon-glow { filter: drop-shadow(0 0 6px currentColor); }
+      `}</style>
       <div ref={containerRef} className="h-[560px] w-full rounded-lg overflow-hidden border border-border" />
     </div>
   );
 }
+
 
 function RadarRejeitosInner() {
   const { roles } = useAuth();
@@ -275,6 +286,34 @@ function RadarRejeitosInner() {
   const rotas = rotasQ.data ?? [];
   const alertas = alertasQ.data ?? [];
 
+  const alertasAtivosCriticos = useMemo(
+    () => alertas.filter(a => a.status === "active" && (a.severidade === "critical" || a.severidade === "high")),
+    [alertas],
+  );
+
+  // Alerta sonoro: dispara ao aparecer novo alerta crítico (deduplicado por id)
+  const alertasVistos = useRef<Set<string>>(new Set());
+  const [somAtivo, setSomAtivo] = useState(true);
+  useEffect(() => {
+    if (!somAtivo) return;
+    const novos = alertasAtivosCriticos.filter(a => !alertasVistos.current.has(a.id));
+    if (novos.length === 0) return;
+    novos.forEach(a => alertasVistos.current.add(a.id));
+    // beep sintético via WebAudio (evita dependência de arquivo)
+    try {
+      const AC = (window.AudioContext || (window as any).webkitAudioContext);
+      if (!AC) return;
+      const ctx = new AC();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = "square"; o.frequency.value = 880;
+      g.gain.value = 0.08;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      setTimeout(() => { o.frequency.value = 660; }, 180);
+      setTimeout(() => { o.stop(); ctx.close(); }, 420);
+    } catch { /* autoplay bloqueado — ignora */ }
+  }, [alertasAtivosCriticos, somAtivo]);
+
   const stats = useMemo(() => ({
     frota: veiculos.filter(v => v.ativo).length,
     emTransito: cargas.filter(c => c.status === "em_transito").length,
@@ -297,14 +336,42 @@ function RadarRejeitosInner() {
 
   return (
     <div className="space-y-4">
+      <style>{`@keyframes redFlagBlink { 0%,100% { background-color: hsl(var(--destructive)); } 50% { background-color: hsl(var(--destructive) / 0.55); } }`}</style>
+
+      {alertasAtivosCriticos.length > 0 && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="rounded-lg border-2 border-destructive text-destructive-foreground p-3 flex items-center gap-3 shadow-lg"
+          style={{ animation: "redFlagBlink 1s infinite" }}
+        >
+          <AlertTriangle className="h-6 w-6 shrink-0" />
+          <div className="flex-1 text-sm">
+            <div className="font-bold uppercase tracking-wide">
+              🚨 {alertasAtivosCriticos.length} alerta{alertasAtivosCriticos.length > 1 ? "s" : ""} crítico{alertasAtivosCriticos.length > 1 ? "s" : ""} em curso
+            </div>
+            <div className="text-xs opacity-90 line-clamp-1">
+              {alertasAtivosCriticos[0].mensagem}
+            </div>
+          </div>
+          <Button size="sm" variant="secondary" onClick={() => setSomAtivo(s => !s)}>
+            {somAtivo ? "🔊 Som on" : "🔇 Som off"}
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => ackAlert(alertasAtivosCriticos[0].id)}>
+            Reconhecer
+          </Button>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <Badge variant="outline" className="gap-1"><ShieldAlert className="h-3 w-3" /> Papel: {role ?? "—"}</Badge>
-        <Badge variant="outline" className="gap-1"><Radio className="h-3 w-3" /> Realtime ativo</Badge>
+        <Badge variant="outline" className="gap-1"><Radio className="h-3 w-3" /> Realtime ativo (WebSocket)</Badge>
         <Badge variant="outline">Pings recebidos: {pingsQ.data?.length ?? 0}</Badge>
         <Button size="sm" variant="ghost" onClick={reload} className="h-7 gap-1 ml-auto">
           <RefreshCw className="h-3 w-3" /> Recarregar
         </Button>
       </div>
+
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
