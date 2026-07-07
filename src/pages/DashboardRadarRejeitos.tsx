@@ -118,31 +118,33 @@ function RadarMap({
   }, []);
 
 
-  // camada 1 — destinos (mock: usa destinos das rotas)
+  // camada 1 — destinos (mock: usa destinos das rotas) — VERDE NEON
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.destinos.clearLayers();
     rotas.forEach((r) => {
       if (!validCoord(r.destino_lat, r.destino_lng)) return;
       L.circleMarker([Number(r.destino_lat), Number(r.destino_lng)], {
-        radius: 8, color: "#107E3E", fillColor: "#107E3E", fillOpacity: 0.75, weight: 2,
+        radius: 9, color: "#00FF88", fillColor: "#00FF88", fillOpacity: 0.85, weight: 2,
+        className: "radar-neon-glow",
       }).bindPopup(`<b>Destino final</b><br/>${cargas.find(c => c.id === r.carga_id)?.destino_final ?? ""}`)
         .addTo(L_.destinos);
     });
   }, [rotas, cargas]);
 
-  // camada 2 — demanda (mock)
+  // camada 2 — hospitais / demanda (mock) — CIANO NEON
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.demanda.clearLayers();
     DEMANDA_MOCK.forEach((d) => {
-      L.circle([d.lat, d.lng], {
-        radius: d.peso * 8000, color: "#E9730C", fillColor: "#E9730C", fillOpacity: 0.2, weight: 1,
-      }).bindPopup(`<b>Demanda comunitária</b><br/>Cluster de ${d.peso} pedidos`).addTo(L_.demanda);
+      L.circleMarker([d.lat, d.lng], {
+        radius: 7, color: "#00E5FF", fillColor: "#00E5FF", fillOpacity: 0.8, weight: 2,
+        className: "radar-neon-glow",
+      }).bindPopup(`<b>Gerador / demanda</b><br/>Cluster de ${d.peso} pedidos`).addTo(L_.demanda);
     });
   }, []);
 
-  // camada 3 — descartes irregulares (mock)
+  // camada 3 — descartes irregulares (mock) — VERMELHO NEON
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.irregular.clearLayers();
@@ -150,13 +152,13 @@ function RadarMap({
       L.marker([p.lat, p.lng], {
         icon: L.divIcon({
           className: "",
-          html: `<div style="background:#BB0000;color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600">⚠</div>`,
+          html: `<div style="background:#FF3355;color:white;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700;box-shadow:0 0 12px #FF3355">⚠</div>`,
         }),
       }).bindPopup(`<b>Descarte irregular</b><br/>${p.tipo}`).addTo(L_.irregular);
     });
   }, []);
 
-  // camada 4 — frota realtime + rotas
+  // camada 4 — frota realtime + rotas — ROXO NEON (vermelho pulsante em alerta)
   useEffect(() => {
     const L_ = layersRef.current; if (!L_) return;
     L_.frota.clearLayers();
@@ -166,7 +168,7 @@ function RadarMap({
       if (!validCoord(r.origem_lat, r.origem_lng) || !validCoord(r.destino_lat, r.destino_lng)) return;
       L.polyline(
         [[Number(r.origem_lat), Number(r.origem_lng)], [Number(r.destino_lat), Number(r.destino_lng)]],
-        { color: "#0A6ED1", weight: 2, opacity: 0.4, dashArray: "6 4" },
+        { color: "#00E5FF", weight: 2, opacity: 0.45, dashArray: "6 4" },
       ).addTo(L_.rotas);
     });
 
@@ -177,11 +179,11 @@ function RadarMap({
         a.status === "active" && a.veiculo_id === p.veiculo_id &&
         (a.severidade === "critical" || a.severidade === "high"),
       );
-      const cor = alertaAtivo ? "#BB0000" : "#7B4FBF";
+      const cor = alertaAtivo ? "#FF3355" : "#B266FF";
       L.marker([Number(p.lat), Number(p.lng)], {
         icon: L.divIcon({
           className: "",
-          html: `<div style="background:${cor};color:white;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;box-shadow:0 0 0 3px ${cor}33;${alertaAtivo ? "animation:pulse 1.2s infinite" : ""}">🚛 ${veiculo?.placa ?? "?"}</div>`,
+          html: `<div style="background:${cor};color:white;padding:4px 9px;border-radius:14px;font-size:11px;font-weight:800;box-shadow:0 0 0 3px ${cor}44, 0 0 16px ${cor};${alertaAtivo ? "animation:radarPulse 1s infinite" : ""}">🚛 ${veiculo?.placa ?? "?"}</div>`,
         }),
       }).bindPopup(
         `<b>${veiculo?.placa ?? "veículo"}</b><br/>${veiculo?.transportadora ?? ""}<br/>Porta: ${p.status_porta}<br/>Peso: ${p.peso_carga_kg ?? "—"} kg<br/><small>${new Date(p.recebido_em).toLocaleString("pt-BR")}</small>`,
@@ -191,11 +193,15 @@ function RadarMap({
 
   return (
     <div className="relative">
-      <style>{`@keyframes pulse { 0%,100% { transform: scale(1) } 50% { transform: scale(1.15) } }`}</style>
+      <style>{`
+        @keyframes radarPulse { 0%,100% { transform: scale(1); filter: brightness(1) } 50% { transform: scale(1.2); filter: brightness(1.4) } }
+        .radar-neon-glow { filter: drop-shadow(0 0 6px currentColor); }
+      `}</style>
       <div ref={containerRef} className="h-[560px] w-full rounded-lg overflow-hidden border border-border" />
     </div>
   );
 }
+
 
 function RadarRejeitosInner() {
   const { roles } = useAuth();
