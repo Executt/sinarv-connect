@@ -286,6 +286,34 @@ function RadarRejeitosInner() {
   const rotas = rotasQ.data ?? [];
   const alertas = alertasQ.data ?? [];
 
+  const alertasAtivosCriticos = useMemo(
+    () => alertas.filter(a => a.status === "active" && (a.severidade === "critical" || a.severidade === "high")),
+    [alertas],
+  );
+
+  // Alerta sonoro: dispara ao aparecer novo alerta crítico (deduplicado por id)
+  const alertasVistos = useRef<Set<string>>(new Set());
+  const [somAtivo, setSomAtivo] = useState(true);
+  useEffect(() => {
+    if (!somAtivo) return;
+    const novos = alertasAtivosCriticos.filter(a => !alertasVistos.current.has(a.id));
+    if (novos.length === 0) return;
+    novos.forEach(a => alertasVistos.current.add(a.id));
+    // beep sintético via WebAudio (evita dependência de arquivo)
+    try {
+      const AC = (window.AudioContext || (window as any).webkitAudioContext);
+      if (!AC) return;
+      const ctx = new AC();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type = "square"; o.frequency.value = 880;
+      g.gain.value = 0.08;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      setTimeout(() => { o.frequency.value = 660; }, 180);
+      setTimeout(() => { o.stop(); ctx.close(); }, 420);
+    } catch { /* autoplay bloqueado — ignora */ }
+  }, [alertasAtivosCriticos, somAtivo]);
+
   const stats = useMemo(() => ({
     frota: veiculos.filter(v => v.ativo).length,
     emTransito: cargas.filter(c => c.status === "em_transito").length,
@@ -308,14 +336,42 @@ function RadarRejeitosInner() {
 
   return (
     <div className="space-y-4">
+      <style>{`@keyframes redFlagBlink { 0%,100% { background-color: hsl(var(--destructive)); } 50% { background-color: hsl(var(--destructive) / 0.55); } }`}</style>
+
+      {alertasAtivosCriticos.length > 0 && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="rounded-lg border-2 border-destructive text-destructive-foreground p-3 flex items-center gap-3 shadow-lg"
+          style={{ animation: "redFlagBlink 1s infinite" }}
+        >
+          <AlertTriangle className="h-6 w-6 shrink-0" />
+          <div className="flex-1 text-sm">
+            <div className="font-bold uppercase tracking-wide">
+              🚨 {alertasAtivosCriticos.length} alerta{alertasAtivosCriticos.length > 1 ? "s" : ""} crítico{alertasAtivosCriticos.length > 1 ? "s" : ""} em curso
+            </div>
+            <div className="text-xs opacity-90 line-clamp-1">
+              {alertasAtivosCriticos[0].mensagem}
+            </div>
+          </div>
+          <Button size="sm" variant="secondary" onClick={() => setSomAtivo(s => !s)}>
+            {somAtivo ? "🔊 Som on" : "🔇 Som off"}
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => ackAlert(alertasAtivosCriticos[0].id)}>
+            Reconhecer
+          </Button>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <Badge variant="outline" className="gap-1"><ShieldAlert className="h-3 w-3" /> Papel: {role ?? "—"}</Badge>
-        <Badge variant="outline" className="gap-1"><Radio className="h-3 w-3" /> Realtime ativo</Badge>
+        <Badge variant="outline" className="gap-1"><Radio className="h-3 w-3" /> Realtime ativo (WebSocket)</Badge>
         <Badge variant="outline">Pings recebidos: {pingsQ.data?.length ?? 0}</Badge>
         <Button size="sm" variant="ghost" onClick={reload} className="h-7 gap-1 ml-auto">
           <RefreshCw className="h-3 w-3" /> Recarregar
         </Button>
       </div>
+
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
