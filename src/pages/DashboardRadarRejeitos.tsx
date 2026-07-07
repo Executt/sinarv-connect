@@ -88,9 +88,13 @@ function RadarMap({
     const map = L.map(containerRef.current, {
       center: [-14.235, -51.9253], zoom: 4,
       maxBounds: brBounds, maxBoundsViscosity: 1.0,
+      zoomControl: true,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap", noWrap: true, bounds: brBounds,
+    // Dark governmental base — CartoDB Dark Matter
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      attribution: "© OpenStreetMap © CARTO",
+      subdomains: "abcd",
+      noWrap: true, bounds: brBounds, maxZoom: 19,
     }).addTo(map);
     map.fitBounds(brBounds);
 
@@ -102,9 +106,9 @@ function RadarMap({
 
     L.control.layers(undefined, {
       "🟢 Destinações finais": destinos,
-      "🟠 Demanda comunitária": demanda,
-      "🔴 Descarte irregular": irregular,
-      "🟣 Frota em tempo real": frota,
+      "🏥 Demanda / geradores": demanda,
+      "⚠️ Descarte irregular": irregular,
+      "🚛 Frota em tempo real": frota,
       "Rotas planejadas": rotas,
     }, { collapsed: false, position: "topright" }).addTo(map);
 
@@ -112,6 +116,7 @@ function RadarMap({
     layersRef.current = { destinos, demanda, irregular, frota, rotas };
     return () => { map.remove(); mapRef.current = null; layersRef.current = null; };
   }, []);
+
 
   // camada 1 — destinos (mock: usa destinos das rotas)
   useEffect(() => {
