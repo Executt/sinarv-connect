@@ -22,6 +22,7 @@ import {
   Eye,
   Trash2,
   Radio,
+  Biohazard,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -51,6 +52,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Benchmarks", to: "/dashboard/benchmarks" },
       { label: "Lixões", to: "/dashboard/lixoes", icon: Trash2 },
       { label: "Radar de Rejeitos", to: "/dashboard/radar-rejeitos", icon: Radio },
+      { label: "Resíduos Críticos", to: "/dashboard/residuos-criticos", icon: Biohazard },
     ],
   },
   "/cooperativa": {
