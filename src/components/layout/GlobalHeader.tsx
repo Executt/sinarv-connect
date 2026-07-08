@@ -21,6 +21,7 @@ import {
   Settings,
   Eye,
   Trash2,
+  Radio,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
@@ -49,6 +50,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Usuários", to: "/dashboard/usuarios" },
       { label: "Benchmarks", to: "/dashboard/benchmarks" },
       { label: "Lixões", to: "/dashboard/lixoes", icon: Trash2 },
+      { label: "Radar de Rejeitos", to: "/dashboard/radar-rejeitos", icon: Radio },
     ],
   },
   "/cooperativa": {
