@@ -1167,6 +1167,63 @@ export type Database = {
         }
         Relationships: []
       }
+      geradores_criticos: {
+        Row: {
+          ativo: boolean
+          cnes: string | null
+          cnpj: string
+          created_at: string
+          endereco: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          municipio: string | null
+          razao_social: string
+          responsavel_email: string | null
+          responsavel_nome: string | null
+          responsavel_telefone: string | null
+          tipo: string
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cnes?: string | null
+          cnpj: string
+          created_at?: string
+          endereco?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          municipio?: string | null
+          razao_social: string
+          responsavel_email?: string | null
+          responsavel_nome?: string | null
+          responsavel_telefone?: string | null
+          tipo: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cnes?: string | null
+          cnpj?: string
+          created_at?: string
+          endereco?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          municipio?: string | null
+          razao_social?: string
+          responsavel_email?: string | null
+          responsavel_nome?: string | null
+          responsavel_telefone?: string | null
+          tipo?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       indicadores_sustentabilidade: {
         Row: {
           id: string
@@ -1609,6 +1666,56 @@ export type Database = {
           },
         ]
       }
+      licencas_ambientais: {
+        Row: {
+          arquivo_url: string | null
+          created_at: string
+          emissao: string
+          id: string
+          numero: string
+          observacoes: string | null
+          operador_id: string
+          orgao_emissor: string
+          tipo: string
+          updated_at: string
+          validade: string
+        }
+        Insert: {
+          arquivo_url?: string | null
+          created_at?: string
+          emissao: string
+          id?: string
+          numero: string
+          observacoes?: string | null
+          operador_id: string
+          orgao_emissor: string
+          tipo: string
+          updated_at?: string
+          validade: string
+        }
+        Update: {
+          arquivo_url?: string | null
+          created_at?: string
+          emissao?: string
+          id?: string
+          numero?: string
+          observacoes?: string | null
+          operador_id?: string
+          orgao_emissor?: string
+          tipo?: string
+          updated_at?: string
+          validade?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "licencas_ambientais_operador_id_fkey"
+            columns: ["operador_id"]
+            isOneToOne: false
+            referencedRelation: "operadores_logisticos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lixao_volume_historico: {
         Row: {
           created_at: string
@@ -1755,6 +1862,104 @@ export type Database = {
         }
         Relationships: []
       }
+      mtr_solicitacoes: {
+        Row: {
+          assinatura_destinador: string | null
+          assinatura_gerador: string | null
+          assinatura_transportador: string | null
+          classe_residuo: string
+          codigo: string
+          created_at: string
+          created_by: string | null
+          data_coleta: string | null
+          data_prevista: string | null
+          data_recepcao: string | null
+          destinador_id: string | null
+          gerador_id: string
+          id: string
+          observacoes: string | null
+          onu_number: string | null
+          operador_id: string | null
+          quantidade_kg: number
+          status: string
+          updated_at: string
+          veiculo_id: string | null
+        }
+        Insert: {
+          assinatura_destinador?: string | null
+          assinatura_gerador?: string | null
+          assinatura_transportador?: string | null
+          classe_residuo: string
+          codigo?: string
+          created_at?: string
+          created_by?: string | null
+          data_coleta?: string | null
+          data_prevista?: string | null
+          data_recepcao?: string | null
+          destinador_id?: string | null
+          gerador_id: string
+          id?: string
+          observacoes?: string | null
+          onu_number?: string | null
+          operador_id?: string | null
+          quantidade_kg: number
+          status?: string
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Update: {
+          assinatura_destinador?: string | null
+          assinatura_gerador?: string | null
+          assinatura_transportador?: string | null
+          classe_residuo?: string
+          codigo?: string
+          created_at?: string
+          created_by?: string | null
+          data_coleta?: string | null
+          data_prevista?: string | null
+          data_recepcao?: string | null
+          destinador_id?: string | null
+          gerador_id?: string
+          id?: string
+          observacoes?: string | null
+          onu_number?: string | null
+          operador_id?: string | null
+          quantidade_kg?: number
+          status?: string
+          updated_at?: string
+          veiculo_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mtr_solicitacoes_destinador_id_fkey"
+            columns: ["destinador_id"]
+            isOneToOne: false
+            referencedRelation: "operadores_logisticos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mtr_solicitacoes_gerador_id_fkey"
+            columns: ["gerador_id"]
+            isOneToOne: false
+            referencedRelation: "geradores_criticos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mtr_solicitacoes_operador_id_fkey"
+            columns: ["operador_id"]
+            isOneToOne: false
+            referencedRelation: "operadores_logisticos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mtr_solicitacoes_veiculo_id_fkey"
+            columns: ["veiculo_id"]
+            isOneToOne: false
+            referencedRelation: "veiculos_homologados"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notif_canais: {
         Row: {
           ativo: boolean
@@ -1890,6 +2095,51 @@ export type Database = {
           nome?: string
           updated_at?: string
           variaveis?: Json
+        }
+        Relationships: []
+      }
+      operadores_logisticos: {
+        Row: {
+          bloqueado: boolean
+          cnpj: string
+          contato_email: string | null
+          contato_telefone: string | null
+          created_at: string
+          homologado: boolean
+          id: string
+          motivo_bloqueio: string | null
+          natureza: string
+          razao_social: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          bloqueado?: boolean
+          cnpj: string
+          contato_email?: string | null
+          contato_telefone?: string | null
+          created_at?: string
+          homologado?: boolean
+          id?: string
+          motivo_bloqueio?: string | null
+          natureza?: string
+          razao_social: string
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          bloqueado?: boolean
+          cnpj?: string
+          contato_email?: string | null
+          contato_telefone?: string | null
+          created_at?: string
+          homologado?: boolean
+          id?: string
+          motivo_bloqueio?: string | null
+          natureza?: string
+          razao_social?: string
+          tipo?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2233,6 +2483,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      veiculos_homologados: {
+        Row: {
+          antt: string | null
+          ativo: boolean
+          capacidade_kg: number | null
+          created_at: string
+          id: string
+          onu_class: string | null
+          operador_id: string
+          placa: string
+          tipo: string
+          updated_at: string
+          vistoria_validade: string | null
+        }
+        Insert: {
+          antt?: string | null
+          ativo?: boolean
+          capacidade_kg?: number | null
+          created_at?: string
+          id?: string
+          onu_class?: string | null
+          operador_id: string
+          placa: string
+          tipo: string
+          updated_at?: string
+          vistoria_validade?: string | null
+        }
+        Update: {
+          antt?: string | null
+          ativo?: boolean
+          capacidade_kg?: number | null
+          created_at?: string
+          id?: string
+          onu_class?: string | null
+          operador_id?: string
+          placa?: string
+          tipo?: string
+          updated_at?: string
+          vistoria_validade?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "veiculos_homologados_operador_id_fkey"
+            columns: ["operador_id"]
+            isOneToOne: false
+            referencedRelation: "operadores_logisticos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
