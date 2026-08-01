@@ -701,8 +701,8 @@ async function registrarAuditoria(entidade: string, entidadeId: string | null, a
     entidade,
     entidade_id: entidadeId,
     acao,
-    detalhes,
-  });
+    detalhes: detalhes as never,
+  } as never);
   if (error) console.warn("[ResiduosCriticos] auditoria não registrada", error.message);
 }
 
