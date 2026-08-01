@@ -228,10 +228,10 @@ export default function DashboardResiduosCriticos() {
     !!id && !licencas.some((l) => l.operador_id === id && diasAte(l.validade) >= 0);
 
   const mudarStatus = async (m: MTR, novo: FluxoStatus) => {
-    const patch: Record<string, unknown> = { fluxo_status: novo };
+    const patch: { fluxo_status: FluxoStatus; motivo_bloqueio?: string | null } = { fluxo_status: novo };
     if (novo === "rascunho") patch.motivo_bloqueio = null;
     if (novo === "bloqueado") patch.motivo_bloqueio = "Bloqueado manualmente pela equipe de governo";
-    const { error } = await supabase.from("mtr_solicitacoes").update(patch).eq("id", m.id);
+    const { error } = await supabase.from("mtr_solicitacoes").update(patch as never).eq("id", m.id);
     if (error) return toast.error("Não foi possível alterar o status", { description: error.message });
     toast.success(`MTR ${m.codigo} → ${fluxoLabel[novo]}`);
     carregar();
