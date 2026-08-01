@@ -1864,6 +1864,8 @@ export type Database = {
       }
       mtr_solicitacoes: {
         Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
           assinatura_destinador: string | null
           assinatura_gerador: string | null
           assinatura_transportador: string | null
@@ -1875,8 +1877,10 @@ export type Database = {
           data_prevista: string | null
           data_recepcao: string | null
           destinador_id: string | null
+          fluxo_status: Database["public"]["Enums"]["mtr_fluxo_status"]
           gerador_id: string
           id: string
+          motivo_bloqueio: string | null
           observacoes: string | null
           onu_number: string | null
           operador_id: string | null
@@ -1886,6 +1890,8 @@ export type Database = {
           veiculo_id: string | null
         }
         Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           assinatura_destinador?: string | null
           assinatura_gerador?: string | null
           assinatura_transportador?: string | null
@@ -1897,8 +1903,10 @@ export type Database = {
           data_prevista?: string | null
           data_recepcao?: string | null
           destinador_id?: string | null
+          fluxo_status?: Database["public"]["Enums"]["mtr_fluxo_status"]
           gerador_id: string
           id?: string
+          motivo_bloqueio?: string | null
           observacoes?: string | null
           onu_number?: string | null
           operador_id?: string | null
@@ -1908,6 +1916,8 @@ export type Database = {
           veiculo_id?: string | null
         }
         Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
           assinatura_destinador?: string | null
           assinatura_gerador?: string | null
           assinatura_transportador?: string | null
@@ -1919,8 +1929,10 @@ export type Database = {
           data_prevista?: string | null
           data_recepcao?: string | null
           destinador_id?: string | null
+          fluxo_status?: Database["public"]["Enums"]["mtr_fluxo_status"]
           gerador_id?: string
           id?: string
+          motivo_bloqueio?: string | null
           observacoes?: string | null
           onu_number?: string | null
           operador_id?: string | null
@@ -2167,6 +2179,36 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      residuos_criticos_auditoria: {
+        Row: {
+          acao: string
+          created_at: string
+          detalhes: Json
+          entidade: string
+          entidade_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          detalhes?: Json
+          entidade: string
+          entidade_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          detalhes?: Json
+          entidade?: string
+          entidade_id?: string | null
+          id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3606,6 +3648,10 @@ export type Database = {
       }
     }
     Functions: {
+      fn_operador_licenca_vigente: {
+        Args: { _operador_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3648,6 +3694,12 @@ export type Database = {
         | "aterro_sanitario"
         | "transbordo"
       lote_status: "Coletado" | "Em Processamento" | "Em Trânsito" | "Entregue"
+      mtr_fluxo_status:
+        | "rascunho"
+        | "enviado"
+        | "em_analise"
+        | "aprovado"
+        | "bloqueado"
       porta_status: "fechada" | "aberta"
       transaction_status: "Concluída" | "Em Trânsito" | "Pendente" | "Auditoria"
     }
@@ -3814,6 +3866,13 @@ export const Constants = {
         "transbordo",
       ],
       lote_status: ["Coletado", "Em Processamento", "Em Trânsito", "Entregue"],
+      mtr_fluxo_status: [
+        "rascunho",
+        "enviado",
+        "em_analise",
+        "aprovado",
+        "bloqueado",
+      ],
       porta_status: ["fechada", "aberta"],
       transaction_status: ["Concluída", "Em Trânsito", "Pendente", "Auditoria"],
     },
