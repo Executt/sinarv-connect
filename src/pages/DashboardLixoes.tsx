@@ -18,6 +18,10 @@ import "leaflet/dist/leaflet.css";
 import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
+import ConformidadePNRS from "@/components/lixoes/ConformidadePNRS";
+import RoteiroEncerramento from "@/components/lixoes/RoteiroEncerramento";
+import DiagnosticoMunic from "@/components/lixoes/DiagnosticoMunic";
+
 import { useAuth } from "@/hooks/use-auth";
 
 
