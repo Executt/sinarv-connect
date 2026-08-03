@@ -792,7 +792,22 @@ const DashboardLixoesInner = () => {
             </CardContent>
           </Card>
         </TabsContent>
+        {/* CONFORMIDADE PNRS */}
+        <TabsContent value="pnrs">
+          <ConformidadePNRS onSelectLixao={setSelectedLixaoId} />
+        </TabsContent>
+
+        {/* ROTEIRO DE ENCERRAMENTO */}
+        <TabsContent value="roteiro">
+          <RoteiroEncerramento lixoes={lixoesFiltrados} />
+        </TabsContent>
+
+        {/* DIAGNÓSTICO MUNIC */}
+        <TabsContent value="munic">
+          <DiagnosticoMunic />
+        </TabsContent>
       </Tabs>
+
 
       {/* === Painel de detalhes do lixão === */}
       <Sheet open={!!selectedLixao} onOpenChange={(o) => !o && setSelectedLixaoId(null)}>
