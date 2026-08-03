@@ -591,6 +591,10 @@ const DashboardLixoesInner = () => {
           <TabsTrigger value="temporal">Série temporal</TabsTrigger>
           <TabsTrigger value="correlacao">Correlação UF</TabsTrigger>
           <TabsTrigger value="tabela">Tabela</TabsTrigger>
+          <TabsTrigger value="pnrs">Conformidade PNRS</TabsTrigger>
+          <TabsTrigger value="roteiro">Roteiro de encerramento</TabsTrigger>
+          <TabsTrigger value="munic">Diagnóstico MUNIC</TabsTrigger>
+
         </TabsList>
 
         {/* MAPA */}
