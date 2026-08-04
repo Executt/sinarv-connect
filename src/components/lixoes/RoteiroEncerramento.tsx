@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CheckCircle2, Circle, Clock, MinusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, Circle, Clock, Download, FileText, MinusCircle } from "lucide-react";
+import { downloadCSV, printPDF } from "@/lib/residuos-criticos";
 
 type Etapa = {
   id: string;
