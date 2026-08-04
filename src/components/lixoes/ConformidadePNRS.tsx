@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, CalendarClock, CheckCircle2, Download, HelpCircle, Users } from "lucide-react";
-import { downloadCSV } from "@/lib/residuos-criticos";
+import { AlertTriangle, CalendarClock, CheckCircle2, Download, FileText, HelpCircle, Users } from "lucide-react";
+import { downloadCSV, printPDF } from "@/lib/residuos-criticos";
 
 export type LixaoPnrs = {
   id: string;
