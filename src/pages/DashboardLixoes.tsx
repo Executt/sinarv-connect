@@ -629,20 +629,57 @@ const DashboardLixoesInner = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="min-w-[260px] flex-1">
+            <label className="text-sm text-muted-foreground">Buscar município / UF / área</label>
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Ex.: Manaus, AM, Lixão da Estrutural"
+                className="pl-8"
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setFiltroUF("todas");
+                setFiltroStatus("todos");
+                setBusca("");
+              }}
+            >
+              Limpar filtros
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       <Tabs defaultValue="mapa" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="mapa">Mapa</TabsTrigger>
+          <TabsTrigger value="regional">Mapa regional</TabsTrigger>
+          <TabsTrigger value="alertas">Alertas de prazo</TabsTrigger>
           <TabsTrigger value="temporal">Série temporal</TabsTrigger>
           <TabsTrigger value="correlacao">Correlação UF</TabsTrigger>
           <TabsTrigger value="tabela">Tabela</TabsTrigger>
           <TabsTrigger value="pnrs">Conformidade PNRS</TabsTrigger>
           <TabsTrigger value="roteiro">Roteiro de encerramento</TabsTrigger>
           <TabsTrigger value="munic">Diagnóstico MUNIC</TabsTrigger>
-
         </TabsList>
+
+        {/* MAPA REGIONAL (coroplético) */}
+        <TabsContent value="regional">
+          <MapaRegional indicadores={correlacao} onSelectUF={(uf) => setFiltroUF(uf)} />
+        </TabsContent>
+
+        {/* ALERTAS DE PRAZO */}
+        <TabsContent value="alertas">
+          <AlertasPrazos lixoes={lixoes} onSelectLixao={setSelectedLixaoId} />
+        </TabsContent>
+
 
         {/* MAPA */}
         <TabsContent value="mapa">
