@@ -264,7 +264,11 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
 const DashboardLixoesInner = () => {
   const [filtroUF, setFiltroUF] = useState<string>("todas");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [busca, setBusca] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
+  const porPagina = 10;
 
   const { roles, isSuperAdmin } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
