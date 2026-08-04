@@ -72,27 +72,29 @@ const ConformidadePNRS = ({ onSelectLixao }: Props) => {
     return { vencidos: vencidos.length, conformes: conformes.length, catadores, populacao, total: data.length };
   }, [data]);
 
+  const linhas = () =>
+    data.map((l) => ({
+      Nome: l.nome,
+      UF: l.uf,
+      Municipio: l.municipio,
+      IBGE: l.municipio_ibge ?? "",
+      Populacao: l.populacao_municipio ?? "",
+      Faixa: FAIXA_LABEL[l.faixa_populacional] ?? l.faixa_populacional,
+      Prazo_legal: l.prazo_legal_pnrs ?? "",
+      Situacao: SITUACAO[l.situacao_pnrs]?.label ?? l.situacao_pnrs,
+      Catadores: l.catadores_estimados ?? "",
+      Coleta_seletiva: l.possui_coleta_seletiva ? "Sim" : "Não",
+      Plano_municipal: l.possui_plano_municipal ? "Sim" : "Não",
+      Consorcio: l.consorcio_publico ? "Sim" : "Não",
+      Progresso_encerramento_pct: l.progresso_encerramento_pct,
+      Fonte: l.fonte_verificacao ?? "",
+      Ultima_verificacao: l.data_ultima_verificacao ?? "",
+    }));
+
   const exportar = () =>
-    downloadCSV(
-      `conformidade-pnrs-${new Date().toISOString().slice(0, 10)}.csv`,
-      data.map((l) => ({
-        Nome: l.nome,
-        UF: l.uf,
-        Municipio: l.municipio,
-        IBGE: l.municipio_ibge ?? "",
-        Populacao: l.populacao_municipio ?? "",
-        Faixa: FAIXA_LABEL[l.faixa_populacional] ?? l.faixa_populacional,
-        Prazo_legal: l.prazo_legal_pnrs ?? "",
-        Situacao: SITUACAO[l.situacao_pnrs]?.label ?? l.situacao_pnrs,
-        Catadores: l.catadores_estimados ?? "",
-        Coleta_seletiva: l.possui_coleta_seletiva ? "Sim" : "Não",
-        Plano_municipal: l.possui_plano_municipal ? "Sim" : "Não",
-        Consorcio: l.consorcio_publico ? "Sim" : "Não",
-        Progresso_encerramento_pct: l.progresso_encerramento_pct,
-        Fonte: l.fonte_verificacao ?? "",
-        Ultima_verificacao: l.data_ultima_verificacao ?? "",
-      })),
-    );
+    downloadCSV(`conformidade-pnrs-${new Date().toISOString().slice(0, 10)}.csv`, linhas());
+
+  const exportarPDF = () => printPDF("Relatório de Conformidade PNRS — SINARV", linhas());
 
   return (
     <div className="space-y-4">
