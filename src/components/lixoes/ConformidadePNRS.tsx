@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, CalendarClock, CheckCircle2, Download, HelpCircle, Users } from "lucide-react";
-import { downloadCSV } from "@/lib/residuos-criticos";
+import { AlertTriangle, CalendarClock, CheckCircle2, Download, FileText, HelpCircle, Users } from "lucide-react";
+import { downloadCSV, printPDF } from "@/lib/residuos-criticos";
 
 export type LixaoPnrs = {
   id: string;
@@ -72,27 +72,29 @@ const ConformidadePNRS = ({ onSelectLixao }: Props) => {
     return { vencidos: vencidos.length, conformes: conformes.length, catadores, populacao, total: data.length };
   }, [data]);
 
+  const linhas = () =>
+    data.map((l) => ({
+      Nome: l.nome,
+      UF: l.uf,
+      Municipio: l.municipio,
+      IBGE: l.municipio_ibge ?? "",
+      Populacao: l.populacao_municipio ?? "",
+      Faixa: FAIXA_LABEL[l.faixa_populacional] ?? l.faixa_populacional,
+      Prazo_legal: l.prazo_legal_pnrs ?? "",
+      Situacao: SITUACAO[l.situacao_pnrs]?.label ?? l.situacao_pnrs,
+      Catadores: l.catadores_estimados ?? "",
+      Coleta_seletiva: l.possui_coleta_seletiva ? "Sim" : "Não",
+      Plano_municipal: l.possui_plano_municipal ? "Sim" : "Não",
+      Consorcio: l.consorcio_publico ? "Sim" : "Não",
+      Progresso_encerramento_pct: l.progresso_encerramento_pct,
+      Fonte: l.fonte_verificacao ?? "",
+      Ultima_verificacao: l.data_ultima_verificacao ?? "",
+    }));
+
   const exportar = () =>
-    downloadCSV(
-      `conformidade-pnrs-${new Date().toISOString().slice(0, 10)}.csv`,
-      data.map((l) => ({
-        Nome: l.nome,
-        UF: l.uf,
-        Municipio: l.municipio,
-        IBGE: l.municipio_ibge ?? "",
-        Populacao: l.populacao_municipio ?? "",
-        Faixa: FAIXA_LABEL[l.faixa_populacional] ?? l.faixa_populacional,
-        Prazo_legal: l.prazo_legal_pnrs ?? "",
-        Situacao: SITUACAO[l.situacao_pnrs]?.label ?? l.situacao_pnrs,
-        Catadores: l.catadores_estimados ?? "",
-        Coleta_seletiva: l.possui_coleta_seletiva ? "Sim" : "Não",
-        Plano_municipal: l.possui_plano_municipal ? "Sim" : "Não",
-        Consorcio: l.consorcio_publico ? "Sim" : "Não",
-        Progresso_encerramento_pct: l.progresso_encerramento_pct,
-        Fonte: l.fonte_verificacao ?? "",
-        Ultima_verificacao: l.data_ultima_verificacao ?? "",
-      })),
-    );
+    downloadCSV(`conformidade-pnrs-${new Date().toISOString().slice(0, 10)}.csv`, linhas());
+
+  const exportarPDF = () => printPDF("Relatório de Conformidade PNRS — SINARV", linhas());
 
   return (
     <div className="space-y-4">
@@ -143,9 +145,14 @@ const ConformidadePNRS = ({ onSelectLixao }: Props) => {
               Prazos escalonados do art. 54 da Lei 12.305/2010 com redação da Lei 14.026/2020, por faixa populacional.
             </p>
           </div>
-          <Button size="sm" variant="outline" className="gap-2" onClick={exportar} disabled={data.length === 0}>
-            <Download className="h-4 w-4" /> CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="gap-2" onClick={exportar} disabled={data.length === 0}>
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button size="sm" variant="outline" className="gap-2" onClick={exportarPDF} disabled={data.length === 0}>
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {isLoading ? (

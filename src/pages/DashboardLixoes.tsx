@@ -15,12 +15,15 @@ import {
 import L from "leaflet";
 import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck, Search, Radio } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
 import ConformidadePNRS from "@/components/lixoes/ConformidadePNRS";
 import RoteiroEncerramento from "@/components/lixoes/RoteiroEncerramento";
 import DiagnosticoMunic from "@/components/lixoes/DiagnosticoMunic";
+import AlertasPrazos from "@/components/lixoes/AlertasPrazos";
+import MapaRegional from "@/components/lixoes/MapaRegional";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -261,7 +264,11 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
 const DashboardLixoesInner = () => {
   const [filtroUF, setFiltroUF] = useState<string>("todas");
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
+  const [busca, setBusca] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
+  const porPagina = 10;
 
   const { roles, isSuperAdmin } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
@@ -329,20 +336,56 @@ const DashboardLixoesInner = () => {
     correlacaoQuery.refetch();
   };
 
+  // Realtime: atualiza a lista quando houver mudanças nos dados de lixões
+  useEffect(() => {
+    const channel = supabase
+      .channel("lixoes-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "lixoes" }, () => {
+        setUltimaAtualizacao(new Date());
+        lixoesQuery.refetch();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lixao_volume_historico" }, () => {
+        setUltimaAtualizacao(new Date());
+        historicoQuery.refetch();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lixao_encerramento_etapas" }, () => {
+        setUltimaAtualizacao(new Date());
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const ufs = useMemo(
     () => Array.from(new Set(lixoes.map((l) => l.uf))).sort(),
     [lixoes]
   );
 
-  const lixoesFiltrados = useMemo(
-    () =>
-      lixoes.filter(
-        (l) =>
-          (filtroUF === "todas" || l.uf === filtroUF) &&
-          (filtroStatus === "todos" || l.status === filtroStatus)
-      ),
-    [lixoes, filtroUF, filtroStatus]
+  const lixoesFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    return lixoes.filter(
+      (l) =>
+        (filtroUF === "todas" || l.uf === filtroUF) &&
+        (filtroStatus === "todos" || l.status === filtroStatus) &&
+        (termo === "" ||
+          l.municipio?.toLowerCase().includes(termo) ||
+          l.uf?.toLowerCase().includes(termo) ||
+          l.nome?.toLowerCase().includes(termo))
+    );
+  }, [lixoes, filtroUF, filtroStatus, busca]);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [filtroUF, filtroStatus, busca]);
+
+  const totalPaginas = Math.max(1, Math.ceil(lixoesFiltrados.length / porPagina));
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const lixoesPaginados = useMemo(
+    () => lixoesFiltrados.slice((paginaAtual - 1) * porPagina, paginaAtual * porPagina),
+    [lixoesFiltrados, paginaAtual]
   );
 
   // KPIs nacionais
@@ -452,6 +495,12 @@ const DashboardLixoesInner = () => {
             Dados carregados ({lixoes.length} lixões)
           </Badge>
         )}
+        <Badge variant="outline" className="gap-1">
+          <Radio className="h-3 w-3" style={{ color: FIORI_GREEN }} />
+          {ultimaAtualizacao
+            ? `Atualizado em tempo real às ${ultimaAtualizacao.toLocaleTimeString("pt-BR")}`
+            : "Realtime ativo"}
+        </Badge>
         <Button variant="ghost" size="sm" onClick={reloadAll} className="h-7 gap-1 px-2">
           <RefreshCw className="h-3 w-3" />
           Atualizar
@@ -586,20 +635,57 @@ const DashboardLixoesInner = () => {
               </SelectContent>
             </Select>
           </div>
+          <div className="min-w-[260px] flex-1">
+            <label className="text-sm text-muted-foreground">Buscar município / UF / área</label>
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                placeholder="Ex.: Manaus, AM, Lixão da Estrutural"
+                className="pl-8"
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setFiltroUF("todas");
+                setFiltroStatus("todos");
+                setBusca("");
+              }}
+            >
+              Limpar filtros
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
       <Tabs defaultValue="mapa" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="mapa">Mapa</TabsTrigger>
+          <TabsTrigger value="regional">Mapa regional</TabsTrigger>
+          <TabsTrigger value="alertas">Alertas de prazo</TabsTrigger>
           <TabsTrigger value="temporal">Série temporal</TabsTrigger>
           <TabsTrigger value="correlacao">Correlação UF</TabsTrigger>
           <TabsTrigger value="tabela">Tabela</TabsTrigger>
           <TabsTrigger value="pnrs">Conformidade PNRS</TabsTrigger>
           <TabsTrigger value="roteiro">Roteiro de encerramento</TabsTrigger>
           <TabsTrigger value="munic">Diagnóstico MUNIC</TabsTrigger>
-
         </TabsList>
+
+        {/* MAPA REGIONAL (coroplético) */}
+        <TabsContent value="regional">
+          <MapaRegional indicadores={correlacao} onSelectUF={(uf) => setFiltroUF(uf)} />
+        </TabsContent>
+
+        {/* ALERTAS DE PRAZO */}
+        <TabsContent value="alertas">
+          <AlertasPrazos lixoes={lixoes} onSelectLixao={setSelectedLixaoId} />
+        </TabsContent>
+
 
         {/* MAPA */}
         <TabsContent value="mapa">
@@ -751,7 +837,79 @@ const DashboardLixoesInner = () => {
         </TabsContent>
 
         {/* TABELA */}
-        <TabsContent value="tabela">
+        <TabsContent value="tabela" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle>Áreas monitoradas</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {lixoesFiltrados.length} resultado(s) para os filtros e a busca atuais.
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="overflow-x-auto space-y-3">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Área</TableHead>
+                    <TableHead>Município / UF</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Área (ha)</TableHead>
+                    <TableHead className="text-right">Volume inicial (m³)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {lixoesPaginados.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">
+                        Nenhuma área encontrada para os filtros aplicados.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    lixoesPaginados.map((l) => (
+                      <TableRow key={l.id} className="cursor-pointer" onClick={() => setSelectedLixaoId(l.id)}>
+                        <TableCell className="font-medium">{l.nome}</TableCell>
+                        <TableCell>{l.municipio} / {l.uf}</TableCell>
+                        <TableCell>{TIPO_LABEL[l.tipo] ?? l.tipo}</TableCell>
+                        <TableCell>
+                          <Badge style={{ background: STATUS_COLOR[l.status], color: "#fff" }}>
+                            {STATUS_LABEL[l.status] ?? l.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{l.area_ha ?? "—"}</TableCell>
+                        <TableCell className="text-right">
+                          {l.volume_estocado_m3_inicial ? fmtNum(Number(l.volume_estocado_m3_inicial)) : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span>Página {paginaAtual} de {totalPaginas}</span>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={paginaAtual <= 1}
+                    onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={paginaAtual >= totalPaginas}
+                    onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Correlação detalhada por UF</CardTitle>

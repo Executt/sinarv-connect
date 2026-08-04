@@ -2,6 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Download, FileText } from "lucide-react";
+import { downloadCSV, printPDF } from "@/lib/residuos-criticos";
 import { BarChart, Bar, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 type Munic = {
@@ -34,6 +37,22 @@ const DiagnosticoMunic = () => {
   const ordenado = [...data].sort((a, b) => ORDEM.indexOf(a.regiao) - ORDEM.indexOf(b.regiao));
   const brasil = ordenado.find((d) => d.regiao === "Brasil");
   const regioes = ordenado.filter((d) => d.regiao !== "Brasil");
+
+  const pct = (v: number | null) => (v === null ? "" : `${Number(v).toFixed(1)}%`);
+  const linhas = () =>
+    ordenado.map((d) => ({
+      Regiao: d.regiao,
+      Ano: d.ano_referencia,
+      Lixao: pct(d.pct_lixao),
+      Aterro_controlado: pct(d.pct_aterro_controlado),
+      Aterro_sanitario: pct(d.pct_aterro_sanitario),
+      Lixao_acima_50k: pct(d.pct_lixao_acima_50k),
+      Coleta_seletiva: pct(d.pct_coleta_seletiva),
+      Instrumento_legal: pct(d.pct_instrumento_legal),
+      Catadores_informais: pct(d.pct_catadores_informais),
+      Entidades_catadores: pct(d.pct_entidades_catadores),
+      Fonte: d.fonte,
+    }));
 
   return (
     <div className="space-y-4">
@@ -87,8 +106,28 @@ const DiagnosticoMunic = () => {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
           <CardTitle>Indicadores detalhados</CardTitle>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={ordenado.length === 0}
+              onClick={() => downloadCSV(`diagnostico-munic-2023-${new Date().toISOString().slice(0, 10)}.csv`, linhas())}
+            >
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={ordenado.length === 0}
+              onClick={() => printPDF("Diagnóstico MUNIC 2023 — IBGE / SINARV", linhas())}
+            >
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
