@@ -145,9 +145,14 @@ const ConformidadePNRS = ({ onSelectLixao }: Props) => {
               Prazos escalonados do art. 54 da Lei 12.305/2010 com redação da Lei 14.026/2020, por faixa populacional.
             </p>
           </div>
-          <Button size="sm" variant="outline" className="gap-2" onClick={exportar} disabled={data.length === 0}>
-            <Download className="h-4 w-4" /> CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="gap-2" onClick={exportar} disabled={data.length === 0}>
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button size="sm" variant="outline" className="gap-2" onClick={exportarPDF} disabled={data.length === 0}>
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {isLoading ? (
