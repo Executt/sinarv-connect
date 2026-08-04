@@ -336,20 +336,56 @@ const DashboardLixoesInner = () => {
     correlacaoQuery.refetch();
   };
 
+  // Realtime: atualiza a lista quando houver mudanças nos dados de lixões
+  useEffect(() => {
+    const channel = supabase
+      .channel("lixoes-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "lixoes" }, () => {
+        setUltimaAtualizacao(new Date());
+        lixoesQuery.refetch();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lixao_volume_historico" }, () => {
+        setUltimaAtualizacao(new Date());
+        historicoQuery.refetch();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "lixao_encerramento_etapas" }, () => {
+        setUltimaAtualizacao(new Date());
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const ufs = useMemo(
     () => Array.from(new Set(lixoes.map((l) => l.uf))).sort(),
     [lixoes]
   );
 
-  const lixoesFiltrados = useMemo(
-    () =>
-      lixoes.filter(
-        (l) =>
-          (filtroUF === "todas" || l.uf === filtroUF) &&
-          (filtroStatus === "todos" || l.status === filtroStatus)
-      ),
-    [lixoes, filtroUF, filtroStatus]
+  const lixoesFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    return lixoes.filter(
+      (l) =>
+        (filtroUF === "todas" || l.uf === filtroUF) &&
+        (filtroStatus === "todos" || l.status === filtroStatus) &&
+        (termo === "" ||
+          l.municipio?.toLowerCase().includes(termo) ||
+          l.uf?.toLowerCase().includes(termo) ||
+          l.nome?.toLowerCase().includes(termo))
+    );
+  }, [lixoes, filtroUF, filtroStatus, busca]);
+
+  useEffect(() => {
+    setPagina(1);
+  }, [filtroUF, filtroStatus, busca]);
+
+  const totalPaginas = Math.max(1, Math.ceil(lixoesFiltrados.length / porPagina));
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const lixoesPaginados = useMemo(
+    () => lixoesFiltrados.slice((paginaAtual - 1) * porPagina, paginaAtual * porPagina),
+    [lixoesFiltrados, paginaAtual]
   );
 
   // KPIs nacionais
