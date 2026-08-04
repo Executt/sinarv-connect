@@ -495,6 +495,12 @@ const DashboardLixoesInner = () => {
             Dados carregados ({lixoes.length} lixões)
           </Badge>
         )}
+        <Badge variant="outline" className="gap-1">
+          <Radio className="h-3 w-3" style={{ color: FIORI_GREEN }} />
+          {ultimaAtualizacao
+            ? `Atualizado em tempo real às ${ultimaAtualizacao.toLocaleTimeString("pt-BR")}`
+            : "Realtime ativo"}
+        </Badge>
         <Button variant="ghost" size="sm" onClick={reloadAll} className="h-7 gap-1 px-2">
           <RefreshCw className="h-3 w-3" />
           Atualizar
