@@ -831,7 +831,79 @@ const DashboardLixoesInner = () => {
         </TabsContent>
 
         {/* TABELA */}
-        <TabsContent value="tabela">
+        <TabsContent value="tabela" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle>Áreas monitoradas</CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  {lixoesFiltrados.length} resultado(s) para os filtros e a busca atuais.
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="overflow-x-auto space-y-3">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Área</TableHead>
+                    <TableHead>Município / UF</TableHead>
+                    <TableHead>Tipo</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Área (ha)</TableHead>
+                    <TableHead className="text-right">Volume inicial (m³)</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {lixoesPaginados.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">
+                        Nenhuma área encontrada para os filtros aplicados.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    lixoesPaginados.map((l) => (
+                      <TableRow key={l.id} className="cursor-pointer" onClick={() => setSelectedLixaoId(l.id)}>
+                        <TableCell className="font-medium">{l.nome}</TableCell>
+                        <TableCell>{l.municipio} / {l.uf}</TableCell>
+                        <TableCell>{TIPO_LABEL[l.tipo] ?? l.tipo}</TableCell>
+                        <TableCell>
+                          <Badge style={{ background: STATUS_COLOR[l.status], color: "#fff" }}>
+                            {STATUS_LABEL[l.status] ?? l.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{l.area_ha ?? "—"}</TableCell>
+                        <TableCell className="text-right">
+                          {l.volume_estocado_m3_inicial ? fmtNum(Number(l.volume_estocado_m3_inicial)) : "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+              <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                <span>Página {paginaAtual} de {totalPaginas}</span>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={paginaAtual <= 1}
+                    onClick={() => setPagina((p) => Math.max(1, p - 1))}
+                  >
+                    Anterior
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={paginaAtual >= totalPaginas}
+                    onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Correlação detalhada por UF</CardTitle>
