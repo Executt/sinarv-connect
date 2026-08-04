@@ -54,6 +54,18 @@ const RoteiroEncerramento = ({ lixoes }: Props) => {
     return Math.round((100 * ok) / etapas.length);
   }, [etapas]);
 
+  const linhas = () =>
+    etapas.map((e) => ({
+      Area: atual ? `${atual.nome} — ${atual.municipio}/${atual.uf}` : "",
+      Ordem: e.ordem,
+      Etapa: e.etapa,
+      Situacao: SIT[e.situacao]?.label ?? e.situacao,
+      Responsavel: e.responsavel ?? "",
+      Data_prevista: e.data_prevista ?? "",
+      Data_conclusao: e.data_conclusao ?? "",
+      Descricao: e.descricao ?? "",
+    }));
+
   if (lixoes.length === 0) {
     return (
       <Card>
@@ -74,17 +86,42 @@ const RoteiroEncerramento = ({ lixoes }: Props) => {
               Etapas conforme o Roteiro de Encerramento de Lixões — Ministério das Cidades / ProteGEER.
             </p>
           </div>
-          <div className="min-w-[260px]">
-            <Select value={atual?.id} onValueChange={setLixaoId}>
-              <SelectTrigger><SelectValue placeholder="Selecione a área" /></SelectTrigger>
-              <SelectContent>
-                {lixoes.map((l) => (
-                  <SelectItem key={l.id} value={l.id}>
-                    {l.nome} — {l.municipio}/{l.uf}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-[260px]">
+              <Select value={atual?.id} onValueChange={setLixaoId}>
+                <SelectTrigger><SelectValue placeholder="Selecione a área" /></SelectTrigger>
+                <SelectContent>
+                  {lixoes.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.nome} — {l.municipio}/{l.uf}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={etapas.length === 0}
+              onClick={() => downloadCSV(`roteiro-encerramento-${new Date().toISOString().slice(0, 10)}.csv`, linhas())}
+            >
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={etapas.length === 0}
+              onClick={() =>
+                printPDF(
+                  `Roteiro de Encerramento — ${atual ? `${atual.nome} (${atual.municipio}/${atual.uf})` : ""}`,
+                  linhas(),
+                )
+              }
+            >
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
           </div>
         </div>
         <div>
