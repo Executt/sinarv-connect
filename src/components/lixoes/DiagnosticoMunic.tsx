@@ -106,8 +106,28 @@ const DiagnosticoMunic = () => {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
           <CardTitle>Indicadores detalhados</CardTitle>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={ordenado.length === 0}
+              onClick={() => downloadCSV(`diagnostico-munic-2023-${new Date().toISOString().slice(0, 10)}.csv`, linhas())}
+            >
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2"
+              disabled={ordenado.length === 0}
+              onClick={() => printPDF("Diagnóstico MUNIC 2023 — IBGE / SINARV", linhas())}
+            >
+              <FileText className="h-4 w-4" /> PDF
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <Table>
