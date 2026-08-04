@@ -38,6 +38,22 @@ const DiagnosticoMunic = () => {
   const brasil = ordenado.find((d) => d.regiao === "Brasil");
   const regioes = ordenado.filter((d) => d.regiao !== "Brasil");
 
+  const pct = (v: number | null) => (v === null ? "" : `${Number(v).toFixed(1)}%`);
+  const linhas = () =>
+    ordenado.map((d) => ({
+      Regiao: d.regiao,
+      Ano: d.ano_referencia,
+      Lixao: pct(d.pct_lixao),
+      Aterro_controlado: pct(d.pct_aterro_controlado),
+      Aterro_sanitario: pct(d.pct_aterro_sanitario),
+      Lixao_acima_50k: pct(d.pct_lixao_acima_50k),
+      Coleta_seletiva: pct(d.pct_coleta_seletiva),
+      Instrumento_legal: pct(d.pct_instrumento_legal),
+      Catadores_informais: pct(d.pct_catadores_informais),
+      Entidades_catadores: pct(d.pct_entidades_catadores),
+      Fonte: d.fonte,
+    }));
+
   return (
     <div className="space-y-4">
       {brasil && (
