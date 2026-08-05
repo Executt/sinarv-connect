@@ -1716,6 +1716,63 @@ export type Database = {
           },
         ]
       }
+      lixao_alertas_tratativas: {
+        Row: {
+          alerta_key: string
+          created_at: string
+          id: string
+          lixao_id: string | null
+          observacoes: string | null
+          origem: string
+          situacao: string
+          titulo: string
+          tratado_em: string
+          tratado_por: string | null
+          updated_at: string
+        }
+        Insert: {
+          alerta_key: string
+          created_at?: string
+          id?: string
+          lixao_id?: string | null
+          observacoes?: string | null
+          origem: string
+          situacao?: string
+          titulo: string
+          tratado_em?: string
+          tratado_por?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alerta_key?: string
+          created_at?: string
+          id?: string
+          lixao_id?: string | null
+          observacoes?: string | null
+          origem?: string
+          situacao?: string
+          titulo?: string
+          tratado_em?: string
+          tratado_por?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lixao_alertas_tratativas_lixao_id_fkey"
+            columns: ["lixao_id"]
+            isOneToOne: false
+            referencedRelation: "lixoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lixao_alertas_tratativas_lixao_id_fkey"
+            columns: ["lixao_id"]
+            isOneToOne: false
+            referencedRelation: "vw_lixoes_pnrs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lixao_encerramento_etapas: {
         Row: {
           created_at: string
@@ -1772,6 +1829,47 @@ export type Database = {
             columns: ["lixao_id"]
             isOneToOne: false
             referencedRelation: "vw_lixoes_pnrs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lixao_prazo_historico: {
+        Row: {
+          alterado_por: string | null
+          created_at: string
+          etapa: string
+          etapa_id: string | null
+          id: string
+          lixao_id: string | null
+          prazo_anterior: string | null
+          prazo_novo: string | null
+        }
+        Insert: {
+          alterado_por?: string | null
+          created_at?: string
+          etapa: string
+          etapa_id?: string | null
+          id?: string
+          lixao_id?: string | null
+          prazo_anterior?: string | null
+          prazo_novo?: string | null
+        }
+        Update: {
+          alterado_por?: string | null
+          created_at?: string
+          etapa?: string
+          etapa_id?: string | null
+          id?: string
+          lixao_id?: string | null
+          prazo_anterior?: string | null
+          prazo_novo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lixao_prazo_historico_etapa_id_fkey"
+            columns: ["etapa_id"]
+            isOneToOne: false
+            referencedRelation: "lixao_encerramento_etapas"
             referencedColumns: ["id"]
           },
         ]
