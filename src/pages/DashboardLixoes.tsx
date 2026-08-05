@@ -24,6 +24,9 @@ import RoteiroEncerramento from "@/components/lixoes/RoteiroEncerramento";
 import DiagnosticoMunic from "@/components/lixoes/DiagnosticoMunic";
 import AlertasPrazos from "@/components/lixoes/AlertasPrazos";
 import MapaRegional from "@/components/lixoes/MapaRegional";
+import CentroAlertas from "@/components/lixoes/CentroAlertas";
+import DetalheMunicipio from "@/components/lixoes/DetalheMunicipio";
+import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
 
 import { useAuth } from "@/hooks/use-auth";
 
