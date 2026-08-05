@@ -271,6 +271,8 @@ const DashboardLixoesInner = () => {
   const [pagina, setPagina] = useState(1);
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
+  const [municipioDetalheId, setMunicipioDetalheId] = useState<string | null>(null);
+  const [gerandoPDF, setGerandoPDF] = useState(false);
   const porPagina = 10;
 
   const { roles, isSuperAdmin } = useAuth();
