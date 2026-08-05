@@ -673,23 +673,132 @@ const DashboardLixoesInner = () => {
           <TabsTrigger value="mapa">Mapa</TabsTrigger>
           <TabsTrigger value="regional">Mapa regional</TabsTrigger>
           <TabsTrigger value="alertas">Alertas de prazo</TabsTrigger>
+          <TabsTrigger value="centro-alertas">Centro de alertas</TabsTrigger>
           <TabsTrigger value="temporal">Série temporal</TabsTrigger>
           <TabsTrigger value="correlacao">Correlação UF</TabsTrigger>
           <TabsTrigger value="tabela">Tabela</TabsTrigger>
           <TabsTrigger value="pnrs">Conformidade PNRS</TabsTrigger>
           <TabsTrigger value="roteiro">Roteiro de encerramento</TabsTrigger>
           <TabsTrigger value="munic">Diagnóstico MUNIC</TabsTrigger>
+          <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
         </TabsList>
 
         {/* MAPA REGIONAL (coroplético) */}
         <TabsContent value="regional">
-          <MapaRegional indicadores={correlacao} onSelectUF={(uf) => setFiltroUF(uf)} />
+          <MapaRegional
+            indicadores={correlacao}
+            municipios={lixoesFiltrados
+              .filter(hasValidCoords)
+              .map((l) => ({
+                id: l.id,
+                nome: l.nome,
+                municipio: l.municipio,
+                uf: l.uf,
+                latitude: Number(l.latitude),
+                longitude: Number(l.longitude),
+                status: l.status,
+              }))}
+            onSelectUF={(uf) => setFiltroUF(uf)}
+            onSelectMunicipio={setMunicipioDetalheId}
+          />
         </TabsContent>
 
         {/* ALERTAS DE PRAZO */}
         <TabsContent value="alertas">
           <AlertasPrazos lixoes={lixoes} onSelectLixao={setSelectedLixaoId} />
         </TabsContent>
+
+        {/* CENTRO DE ALERTAS */}
+        <TabsContent value="centro-alertas">
+          <CentroAlertas lixoes={lixoes} onSelectLixao={setMunicipioDetalheId} />
+        </TabsContent>
+
+        {/* RELATÓRIOS */}
+        <TabsContent value="relatorios">
+          <Card>
+            <CardHeader>
+              <CardTitle>Relatório consolidado em PDF</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Gera um PDF com o mapa regional exibido, os filtros ativos, os números principais e a
+                relação das áreas monitoradas conforme a seleção atual.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-wrap gap-2 text-xs">
+                <Badge variant="outline">UF: {filtroUF === "todas" ? "Todas" : filtroUF}</Badge>
+                <Badge variant="outline">
+                  Situação: {filtroStatus === "todos" ? "Todas" : STATUS_LABEL[filtroStatus] ?? filtroStatus}
+                </Badge>
+                <Badge variant="outline">Busca: {busca.trim() || "—"}</Badge>
+                <Badge variant="outline">{lixoesFiltrados.length} área(s)</Badge>
+              </div>
+              <Button
+                className="gap-2"
+                disabled={gerandoPDF}
+                onClick={async () => {
+                  setGerandoPDF(true);
+                  try {
+                    const mapaDataUrl = await capturarElemento(
+                      document.getElementById("mapa-regional-lixoes")
+                    );
+                    gerarRelatorioPDF({
+                      titulo: "Relatório do Módulo Lixões",
+                      subtitulo: filtroUF === "todas" ? "Panorama nacional" : `Recorte ${filtroUF}`,
+                      filtros: {
+                        UF: filtroUF === "todas" ? "Todas" : filtroUF,
+                        Situação:
+                          filtroStatus === "todos" ? "Todas" : STATUS_LABEL[filtroStatus] ?? filtroStatus,
+                        Busca: busca.trim() || "Nenhuma",
+                        "Áreas no recorte": String(lixoesFiltrados.length),
+                      },
+                      numeros: [
+                        { rotulo: "Áreas monitoradas", valor: String(kpis.totalLixoes) },
+                        { rotulo: "Ativas / em encerramento", valor: String(kpis.ativos) },
+                        {
+                          rotulo: "Volume removido",
+                          valor: `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(kpis.totalRemovido)} m³`,
+                        },
+                        { rotulo: "Redução média", valor: `${kpis.reducaoMedia.toFixed(1)}%` },
+                      ],
+                      mapaDataUrl,
+                      tabelas: [
+                        {
+                          titulo: "Áreas monitoradas (filtro atual)",
+                          linhas: lixoesFiltrados.map((l) => ({
+                            Area: l.nome,
+                            Municipio: l.municipio,
+                            UF: l.uf,
+                            Situacao: STATUS_LABEL[l.status] ?? l.status,
+                          })),
+                        },
+                        {
+                          titulo: "Indicadores por UF",
+                          linhas: correlacao.map((c) => ({
+                            UF: c.uf,
+                            Lixoes_ativos: c.lixoes_ativos,
+                            Volume_removido_m3: Number(c.volume_removido_m3_total).toFixed(0),
+                            Taxa_reducao_pct: Number(c.taxa_reducao_pct).toFixed(1),
+                            Reciclado_ton: Number(c.volume_reciclado_ton_uf).toFixed(0),
+                          })),
+                        },
+                      ],
+                    });
+                  } finally {
+                    setGerandoPDF(false);
+                  }
+                }}
+              >
+                <FileDown className="h-4 w-4" />
+                {gerandoPDF ? "Gerando…" : "Gerar PDF com mapa e filtros"}
+              </Button>
+              <p className="text-[11px] text-muted-foreground">
+                Dica: abra a aba “Mapa regional” e escolha a perspectiva desejada antes de gerar — a
+                imagem capturada reflete exatamente o que estiver renderizado.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
 
 
         {/* MAPA */}
