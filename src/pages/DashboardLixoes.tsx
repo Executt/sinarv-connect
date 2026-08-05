@@ -1084,6 +1084,10 @@ const DashboardLixoesInner = () => {
         </TabsContent>
       </Tabs>
 
+      {/* === Painel de detalhes do município selecionado no mapa regional === */}
+      <DetalheMunicipio lixaoId={municipioDetalheId} onClose={() => setMunicipioDetalheId(null)} />
+
+
 
       {/* === Painel de detalhes do lixão === */}
       <Sheet open={!!selectedLixao} onOpenChange={(o) => !o && setSelectedLixaoId(null)}>
