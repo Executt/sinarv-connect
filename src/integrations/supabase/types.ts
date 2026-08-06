@@ -1773,6 +1773,42 @@ export type Database = {
           },
         ]
       }
+      lixao_auditoria: {
+        Row: {
+          acao: string
+          created_at: string
+          detalhes: Json
+          entidade: string
+          entidade_id: string | null
+          id: string
+          lixao_id: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          detalhes?: Json
+          entidade: string
+          entidade_id?: string | null
+          id?: string
+          lixao_id?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          detalhes?: Json
+          entidade?: string
+          entidade_id?: string | null
+          id?: string
+          lixao_id?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lixao_encerramento_etapas: {
         Row: {
           created_at: string
