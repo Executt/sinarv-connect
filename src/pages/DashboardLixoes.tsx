@@ -838,7 +838,73 @@ const DashboardLixoesInner = () => {
               </p>
             </CardContent>
           </Card>
+
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Exportação em CSV</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Baixe os mesmos dados exibidos nesta aba em planilha, respeitando o filtro de UF ativo.
+              </p>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              <Button variant="outline" className="gap-2" disabled={correlacao.length === 0}
+                onClick={() =>
+                  downloadCSV(
+                    `lixoes-indicadores-uf-${new Date().toISOString().slice(0, 10)}.csv`,
+                    correlacao.map((c) => ({
+                      UF: c.uf,
+                      Lixoes_ativos: c.lixoes_ativos,
+                      Volume_removido_m3: Number(c.volume_removido_m3_total).toFixed(0),
+                      Taxa_reducao_pct: Number(c.taxa_reducao_pct).toFixed(1),
+                      Reciclado_ton: Number(c.volume_reciclado_ton_uf).toFixed(0),
+                    })),
+                  )
+                }>
+                <Download className="h-4 w-4" /> Indicadores do mapa (por UF)
+              </Button>
+              <Button variant="outline" className="gap-2" disabled={pnrsRelatorio.length === 0}
+                onClick={() =>
+                  downloadCSV(
+                    `lixoes-conformidade-pnrs-${new Date().toISOString().slice(0, 10)}.csv`,
+                    pnrsRelatorio
+                      .filter((p) => filtroUF === "todas" || p.uf === filtroUF)
+                      .map((p) => ({
+                        Area: p.nome,
+                        Municipio: p.municipio,
+                        UF: p.uf,
+                        Populacao: p.populacao_municipio ?? "",
+                        Prazo_legal_PNRS: p.prazo_legal_pnrs ?? "",
+                        Situacao_PNRS: p.situacao_pnrs,
+                      })),
+                  )
+                }>
+                <Download className="h-4 w-4" /> Conformidade PNRS
+              </Button>
+              <Button variant="outline" className="gap-2" disabled={etapasRelatorio.length === 0}
+                onClick={() => {
+                  const nomes = new Map(lixoes.map((l) => [l.id, `${l.nome} — ${l.municipio}/${l.uf}`]));
+                  const ufs = new Map(lixoes.map((l) => [l.id, l.uf]));
+                  downloadCSV(
+                    `lixoes-roteiro-encerramento-${new Date().toISOString().slice(0, 10)}.csv`,
+                    etapasRelatorio
+                      .filter((e) => filtroUF === "todas" || ufs.get(e.lixao_id) === filtroUF)
+                      .map((e) => ({
+                        Area: nomes.get(e.lixao_id) ?? "—",
+                        Ordem: e.ordem,
+                        Etapa: e.etapa,
+                        Situacao: e.situacao,
+                        Responsavel: e.responsavel ?? "",
+                        Data_prevista: e.data_prevista ?? "",
+                        Data_conclusao: e.data_conclusao ?? "",
+                      })),
+                  );
+                }}>
+                <Download className="h-4 w-4" /> Status do Roteiro de Encerramento
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
+
 
 
 
