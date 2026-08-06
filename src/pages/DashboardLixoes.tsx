@@ -299,6 +299,22 @@ const DashboardLixoesInner = () => {
     }
   };
 
+  const { data: pnrsRelatorio = [] } = useLixoesPnrs();
+  const { data: etapasRelatorio = [] } = useQuery({
+    queryKey: ["lixoes-etapas-relatorio"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lixao_encerramento_etapas")
+        .select("id,lixao_id,ordem,etapa,situacao,responsavel,data_prevista,data_conclusao")
+        .order("ordem");
+      if (error) throw error;
+      return (data ?? []) as unknown as {
+        id: string; lixao_id: string; ordem: number; etapa: string; situacao: string;
+        responsavel: string | null; data_prevista: string | null; data_conclusao: string | null;
+      }[];
+    },
+  });
+
 
   const { roles, isSuperAdmin } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
