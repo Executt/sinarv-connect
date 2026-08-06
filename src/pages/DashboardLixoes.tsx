@@ -15,11 +15,11 @@ import {
 import L from "leaflet";
 import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck, Search, Radio, FileDown } from "lucide-react";
+import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck, Search, Radio, FileDown, Link2, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
-import ConformidadePNRS from "@/components/lixoes/ConformidadePNRS";
+import ConformidadePNRS, { useLixoesPnrs } from "@/components/lixoes/ConformidadePNRS";
 import RoteiroEncerramento from "@/components/lixoes/RoteiroEncerramento";
 import DiagnosticoMunic from "@/components/lixoes/DiagnosticoMunic";
 import AlertasPrazos from "@/components/lixoes/AlertasPrazos";
@@ -27,6 +27,9 @@ import MapaRegional from "@/components/lixoes/MapaRegional";
 import CentroAlertas from "@/components/lixoes/CentroAlertas";
 import DetalheMunicipio from "@/components/lixoes/DetalheMunicipio";
 import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
+import { downloadCSV } from "@/lib/residuos-criticos";
+import { toast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -265,15 +268,53 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
 };
 
 const DashboardLixoesInner = () => {
-  const [filtroUF, setFiltroUF] = useState<string>("todas");
-  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
-  const [busca, setBusca] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filtroUF, setFiltroUF] = useState<string>(searchParams.get("uf") ?? "todas");
+  const [filtroStatus, setFiltroStatus] = useState<string>(searchParams.get("status") ?? "todos");
+  const [busca, setBusca] = useState(searchParams.get("q") ?? "");
+  const [aba, setAba] = useState(searchParams.get("tab") ?? "mapa");
   const [pagina, setPagina] = useState(1);
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
-  const [municipioDetalheId, setMunicipioDetalheId] = useState<string | null>(null);
+  const [municipioDetalheId, setMunicipioDetalheId] = useState<string | null>(searchParams.get("municipio"));
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const porPagina = 10;
+
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (filtroUF !== "todas") p.set("uf", filtroUF);
+    if (filtroStatus !== "todos") p.set("status", filtroStatus);
+    if (busca.trim()) p.set("q", busca.trim());
+    if (aba !== "mapa") p.set("tab", aba);
+    if (municipioDetalheId) p.set("municipio", municipioDetalheId);
+    setSearchParams(p, { replace: true });
+  }, [filtroUF, filtroStatus, busca, aba, municipioDetalheId, setSearchParams]);
+
+  const copiarLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link copiado", description: "A visualização atual (filtros, aba e município) foi copiada." });
+    } catch {
+      toast({ title: "Não foi possível copiar", description: window.location.href, variant: "destructive" });
+    }
+  };
+
+  const { data: pnrsRelatorio = [] } = useLixoesPnrs();
+  const { data: etapasRelatorio = [] } = useQuery({
+    queryKey: ["lixoes-etapas-relatorio"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lixao_encerramento_etapas")
+        .select("id,lixao_id,ordem,etapa,situacao,responsavel,data_prevista,data_conclusao")
+        .order("ordem");
+      if (error) throw error;
+      return (data ?? []) as unknown as {
+        id: string; lixao_id: string; ordem: number; etapa: string; situacao: string;
+        responsavel: string | null; data_prevista: string | null; data_conclusao: string | null;
+      }[];
+    },
+  });
+
 
   const { roles, isSuperAdmin } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
@@ -652,7 +693,11 @@ const DashboardLixoesInner = () => {
               />
             </div>
           </div>
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={copiarLink}>
+              <Link2 className="h-4 w-4" /> Copiar link da visualização
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"
@@ -668,7 +713,7 @@ const DashboardLixoesInner = () => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="mapa" className="space-y-4">
+      <Tabs value={aba} onValueChange={setAba} className="space-y-4">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="mapa">Mapa</TabsTrigger>
           <TabsTrigger value="regional">Mapa regional</TabsTrigger>
@@ -797,7 +842,73 @@ const DashboardLixoesInner = () => {
               </p>
             </CardContent>
           </Card>
+
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>Exportação em CSV</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Baixe os mesmos dados exibidos nesta aba em planilha, respeitando o filtro de UF ativo.
+              </p>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-2">
+              <Button variant="outline" className="gap-2" disabled={correlacao.length === 0}
+                onClick={() =>
+                  downloadCSV(
+                    `lixoes-indicadores-uf-${new Date().toISOString().slice(0, 10)}.csv`,
+                    correlacao.map((c) => ({
+                      UF: c.uf,
+                      Lixoes_ativos: c.lixoes_ativos,
+                      Volume_removido_m3: Number(c.volume_removido_m3_total).toFixed(0),
+                      Taxa_reducao_pct: Number(c.taxa_reducao_pct).toFixed(1),
+                      Reciclado_ton: Number(c.volume_reciclado_ton_uf).toFixed(0),
+                    })),
+                  )
+                }>
+                <Download className="h-4 w-4" /> Indicadores do mapa (por UF)
+              </Button>
+              <Button variant="outline" className="gap-2" disabled={pnrsRelatorio.length === 0}
+                onClick={() =>
+                  downloadCSV(
+                    `lixoes-conformidade-pnrs-${new Date().toISOString().slice(0, 10)}.csv`,
+                    pnrsRelatorio
+                      .filter((p) => filtroUF === "todas" || p.uf === filtroUF)
+                      .map((p) => ({
+                        Area: p.nome,
+                        Municipio: p.municipio,
+                        UF: p.uf,
+                        Populacao: p.populacao_municipio ?? "",
+                        Prazo_legal_PNRS: p.prazo_legal_pnrs ?? "",
+                        Situacao_PNRS: p.situacao_pnrs,
+                      })),
+                  )
+                }>
+                <Download className="h-4 w-4" /> Conformidade PNRS
+              </Button>
+              <Button variant="outline" className="gap-2" disabled={etapasRelatorio.length === 0}
+                onClick={() => {
+                  const nomes = new Map(lixoes.map((l) => [l.id, `${l.nome} — ${l.municipio}/${l.uf}`]));
+                  const ufs = new Map(lixoes.map((l) => [l.id, l.uf]));
+                  downloadCSV(
+                    `lixoes-roteiro-encerramento-${new Date().toISOString().slice(0, 10)}.csv`,
+                    etapasRelatorio
+                      .filter((e) => filtroUF === "todas" || ufs.get(e.lixao_id) === filtroUF)
+                      .map((e) => ({
+                        Area: nomes.get(e.lixao_id) ?? "—",
+                        Ordem: e.ordem,
+                        Etapa: e.etapa,
+                        Situacao: e.situacao,
+                        Responsavel: e.responsavel ?? "",
+                        Data_prevista: e.data_prevista ?? "",
+                        Data_conclusao: e.data_conclusao ?? "",
+                      })),
+                  );
+                }}>
+                <Download className="h-4 w-4" /> Status do Roteiro de Encerramento
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
+
 
 
 
