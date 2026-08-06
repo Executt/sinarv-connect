@@ -693,7 +693,11 @@ const DashboardLixoesInner = () => {
               />
             </div>
           </div>
-          <div className="flex items-end">
+          <div className="flex items-end gap-2">
+            <Button variant="outline" size="sm" className="gap-2" onClick={copiarLink}>
+              <Link2 className="h-4 w-4" /> Copiar link da visualização
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"
