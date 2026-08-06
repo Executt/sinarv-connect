@@ -15,11 +15,11 @@ import {
 import L from "leaflet";
 import type { LayerGroup, Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck, Search, Radio, FileDown } from "lucide-react";
+import { Trash2, Recycle, TrendingDown, DollarSign, MapPin, MapPinOff, RefreshCw, PlusCircle, Loader2, AlertTriangle, CheckCircle2, ShieldCheck, Search, Radio, FileDown, Link2, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SolicitarImportacaoDialog } from "@/components/lixoes/SolicitarImportacaoDialog";
 import { LixoesErrorBoundary } from "@/components/lixoes/LixoesErrorBoundary";
-import ConformidadePNRS from "@/components/lixoes/ConformidadePNRS";
+import ConformidadePNRS, { useLixoesPnrs } from "@/components/lixoes/ConformidadePNRS";
 import RoteiroEncerramento from "@/components/lixoes/RoteiroEncerramento";
 import DiagnosticoMunic from "@/components/lixoes/DiagnosticoMunic";
 import AlertasPrazos from "@/components/lixoes/AlertasPrazos";
@@ -27,6 +27,9 @@ import MapaRegional from "@/components/lixoes/MapaRegional";
 import CentroAlertas from "@/components/lixoes/CentroAlertas";
 import DetalheMunicipio from "@/components/lixoes/DetalheMunicipio";
 import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
+import { downloadCSV } from "@/lib/residuos-criticos";
+import { toast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 import { useAuth } from "@/hooks/use-auth";
 
