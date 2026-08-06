@@ -268,15 +268,37 @@ const LixoesLeafletMap = ({ lixoes, onSelectLixao }: LixoesMapProps) => {
 };
 
 const DashboardLixoesInner = () => {
-  const [filtroUF, setFiltroUF] = useState<string>("todas");
-  const [filtroStatus, setFiltroStatus] = useState<string>("todos");
-  const [busca, setBusca] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filtroUF, setFiltroUF] = useState<string>(searchParams.get("uf") ?? "todas");
+  const [filtroStatus, setFiltroStatus] = useState<string>(searchParams.get("status") ?? "todos");
+  const [busca, setBusca] = useState(searchParams.get("q") ?? "");
+  const [aba, setAba] = useState(searchParams.get("tab") ?? "mapa");
   const [pagina, setPagina] = useState(1);
   const [ultimaAtualizacao, setUltimaAtualizacao] = useState<Date | null>(null);
   const [selectedLixaoId, setSelectedLixaoId] = useState<string | null>(null);
-  const [municipioDetalheId, setMunicipioDetalheId] = useState<string | null>(null);
+  const [municipioDetalheId, setMunicipioDetalheId] = useState<string | null>(searchParams.get("municipio"));
   const [gerandoPDF, setGerandoPDF] = useState(false);
   const porPagina = 10;
+
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (filtroUF !== "todas") p.set("uf", filtroUF);
+    if (filtroStatus !== "todos") p.set("status", filtroStatus);
+    if (busca.trim()) p.set("q", busca.trim());
+    if (aba !== "mapa") p.set("tab", aba);
+    if (municipioDetalheId) p.set("municipio", municipioDetalheId);
+    setSearchParams(p, { replace: true });
+  }, [filtroUF, filtroStatus, busca, aba, municipioDetalheId, setSearchParams]);
+
+  const copiarLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link copiado", description: "A visualização atual (filtros, aba e município) foi copiada." });
+    } catch {
+      toast({ title: "Não foi possível copiar", description: window.location.href, variant: "destructive" });
+    }
+  };
+
 
   const { roles, isSuperAdmin } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
