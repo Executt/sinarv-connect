@@ -709,7 +709,7 @@ const DashboardLixoesInner = () => {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="mapa" className="space-y-4">
+      <Tabs value={aba} onValueChange={setAba} className="space-y-4">
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="mapa">Mapa</TabsTrigger>
           <TabsTrigger value="regional">Mapa regional</TabsTrigger>
