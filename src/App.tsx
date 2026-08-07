@@ -23,6 +23,7 @@ import Auditoria from "./pages/DashboardAuditoria";
 import Alertas from "./pages/DashboardAlertas";
 import DashboardBenchmarks from "./pages/DashboardBenchmarks";
 import DashboardLixoes from "./pages/DashboardLixoes";
+import DashboardSustentabilidade from "./pages/DashboardSustentabilidade";
 import DashboardRadarRejeitos from "./pages/DashboardRadarRejeitos";
 import DashboardResiduosCriticos from "./pages/DashboardResiduosCriticos";
 
@@ -119,6 +120,7 @@ const App = () => (
               <Route path="usuarios" element={<DashboardUsuarios />} />
               <Route path="benchmarks" element={<DashboardBenchmarks />} />
               <Route path="lixoes" element={<DashboardLixoes />} />
+              <Route path="sustentabilidade" element={<DashboardSustentabilidade />} />
               <Route path="radar-rejeitos" element={<DashboardRadarRejeitos />} />
               <Route path="residuos-criticos" element={<DashboardResiduosCriticos />} />
             </Route>
