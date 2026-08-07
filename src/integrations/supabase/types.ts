@@ -1091,13 +1091,19 @@ export type Database = {
       }
       economia_fatores_material: {
         Row: {
+          agua_evitada_m3_por_ton: number | null
+          ano_referencia_fator: number | null
           ativo: boolean
+          co2e_evitado_ton_por_ton: number | null
           created_at: string
           custo_aterro_evitado_rs_ton: number
           densidade_ton_m3: number
+          energia_evitada_mwh_por_ton: number | null
           fonte: string | null
+          fonte_url: string | null
           id: string
           material: string
+          metodologia: string | null
           uf: string | null
           updated_at: string
           valor_reciclado_rs_ton: number
@@ -1105,13 +1111,19 @@ export type Database = {
           vigencia_inicio: string
         }
         Insert: {
+          agua_evitada_m3_por_ton?: number | null
+          ano_referencia_fator?: number | null
           ativo?: boolean
+          co2e_evitado_ton_por_ton?: number | null
           created_at?: string
           custo_aterro_evitado_rs_ton?: number
           densidade_ton_m3: number
+          energia_evitada_mwh_por_ton?: number | null
           fonte?: string | null
+          fonte_url?: string | null
           id?: string
           material: string
+          metodologia?: string | null
           uf?: string | null
           updated_at?: string
           valor_reciclado_rs_ton?: number
@@ -1119,13 +1131,19 @@ export type Database = {
           vigencia_inicio?: string
         }
         Update: {
+          agua_evitada_m3_por_ton?: number | null
+          ano_referencia_fator?: number | null
           ativo?: boolean
+          co2e_evitado_ton_por_ton?: number | null
           created_at?: string
           custo_aterro_evitado_rs_ton?: number
           densidade_ton_m3?: number
+          energia_evitada_mwh_por_ton?: number | null
           fonte?: string | null
+          fonte_url?: string | null
           id?: string
           material?: string
+          metodologia?: string | null
           uf?: string | null
           updated_at?: string
           valor_reciclado_rs_ton?: number
@@ -1163,6 +1181,72 @@ export type Database = {
           nome?: string
           permissoes?: Json
           tipo_entidade?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      financeiro_servico_municipal: {
+        Row: {
+          ano_referencia: number
+          created_at: string
+          despesa_coleta_seletiva_rs: number
+          despesa_total_rs: number
+          fonte: string
+          fonte_url: string | null
+          id: string
+          massa_coletada_ton: number
+          massa_disposta_aterro_ton: number
+          massa_recuperada_ton: number
+          municipio_ibge: string
+          nome_municipio: string
+          observacoes: string | null
+          populacao_atendida_seletiva: number | null
+          populacao_urbana: number | null
+          possui_cobranca_especifica: boolean
+          receita_taxa_rs: number
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          ano_referencia: number
+          created_at?: string
+          despesa_coleta_seletiva_rs?: number
+          despesa_total_rs?: number
+          fonte?: string
+          fonte_url?: string | null
+          id?: string
+          massa_coletada_ton?: number
+          massa_disposta_aterro_ton?: number
+          massa_recuperada_ton?: number
+          municipio_ibge: string
+          nome_municipio: string
+          observacoes?: string | null
+          populacao_atendida_seletiva?: number | null
+          populacao_urbana?: number | null
+          possui_cobranca_especifica?: boolean
+          receita_taxa_rs?: number
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          ano_referencia?: number
+          created_at?: string
+          despesa_coleta_seletiva_rs?: number
+          despesa_total_rs?: number
+          fonte?: string
+          fonte_url?: string | null
+          id?: string
+          massa_coletada_ton?: number
+          massa_disposta_aterro_ton?: number
+          massa_recuperada_ton?: number
+          municipio_ibge?: string
+          nome_municipio?: string
+          observacoes?: string | null
+          populacao_atendida_seletiva?: number | null
+          populacao_urbana?: number | null
+          possui_cobranca_especifica?: boolean
+          receita_taxa_rs?: number
+          uf?: string
           updated_at?: string
         }
         Relationships: []
@@ -3882,6 +3966,69 @@ export type Database = {
           uf: string | null
           volume_reciclado_m3: number | null
           volume_reciclado_ton: number | null
+        }
+        Relationships: []
+      }
+      vw_indicadores_ana: {
+        Row: {
+          ano_referencia: number | null
+          cobertura_receita_pct: number | null
+          cobertura_seletiva_pct: number | null
+          custo_por_habitante_rs: number | null
+          custo_por_tonelada_rs: number | null
+          despesa_total_rs: number | null
+          fonte: string | null
+          id: string | null
+          massa_coletada_ton: number | null
+          massa_recuperada_ton: number | null
+          municipio_ibge: string | null
+          nome_municipio: string | null
+          possui_cobranca_especifica: boolean | null
+          receita_taxa_rs: number | null
+          situacao_sustentabilidade: string | null
+          taxa_desvio_aterro_pct: number | null
+          taxa_recuperacao_pct: number | null
+          uf: string | null
+        }
+        Insert: {
+          ano_referencia?: number | null
+          cobertura_receita_pct?: never
+          cobertura_seletiva_pct?: never
+          custo_por_habitante_rs?: never
+          custo_por_tonelada_rs?: never
+          despesa_total_rs?: number | null
+          fonte?: string | null
+          id?: string | null
+          massa_coletada_ton?: number | null
+          massa_recuperada_ton?: number | null
+          municipio_ibge?: string | null
+          nome_municipio?: string | null
+          possui_cobranca_especifica?: boolean | null
+          receita_taxa_rs?: number | null
+          situacao_sustentabilidade?: never
+          taxa_desvio_aterro_pct?: never
+          taxa_recuperacao_pct?: never
+          uf?: string | null
+        }
+        Update: {
+          ano_referencia?: number | null
+          cobertura_receita_pct?: never
+          cobertura_seletiva_pct?: never
+          custo_por_habitante_rs?: never
+          custo_por_tonelada_rs?: never
+          despesa_total_rs?: number | null
+          fonte?: string | null
+          id?: string | null
+          massa_coletada_ton?: number | null
+          massa_recuperada_ton?: number | null
+          municipio_ibge?: string | null
+          nome_municipio?: string | null
+          possui_cobranca_especifica?: boolean | null
+          receita_taxa_rs?: number | null
+          situacao_sustentabilidade?: never
+          taxa_desvio_aterro_pct?: never
+          taxa_recuperacao_pct?: never
+          uf?: string | null
         }
         Relationships: []
       }
