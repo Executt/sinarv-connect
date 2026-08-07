@@ -51,6 +51,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Usuários", to: "/dashboard/usuarios" },
       { label: "Benchmarks", to: "/dashboard/benchmarks" },
       { label: "Lixões", to: "/dashboard/lixoes", icon: Trash2 },
+      { label: "Sustentabilidade", to: "/dashboard/sustentabilidade" },
       { label: "Radar de Rejeitos", to: "/dashboard/radar-rejeitos", icon: Radio },
       { label: "Resíduos Críticos", to: "/dashboard/residuos-criticos", icon: Biohazard },
     ],
