@@ -24,6 +24,8 @@ export type LixaoPnrs = {
   consorcio_publico: boolean | null;
   fonte_verificacao: string | null;
   data_ultima_verificacao: string | null;
+  capital_ou_rm: boolean | null;
+  fronteira_20km: boolean | null;
   faixa_populacional: string;
   prazo_legal_pnrs: string | null;
   situacao_pnrs: string;
@@ -32,11 +34,13 @@ export type LixaoPnrs = {
   progresso_encerramento_pct: number;
 };
 
+/** Art. 54 da Lei 12.305/2010, redação dada pela Lei 14.026/2020 (população pelo Censo 2010). */
 export const FAIXA_LABEL: Record<string, string> = {
-  acima_100k: "Acima de 100 mil hab. — prazo 02/08/2021",
-  "50k_100k": "50 a 100 mil hab. — prazo 02/08/2022",
-  "10k_50k": "10 a 50 mil hab. — prazo 02/08/2023",
-  ate_10k: "Até 10 mil hab. — prazo 02/08/2024",
+  capital_rm: "Capital / RM ou RIDE de capital (inc. I) — prazo 02/08/2021",
+  fronteira: "Sede a < 20 km de fronteira (inc. II) — prazo 02/08/2022",
+  acima_100k: "Acima de 100 mil hab. (inc. II) — prazo 02/08/2022",
+  "50k_100k": "50 a 100 mil hab. (inc. III) — prazo 02/08/2023",
+  ate_50k: "Menos de 50 mil hab. (inc. IV) — prazo 02/08/2024",
   nao_informada: "População não informada",
 };
 

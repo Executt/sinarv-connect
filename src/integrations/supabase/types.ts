@@ -2051,6 +2051,7 @@ export type Database = {
       lixoes: {
         Row: {
           area_ha: number | null
+          capital_ou_rm: boolean
           catadores_estimados: number | null
           consorcio_publico: boolean | null
           created_at: string
@@ -2060,6 +2061,7 @@ export type Database = {
           data_ultima_verificacao: string | null
           fonte: string | null
           fonte_verificacao: string | null
+          fronteira_20km: boolean
           id: string
           latitude: number
           longitude: number
@@ -2078,6 +2080,7 @@ export type Database = {
         }
         Insert: {
           area_ha?: number | null
+          capital_ou_rm?: boolean
           catadores_estimados?: number | null
           consorcio_publico?: boolean | null
           created_at?: string
@@ -2087,6 +2090,7 @@ export type Database = {
           data_ultima_verificacao?: string | null
           fonte?: string | null
           fonte_verificacao?: string | null
+          fronteira_20km?: boolean
           id?: string
           latitude: number
           longitude: number
@@ -2105,6 +2109,7 @@ export type Database = {
         }
         Update: {
           area_ha?: number | null
+          capital_ou_rm?: boolean
           catadores_estimados?: number | null
           consorcio_publico?: boolean | null
           created_at?: string
@@ -2114,6 +2119,7 @@ export type Database = {
           data_ultima_verificacao?: string | null
           fonte?: string | null
           fonte_verificacao?: string | null
+          fronteira_20km?: boolean
           id?: string
           latitude?: number
           longitude?: number
@@ -4053,6 +4059,7 @@ export type Database = {
       }
       vw_lixoes_pnrs: {
         Row: {
+          capital_ou_rm: boolean | null
           catadores_estimados: number | null
           consorcio_publico: boolean | null
           data_ultima_verificacao: string | null
@@ -4060,6 +4067,7 @@ export type Database = {
           etapas_total: number | null
           faixa_populacional: string | null
           fonte_verificacao: string | null
+          fronteira_20km: boolean | null
           id: string | null
           municipio: string | null
           municipio_ibge: string | null
@@ -4093,9 +4101,25 @@ export type Database = {
       }
     }
     Functions: {
+      fn_faixa_pnrs_art54: {
+        Args: {
+          _capital_ou_rm: boolean
+          _fronteira_20km: boolean
+          _populacao: number
+        }
+        Returns: string
+      }
       fn_operador_licenca_vigente: {
         Args: { _operador_id: string }
         Returns: boolean
+      }
+      fn_prazo_pnrs_art54: {
+        Args: {
+          _capital_ou_rm: boolean
+          _fronteira_20km: boolean
+          _populacao: number
+        }
+        Returns: string
       }
       has_role: {
         Args: {

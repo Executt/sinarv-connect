@@ -146,7 +146,6 @@ Hooks `use-*-data.ts` encapsulam consultas TanStack Query, retornando `{ data, i
 | `admin-users` | CRUD seguro de usuários e atribuição de roles (service_role) |
 | `b2b-importar-lotes` | Importação de lotes em massa via API B2B |
 | `comparar-municipios` | Comparativo benchmark entre municípios |
-| `seed-admin` | Bootstrap inicial de super-admin |
 
 Configuração em `supabase/config.toml`. Deploy automático ao alterar arquivos sob `supabase/functions/`.
 

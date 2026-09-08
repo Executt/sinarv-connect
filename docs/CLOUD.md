@@ -25,7 +25,6 @@ Versão: 4.0 | Atualizado: 2026-04-14
 | `admin-users` | `POST /functions/v1/admin-users` | CRUD de roles (list, assign, remove) |
 | `b2b-importar-lotes` | `POST /functions/v1/b2b-importar-lotes` | Ingestão B2B de lotes da indústria |
 | `comparar-municipios` | `GET /functions/v1/comparar-municipios` | API analítica de benchmarks municipais |
-| `seed-admin` | `POST /functions/v1/seed-admin` | Bootstrap do super admin |
 
 ---
 
