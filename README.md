@@ -56,7 +56,7 @@ src/
 └── integrations/         # Supabase client + types (auto-gerados)
 
 supabase/
-└── functions/            # 4 Edge Functions (admin-users, b2b-importar-lotes, comparar-municipios, seed-admin)
+└── functions/            # 5 Edge Functions (admin-users, b2b-importar-lotes, comparar-municipios, ingest-telemetria, solicitar-importacao)
 
 docs/                     # Documentação técnica consolidada
 ```

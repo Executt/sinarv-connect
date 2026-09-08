@@ -100,7 +100,6 @@ Versão: 4.0 | Atualizado: 2026-04-14
 | 1 | admin-users | `POST /functions/v1/admin-users` | Alta |
 | 2 | b2b-importar-lotes | `POST /functions/v1/b2b-importar-lotes` | Muito Alta |
 | 3 | comparar-municipios | `GET /functions/v1/comparar-municipios` | Média |
-| 4 | seed-admin | `POST /functions/v1/seed-admin` | Baixa |
 
 **Total de Edge Functions: 4**
 

@@ -134,7 +134,6 @@ Rota base `/admin`. Organizado em 4 grupos via mega-menu.
 | `admin-users` | `/admin/usuarios` |
 | `b2b-importar-lotes` | parceiros B2B externos |
 | `comparar-municipios` | `/dashboard/benchmarks` |
-| `seed-admin` | provisionamento inicial |
 
 ## 10. Resumo quantitativo
 

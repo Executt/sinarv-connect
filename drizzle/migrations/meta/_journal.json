@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1788871742328,
+      "tag": "0000_lixoes_prazos_lei_14026_art54",
+      "breakpoints": true
+    }
+  ]
+}

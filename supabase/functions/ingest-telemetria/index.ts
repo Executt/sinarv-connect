@@ -12,6 +12,15 @@ const PingSchema = z.object({
   carga_id: z.string().uuid().optional(),
 });
 
+function timingSafeEqual(a: string, b: string) {
+  const ea = new TextEncoder().encode(a);
+  const eb = new TextEncoder().encode(b);
+  if (ea.length !== eb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ea.length; i++) diff |= ea[i] ^ eb[i];
+  return diff === 0;
+}
+
 // Haversine em metros
 function distMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
   const R = 6371000;
@@ -46,14 +55,18 @@ Deno.serve(async (req) => {
     const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const INGEST_TOKEN = Deno.env.get('INGEST_TOKEN');
 
-    // Auth por token compartilhado dos trackers (opcional em dev)
-    if (INGEST_TOKEN) {
-      const provided = req.headers.get('x-ingest-token') ?? '';
-      if (provided !== INGEST_TOKEN) {
-        return new Response(JSON.stringify({ error: 'unauthorized' }), {
-          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+    // Auth por token compartilhado dos trackers — fail closed: sem token configurado, nada entra.
+    if (!INGEST_TOKEN) {
+      console.error('[ingest-telemetria] INGEST_TOKEN não configurado — ingestão bloqueada');
+      return new Response(JSON.stringify({ error: 'ingest_disabled' }), {
+        status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const provided = req.headers.get('x-ingest-token') ?? '';
+    if (provided.length !== INGEST_TOKEN.length || !timingSafeEqual(provided, INGEST_TOKEN)) {
+      return new Response(JSON.stringify({ error: 'unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const parsed = PingSchema.safeParse(await req.json());

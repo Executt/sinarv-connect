@@ -33,9 +33,10 @@ Deno.serve(async (req) => {
   });
 
   const { data: callerRoles } = await adminClient.from("user_roles").select("role").eq("user_id", caller.id);
-  const isGov = callerRoles?.some((r: any) => r.role === "gov");
+  const isSuperAdmin = callerRoles?.some((r: any) => r.role === "super_admin") ?? false;
+  const isGov = isSuperAdmin || (callerRoles?.some((r: any) => r.role === "gov") ?? false);
   if (!isGov) {
-    return new Response(JSON.stringify({ error: "Forbidden: gov role required" }), { status: 403, headers: corsHeaders });
+    return new Response(JSON.stringify({ error: "Forbidden: gov or super_admin role required" }), { status: 403, headers: corsHeaders });
   }
 
   const url = new URL(req.url);
@@ -105,15 +106,27 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "user_id, role, and action (add|remove) required" }), { status: 400, headers: corsHeaders });
     }
 
-    const validRoles = ["gov", "cooperativa", "industria", "ponto_coleta"];
+    // R-IA-03: papéis administrativos só podem ser concedidos/removidos por super_admin.
+    const validRoles = ["gov", "cooperativa", "industria", "ponto_coleta", "super_admin"];
     if (!validRoles.includes(role)) {
       return new Response(JSON.stringify({ error: "Invalid role" }), { status: 400, headers: corsHeaders });
+    }
+    if ((role === "super_admin" || role === "gov") && !isSuperAdmin) {
+      return new Response(JSON.stringify({ error: "Forbidden: only super_admin can manage gov/super_admin roles" }), { status: 403, headers: corsHeaders });
     }
 
     if (roleAction === "add") {
       const { error } = await adminClient.from("user_roles").upsert({ user_id, role }, { onConflict: "user_id,role" });
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
     } else {
+      // Nunca remover o último administrador do sistema
+      if (role === "super_admin" || role === "gov") {
+        const { count } = await adminClient
+          .from("user_roles").select("id", { count: "exact", head: true }).eq("role", role);
+        if ((count ?? 0) <= 1) {
+          return new Response(JSON.stringify({ error: `Não é possível remover o último usuário com papel ${role}` }), { status: 409, headers: corsHeaders });
+        }
+      }
       const { error } = await adminClient.from("user_roles").delete().eq("user_id", user_id).eq("role", role);
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
     }
