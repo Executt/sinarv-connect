@@ -10,6 +10,10 @@ export type ReportInput = {
   numeros: ReportNumero[];
   mapaDataUrl?: string | null;
   tabelas?: ReportTabela[];
+  /** Quem gerou o documento (carimbo de responsabilidade). */
+  usuario?: string;
+  /** Origem dos dados exibidos (ex.: IBGE MUNIC 2023, SNIS). */
+  fonteDados?: string;
 };
 
 const esc = (s: unknown) =>
