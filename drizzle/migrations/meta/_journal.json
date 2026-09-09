@@ -8,6 +8,13 @@
       "when": 1788871742328,
       "tag": "0000_lixoes_prazos_lei_14026_art54",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788916393555,
+      "tag": "0001_bloco3_integridade",
+      "breakpoints": true
     }
   ]
 }

@@ -2148,6 +2148,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg: number | null
           status: Database["public"]["Enums"]["lote_status"]
           updated_at: string
         }
@@ -2160,6 +2161,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["lote_status"]
           updated_at?: string
         }
@@ -2172,6 +2174,7 @@ export type Database = {
           material?: string
           origem?: string
           peso?: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["lote_status"]
           updated_at?: string
         }
@@ -2744,6 +2747,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg: number | null
           status: Database["public"]["Enums"]["transaction_status"]
           updated_at: string
         }
@@ -2757,6 +2761,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["transaction_status"]
           updated_at?: string
         }
@@ -2770,6 +2775,7 @@ export type Database = {
           material?: string
           origem?: string
           peso?: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["transaction_status"]
           updated_at?: string
         }
@@ -4111,6 +4117,10 @@ export type Database = {
       }
       fn_operador_licenca_vigente: {
         Args: { _operador_id: string }
+        Returns: boolean
+      }
+      fn_operador_licenca_vigente_em: {
+        Args: { _data: string; _operador_id: string }
         Returns: boolean
       }
       fn_prazo_pnrs_art54: {
