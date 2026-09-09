@@ -60,6 +60,8 @@ const SustainabilityIndicators = () => {
     ? Math.round(economia.reduce((sum, e) => sum + Number(e.volume_reciclado_m3 || 0), 0) / 1_000)
     : 0;
 
+  const usandoDemo = !dbIndicators || dbIndicators.length === 0;
+
   const indicators = totalEconomiaMi > 0
     ? [
         ...baseIndicators,
