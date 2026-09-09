@@ -15,6 +15,13 @@
       "when": 1788916393555,
       "tag": "0001_bloco3_integridade",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788916482938,
+      "tag": "0002_bloco4_dados_ponderados",
+      "breakpoints": true
     }
   ]
 }
