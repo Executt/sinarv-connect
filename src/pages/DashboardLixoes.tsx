@@ -316,7 +316,7 @@ const DashboardLixoesInner = () => {
   });
 
 
-  const { roles, isSuperAdmin } = useAuth();
+  const { roles, isSuperAdmin, user } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
 
   useEffect(() => {
