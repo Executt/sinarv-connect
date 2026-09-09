@@ -73,7 +73,9 @@ export function gerarRelatorioPDF(input: ReportInput) {
     footer{margin-top:24px;font-size:10px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:6px}
   </style></head><body>
   <h1>${esc(input.titulo)}</h1>
-  <p class="meta">SINARV · ${esc(input.subtitulo ?? "Módulo Lixões")} · gerado em ${new Date().toLocaleString("pt-BR")}</p>
+  <p class="meta">SINARV · ${esc(input.subtitulo ?? "Módulo Lixões")} · gerado em ${new Date().toLocaleString("pt-BR")}${
+    input.usuario ? ` · por ${esc(input.usuario)}` : ""
+  }${input.fonteDados ? ` · fonte: ${esc(input.fonteDados)}` : ""}</p>
   <h2>Filtros aplicados</h2>
   <ul class="filtros">${filtros || "<li>Nenhum filtro</li>"}</ul>
   <h2>Números principais</h2>
