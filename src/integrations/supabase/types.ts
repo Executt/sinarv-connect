@@ -1104,6 +1104,7 @@ export type Database = {
           id: string
           material: string
           metodologia: string | null
+          participacao_mix: number | null
           uf: string | null
           updated_at: string
           valor_reciclado_rs_ton: number
@@ -1124,6 +1125,7 @@ export type Database = {
           id?: string
           material: string
           metodologia?: string | null
+          participacao_mix?: number | null
           uf?: string | null
           updated_at?: string
           valor_reciclado_rs_ton?: number
@@ -1144,6 +1146,7 @@ export type Database = {
           id?: string
           material?: string
           metodologia?: string | null
+          participacao_mix?: number | null
           uf?: string | null
           updated_at?: string
           valor_reciclado_rs_ton?: number
@@ -2148,6 +2151,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg: number | null
           status: Database["public"]["Enums"]["lote_status"]
           updated_at: string
         }
@@ -2160,6 +2164,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["lote_status"]
           updated_at?: string
         }
@@ -2172,6 +2177,7 @@ export type Database = {
           material?: string
           origem?: string
           peso?: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["lote_status"]
           updated_at?: string
         }
@@ -2744,6 +2750,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg: number | null
           status: Database["public"]["Enums"]["transaction_status"]
           updated_at: string
         }
@@ -2757,6 +2764,7 @@ export type Database = {
           material: string
           origem: string
           peso: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["transaction_status"]
           updated_at?: string
         }
@@ -2770,6 +2778,7 @@ export type Database = {
           material?: string
           origem?: string
           peso?: string
+          peso_kg?: number | null
           status?: Database["public"]["Enums"]["transaction_status"]
           updated_at?: string
         }
@@ -3963,9 +3972,12 @@ export type Database = {
       }
       vw_economia_estado: {
         Row: {
+          agua_evitada_m3: number | null
           ano_referencia: number | null
+          co2e_evitado_ton: number | null
           economia_per_capita_rs: number | null
           economia_total_rs: number | null
+          energia_evitada_mwh: number | null
           estado_ibge: string | null
           nome_estado: string | null
           populacao: number | null
@@ -3982,6 +3994,8 @@ export type Database = {
           cobertura_seletiva_pct: number | null
           custo_por_habitante_rs: number | null
           custo_por_tonelada_rs: number | null
+          custo_seletiva_por_ton_recuperada_rs: number | null
+          despesa_coleta_seletiva_rs: number | null
           despesa_total_rs: number | null
           fonte: string | null
           id: string | null
@@ -4002,6 +4016,8 @@ export type Database = {
           cobertura_seletiva_pct?: never
           custo_por_habitante_rs?: never
           custo_por_tonelada_rs?: never
+          custo_seletiva_por_ton_recuperada_rs?: never
+          despesa_coleta_seletiva_rs?: number | null
           despesa_total_rs?: number | null
           fonte?: string | null
           id?: string | null
@@ -4022,6 +4038,8 @@ export type Database = {
           cobertura_seletiva_pct?: never
           custo_por_habitante_rs?: never
           custo_por_tonelada_rs?: never
+          custo_seletiva_por_ton_recuperada_rs?: never
+          despesa_coleta_seletiva_rs?: number | null
           despesa_total_rs?: number | null
           fonte?: string | null
           id?: string | null
@@ -4111,6 +4129,10 @@ export type Database = {
       }
       fn_operador_licenca_vigente: {
         Args: { _operador_id: string }
+        Returns: boolean
+      }
+      fn_operador_licenca_vigente_em: {
+        Args: { _data: string; _operador_id: string }
         Returns: boolean
       }
       fn_prazo_pnrs_art54: {

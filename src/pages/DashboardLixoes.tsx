@@ -316,7 +316,7 @@ const DashboardLixoesInner = () => {
   });
 
 
-  const { roles, isSuperAdmin } = useAuth();
+  const { roles, isSuperAdmin, user } = useAuth();
   const activeRole = isSuperAdmin ? "super_admin" : roles.includes("gov") ? "gov" : (roles[0] ?? "desconhecida");
 
   useEffect(() => {
@@ -789,6 +789,8 @@ const DashboardLixoesInner = () => {
                     gerarRelatorioPDF({
                       titulo: "Relatório do Módulo Lixões",
                       subtitulo: filtroUF === "todas" ? "Panorama nacional" : `Recorte ${filtroUF}`,
+                      usuario: user?.email ?? "usuário autenticado",
+                      fonteDados: "SINARV · base MUNIC/IBGE 2023 e registros do módulo Lixões",
                       filtros: {
                         UF: filtroUF === "todas" ? "Todas" : filtroUF,
                         Situação:

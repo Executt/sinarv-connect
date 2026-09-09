@@ -60,6 +60,8 @@ const SustainabilityIndicators = () => {
     ? Math.round(economia.reduce((sum, e) => sum + Number(e.volume_reciclado_m3 || 0), 0) / 1_000)
     : 0;
 
+  const usandoDemo = !dbIndicators || dbIndicators.length === 0;
+
   const indicators = totalEconomiaMi > 0
     ? [
         ...baseIndicators,
@@ -74,8 +76,13 @@ const SustainabilityIndicators = () => {
         <div className="text-center mb-12">
           <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Indicadores Públicos de Sustentabilidade</h3>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Dados atualizados em tempo real a partir da rede nacional de rastreabilidade.
+            Dados atualizados a partir da rede nacional de rastreabilidade.
           </p>
+          {usandoDemo && (
+            <p className="mt-3 inline-block rounded-md border border-border bg-muted px-3 py-1.5 text-xs text-muted-foreground">
+              Números ilustrativos de demonstração — ainda sem dados oficiais carregados.
+            </p>
+          )}
         </div>
         <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {indicators.map((ind, i) => (
