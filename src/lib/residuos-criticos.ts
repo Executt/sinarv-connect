@@ -69,8 +69,34 @@ export function toCSV(rows: Record<string, unknown>[]): string {
   return [headers.join(";"), ...rows.map((r) => headers.map((h) => esc(r[h])).join(";"))].join("\n");
 }
 
-export function downloadCSV(filename: string, rows: Record<string, unknown>[]) {
-  const csv = toCSV(rows);
+/** Carimbo de responsabilidade das exportações (data/hora, usuário, filtros e fonte). */
+export type ExportMeta = {
+  usuario?: string;
+  filtros?: Record<string, unknown>;
+  fonte?: string;
+};
+
+const csvComment = (s: string) => `# ${String(s).replace(/[\r\n]+/g, " ")}`;
+
+export function carimboCSV(meta: ExportMeta = {}): string {
+  const usuario =
+    meta.usuario ??
+    (typeof localStorage !== "undefined" ? localStorage.getItem("sinarv-export-user") || "" : "");
+  const filtros = Object.entries(meta.filtros ?? {})
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}=${v}`)
+    .join("; ");
+  const linhas = [
+    csvComment(`SINARV — exportação gerada em ${new Date().toLocaleString("pt-BR")}`),
+    csvComment(`Usuário: ${usuario || "não identificado"}`),
+    csvComment(`Filtros: ${filtros || "nenhum"}`),
+    csvComment(`Fonte dos dados: ${meta.fonte || "Base SINARV"}`),
+  ];
+  return linhas.join("\n");
+}
+
+export function downloadCSV(filename: string, rows: Record<string, unknown>[], meta: ExportMeta = {}) {
+  const csv = `${carimboCSV(meta)}\n${toCSV(rows)}`;
   const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

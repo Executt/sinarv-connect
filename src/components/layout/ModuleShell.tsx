@@ -24,11 +24,11 @@ const ModuleShell = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-card">
       <GlobalHeader />
       {/* Page title bar */}
       {page.title && (
-        <div className="bg-white border-b border-border px-4 lg:px-6 py-3">
+        <div className="bg-card border-b border-border px-4 lg:px-6 py-3">
           <h1 className="text-base lg:text-lg font-bold text-foreground">
             {page.title}
           </h1>
@@ -37,7 +37,7 @@ const ModuleShell = ({
           )}
         </div>
       )}
-      <main className="flex-1 p-4 lg:p-6 space-y-5 overflow-auto bg-[hsl(210,20%,98%)]">
+      <main className="flex-1 p-4 lg:p-6 space-y-5 overflow-auto bg-background">
         <Outlet />
       </main>
     </div>

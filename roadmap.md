@@ -21,4 +21,7 @@
 - [ ] Backfill CO₂e com fonte; economia ponderada; custo/ton seletiva
 
 ## Bloco 5 — UX / qualidade
-- [ ] Aviso de dados demo na landing; carimbo em exportações; SEO; dark mode; testes
+- [x] Aviso de dados demo na landing; SEO; carimbo nos PDFs
+- [x] Carimbo (data/hora, usuário, filtros, fonte) nas exportações CSV
+- [x] Modo escuro: remoção de cores fixas em ModuleShell, Benchmarks e AppSwitcher
+- [x] Testes de exportação (carimbo e escape de CSV)

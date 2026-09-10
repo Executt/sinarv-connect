@@ -219,7 +219,7 @@ const DashboardBenchmarks = () => {
   const topEstado = ranking?.[0];
 
   return (
-    <div className="space-y-6 bg-white min-h-full">
+    <div className="space-y-6 bg-background min-h-full">
       {/* KPI Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
@@ -265,16 +265,16 @@ const DashboardBenchmarks = () => {
       {/* Tabs */}
       <Tabs defaultValue="ranking" className="w-full">
         <TabsList className="bg-gray-50 border border-gray-200 rounded-lg p-1">
-          <TabsTrigger value="ranking" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
+          <TabsTrigger value="ranking" className="data-[state=active]:bg-card data-[state=active]:shadow-sm text-sm">
             🏆 Ranking Nacional
           </TabsTrigger>
-          <TabsTrigger value="comparativo" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
+          <TabsTrigger value="comparativo" className="data-[state=active]:bg-card data-[state=active]:shadow-sm text-sm">
             📊 Comparativo Municipal
           </TabsTrigger>
-          <TabsTrigger value="ranking-municipal" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
+          <TabsTrigger value="ranking-municipal" className="data-[state=active]:bg-card data-[state=active]:shadow-sm text-sm">
             🏙️ Ranking Municipal
           </TabsTrigger>
-          <TabsTrigger value="selos" className="data-[state=active]:bg-white data-[state=active]:shadow-sm text-sm">
+          <TabsTrigger value="selos" className="data-[state=active]:bg-card data-[state=active]:shadow-sm text-sm">
             🏅 Distintivos e Metas
           </TabsTrigger>
         </TabsList>

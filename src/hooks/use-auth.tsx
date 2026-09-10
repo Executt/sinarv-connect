@@ -22,6 +22,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
 
+  /** Mantém o identificador usado no carimbo de responsabilidade das exportações. */
+  const registrarUsuarioExportacao = (email?: string | null) => {
+    try {
+      if (email) localStorage.setItem("sinarv-export-user", email);
+      else localStorage.removeItem("sinarv-export-user");
+    } catch {
+      /* storage indisponível */
+    }
+  };
+
   const fetchRoles = async (userId: string) => {
     const { data, error } = await supabase
       .from("user_roles")
@@ -42,6 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        registrarUsuarioExportacao(session?.user?.email ?? null);
         if (session?.user) {
           setLoading(true);
           setTimeout(async () => {
@@ -58,6 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      registrarUsuarioExportacao(session?.user?.email ?? null);
       if (session?.user) {
         await fetchRoles(session.user.id);
       } else {
