@@ -864,6 +864,7 @@ const DashboardLixoesInner = () => {
                       Taxa_reducao_pct: Number(c.taxa_reducao_pct).toFixed(1),
                       Reciclado_ton: Number(c.volume_reciclado_ton_uf).toFixed(0),
                     })),
+                    { filtros: { UF: filtroUF }, fonte: "SINARV — lixões e histórico de volume" },
                   )
                 }>
                 <Download className="h-4 w-4" /> Indicadores do mapa (por UF)
@@ -882,6 +883,7 @@ const DashboardLixoesInner = () => {
                         Prazo_legal_PNRS: p.prazo_legal_pnrs ?? "",
                         Situacao_PNRS: p.situacao_pnrs,
                       })),
+                    { filtros: { UF: filtroUF }, fonte: "SINARV — vw_lixoes_pnrs (Lei 12.305/2010, art. 54)" },
                   )
                 }>
                 <Download className="h-4 w-4" /> Conformidade PNRS
@@ -903,6 +905,7 @@ const DashboardLixoesInner = () => {
                         Data_prevista: e.data_prevista ?? "",
                         Data_conclusao: e.data_conclusao ?? "",
                       })),
+                    { filtros: { UF: filtroUF }, fonte: "SINARV — roteiro de encerramento (ProteGEER)" },
                   );
                 }}>
                 <Download className="h-4 w-4" /> Status do Roteiro de Encerramento
