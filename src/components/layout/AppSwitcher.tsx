@@ -99,7 +99,7 @@ const AppSwitcher = () => {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-border z-50 p-4">
+        <div className="absolute top-full right-0 mt-2 w-80 bg-popover rounded-lg shadow-xl border border-border z-50 p-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             Módulos SINARV
           </p>
