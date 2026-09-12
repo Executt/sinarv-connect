@@ -1311,6 +1311,66 @@ export type Database = {
         }
         Relationships: []
       }
+      importacoes_oficiais: {
+        Row: {
+          arquivo_nome: string | null
+          created_at: string
+          erros: Json
+          escopo_uf: string | null
+          fonte: string | null
+          id: string
+          importado_por: string | null
+          importado_por_email: string | null
+          linhas_erro: number
+          linhas_ok: number
+          observacoes: string | null
+          origem: string
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          status: string
+          tipo: string
+          total_linhas: number
+        }
+        Insert: {
+          arquivo_nome?: string | null
+          created_at?: string
+          erros?: Json
+          escopo_uf?: string | null
+          fonte?: string | null
+          id?: string
+          importado_por?: string | null
+          importado_por_email?: string | null
+          linhas_erro?: number
+          linhas_ok?: number
+          observacoes?: string | null
+          origem?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          status?: string
+          tipo: string
+          total_linhas?: number
+        }
+        Update: {
+          arquivo_nome?: string | null
+          created_at?: string
+          erros?: Json
+          escopo_uf?: string | null
+          fonte?: string | null
+          id?: string
+          importado_por?: string | null
+          importado_por_email?: string | null
+          linhas_erro?: number
+          linhas_ok?: number
+          observacoes?: string | null
+          origem?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          status?: string
+          tipo?: string
+          total_linhas?: number
+        }
+        Relationships: []
+      }
       indicadores_sustentabilidade: {
         Row: {
           id: string
