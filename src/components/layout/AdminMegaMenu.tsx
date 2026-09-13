@@ -71,6 +71,13 @@ const menuGroups: MenuGroup[] = [
         badge: "novo",
       },
       {
+        label: "Importação de dados",
+        to: "/admin/importacoes",
+        icon: Database,
+        description: "MTR, licenças e PNRS por planilha",
+        badge: "novo",
+      },
+      {
         label: "Parâmetros",
         to: "/admin/parametros",
         icon: Settings,
