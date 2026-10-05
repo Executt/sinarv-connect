@@ -26,6 +26,8 @@ import DashboardLixoes from "./pages/DashboardLixoes";
 import DashboardSustentabilidade from "./pages/DashboardSustentabilidade";
 import DashboardRadarRejeitos from "./pages/DashboardRadarRejeitos";
 import DashboardResiduosCriticos from "./pages/DashboardResiduosCriticos";
+import DashboardMetasPNRS from "./pages/DashboardMetasPNRS";
+import DashboardLicencasBalanco from "./pages/DashboardLicencasBalanco";
 
 // Module layouts
 import CooperativaLayout from "./components/modules/CooperativaLayout";
@@ -124,6 +126,8 @@ const App = () => (
               <Route path="sustentabilidade" element={<DashboardSustentabilidade />} />
               <Route path="radar-rejeitos" element={<DashboardRadarRejeitos />} />
               <Route path="residuos-criticos" element={<DashboardResiduosCriticos />} />
+              <Route path="metas-pnrs" element={<DashboardMetasPNRS />} />
+              <Route path="licencas-balanco" element={<DashboardLicencasBalanco />} />
             </Route>
 
             {/* Cooperativa - requires 'cooperativa' role */}
