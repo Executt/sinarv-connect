@@ -11,6 +11,8 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/dashboard/sustentabilidade": { title: "Sustentabilidade Econômico-Financeira", subtitle: "Indicadores NR ANA nº 3/2022 e fatores de CO₂e por material" },
   "/dashboard/radar-rejeitos": { title: "Radar de Rejeitos", subtitle: "Telemetria em tempo real de cargas perigosas, hospitalares e químicas" },
   "/dashboard/residuos-criticos": { title: "Resíduos Críticos", subtitle: "Gestão de resíduos perigosos e hospitalares (RSS) — geradores, operadores e MTR" },
+  "/dashboard/metas-pnrs": { title: "Metas PNRS", subtitle: "Histórico e projeção anual por município até 2030" },
+  "/dashboard/licencas-balanco": { title: "Licenças e Balanço de Massa", subtitle: "Entradas x saídas da cooperativa alinhadas ao MTR e às licenças ambientais" },
 };
 
 const DashboardLayout = () => (
