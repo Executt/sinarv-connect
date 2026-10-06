@@ -9,6 +9,10 @@ export type ReportInput = {
   filtros: Record<string, string>;
   numeros: ReportNumero[];
   mapaDataUrl?: string | null;
+  /** Título da seção da imagem (padrão: Mapa). */
+  imagemTitulo?: string;
+  /** Texto livre adicional (ex.: análise de IA). */
+  textoLivre?: { titulo: string; texto: string };
   tabelas?: ReportTabela[];
   /** Quem gerou o documento (carimbo de responsabilidade). */
   usuario?: string;
@@ -87,7 +91,8 @@ export function gerarRelatorioPDF(input: ReportInput) {
         }</div>`,
     )
     .join("")}</div>
-  ${input.mapaDataUrl ? `<h2>Mapa</h2><img class="mapa" src="${input.mapaDataUrl}" alt="Mapa do módulo Lixões" />` : ""}
+  ${input.mapaDataUrl ? `<h2>${esc(input.imagemTitulo ?? "Mapa")}</h2><img class="mapa" src="${input.mapaDataUrl}" alt="${esc(input.imagemTitulo ?? "Mapa")}" />` : ""}
+  ${input.textoLivre ? `<h2>${esc(input.textoLivre.titulo)}</h2><div style="font-size:11px;white-space:pre-wrap">${esc(input.textoLivre.texto)}</div>` : ""}
   ${(input.tabelas ?? []).map(tabelaHtml).join("")}
   <footer>Documento gerado automaticamente pelo SINARV — Sistema Nacional de Rastreabilidade de Resíduos.</footer>
   <script>window.onload=function(){setTimeout(function(){window.print()},350)}<\/script>
