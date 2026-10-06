@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import AnaliseIAPanel from "@/components/dashboard/AnaliseIAPanel";
+import { useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
+import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +20,7 @@ import {
   ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine, Legend,
 } from "recharts";
-import { Target, TrendingUp, CalendarClock, Search } from "lucide-react";
+import { Target, TrendingUp, CalendarClock, Search, FileDown } from "lucide-react";
 
 const ANO_META = 2030;
 
@@ -65,6 +69,18 @@ const DashboardMetasPNRS = () => {
   const [municipio, setMunicipio] = useState<string>("");
   const [busca, setBusca] = useState("");
   const [meta, setMeta] = useState(48);
+  const [analiseIA, setAnaliseIA] = useState<{ texto: string; periodo: string } | null>(null);
+  const graficoRef = useRef<HTMLDivElement>(null);
+  const ent = useLotesEntrada();
+  const sai = useLotesSaida();
+  const mtrQ = useQuery({
+    queryKey: ["mtr_ia"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("mtr_solicitacoes").select("*");
+      if (error) throw error;
+      return (data ?? []) as any[];
+    },
+  });
 
   useEffect(() => {
     document.title = "Metas PNRS 2030 | SINARV";
@@ -130,12 +146,66 @@ const DashboardMetasPNRS = () => {
   const atingeMeta = projecao2030 != null && projecao2030 >= meta;
   const anosRestantes = ANO_META - new Date().getFullYear();
 
+  const anoDe = (d: any) => (d ? new Date(d).getFullYear() : NaN);
+  const montarContexto = (inicio: number, fim: number) => {
+    if (!municipioAtual) return null;
+    const noPeriodo = (d: any) => { const a = anoDe(d); return a >= inicio && a <= fim; };
+    const bal: Record<string, { material: string; entrada_kg: number; saida_kg: number }> = {};
+    const g = (k: string) => (bal[k] ??= { material: k, entrada_kg: 0, saida_kg: 0 });
+    (ent.data ?? []).filter((e: any) => noPeriodo(e.data_recebimento ?? e.created_at))
+      .forEach((e: any) => (g(e.tipo_material || "Outros").entrada_kg += Number(e.peso_bruto_kg) || 0));
+    (sai.data ?? []).filter((s: any) => noPeriodo(s.data_despacho ?? s.created_at))
+      .forEach((s: any) => (g(s.tipo_material || "Outros").saida_kg += Number(s.peso_kg ?? s.peso_despachado_kg ?? s.peso_liquido_kg) || 0));
+    const mtr = (mtrQ.data ?? []).filter((m) => noPeriodo(m.created_at));
+    const porStatus: Record<string, number> = {};
+    mtr.forEach((m) => (porStatus[m.fluxo_status ?? "indefinido"] = (porStatus[m.fluxo_status ?? "indefinido"] ?? 0) + 1));
+    return {
+      municipio: { ibge: municipioAtual.municipio_ibge, nome: municipioAtual.nome_municipio, uf: municipioAtual.uf },
+      periodo: { inicio, fim },
+      meta_desvio_2030: meta,
+      metas: historico.filter((h) => h.ano_referencia >= inicio && h.ano_referencia <= fim).map((h) => ({
+        ano: h.ano_referencia, populacao: h.populacao, coletado_t: h.volume_coletado_ton, reciclado_t: h.volume_reciclado_ton,
+        desvio_aterro_pct: h.taxa_desvio_aterro, eficiencia_coleta_seletiva: h.eficiencia_coleta_seletiva,
+      })),
+      projecao_2030_pct: projecao2030,
+      balanco: Object.values(bal).map((b) => ({ ...b, saldo_kg: b.entrada_kg - b.saida_kg })),
+      mtr: { total: mtr.length, por_status: porStatus },
+    };
+  };
+
+  const exportarPDF = async () => {
+    const img = await capturarElemento(graficoRef.current);
+    gerarRelatorioPDF({
+      titulo: `Metas PNRS 2030 — ${municipioAtual?.nome_municipio ?? ""}`,
+      subtitulo: "Metas PNRS",
+      filtros: { UF: uf === "todas" ? "Todas" : uf, Busca: busca || "—", Município: municipioAtual ? `${municipioAtual.nome_municipio} (${municipioAtual.uf})` : "—", "Meta 2030": `${meta}%` },
+      numeros: [
+        { rotulo: "Último observado", valor: municipioAtual?.taxa_desvio_aterro != null ? `${Number(municipioAtual.taxa_desvio_aterro).toFixed(1)}%` : "—", detalhe: `Ano ${municipioAtual?.ano_referencia ?? "—"}` },
+        { rotulo: "Projeção 2030", valor: projecao2030 != null ? `${projecao2030.toFixed(1)}%` : "—", detalhe: atingeMeta ? "Meta atingível" : "Meta em risco" },
+        { rotulo: "Lacuna para a meta", valor: gapPontos != null ? `${Math.max(gapPontos, 0)} p.p.` : "—" },
+        { rotulo: "Anos restantes", valor: String(anosRestantes) },
+      ],
+      mapaDataUrl: img,
+      imagemTitulo: "Trajetória até 2030",
+      textoLivre: analiseIA ? { titulo: `Análise com IA (${analiseIA.periodo})`, texto: analiseIA.texto } : undefined,
+      tabelas: [{ titulo: "Histórico e projeção anual", linhas: serie.linhas.map((l) => ({
+        Ano: l.ano, Observado: l.observado != null ? `${l.observado.toFixed(1)}%` : "—",
+        Projeção: l.projetado != null ? `${l.projetado.toFixed(1)}%` : "—", Meta: `${meta}%`,
+      })) }],
+      usuario: localStorage.getItem("sinarv-export-user") ?? undefined,
+      fonteDados: "Base de benchmarks municipais do SINARV",
+    });
+  };
+
   const gapPontos =
     projecao2030 != null ? Number((meta - projecao2030).toFixed(1)) : null;
 
   return (
     <div className="space-y-6">
-      <header className="space-y-1">
+      <header className="space-y-1 relative">
+        <Button variant="outline" size="sm" className="absolute right-0 top-0" onClick={exportarPDF} disabled={historico.length === 0}>
+          <FileDown className="h-4 w-4" /> Exportar PDF
+        </Button>
         <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
           <Target className="h-6 w-6 text-primary" /> Metas PNRS até 2030
         </h1>
@@ -270,7 +340,7 @@ const DashboardMetasPNRS = () => {
             <CardHeader>
               <CardTitle className="text-sm">Trajetória até 2030</CardTitle>
             </CardHeader>
-            <CardContent className="h-80">
+            <CardContent className="h-80" ref={graficoRef}>
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={serie.linhas}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -308,6 +378,12 @@ const DashboardMetasPNRS = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+
+          <AnaliseIAPanel
+            municipio={municipioAtual ? { ibge: municipioAtual.municipio_ibge, nome: municipioAtual.nome_municipio, uf: municipioAtual.uf } : null}
+            montarContexto={montarContexto}
+            onResultado={(texto, p) => setAnaliseIA({ texto, periodo: `${p.inicio}–${p.fim}` })}
+          />
 
           <Card>
             <CardHeader>
