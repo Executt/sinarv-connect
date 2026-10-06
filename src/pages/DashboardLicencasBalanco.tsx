@@ -1,4 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
@@ -7,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
-import { ShieldCheck, ShieldAlert, Scale, Truck } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Scale, Truck, FileDown } from "lucide-react";
 
 const DIA = 86400000;
 
@@ -48,6 +50,7 @@ const DashboardLicencasBalanco = () => {
   const mtr = useMtr();
   const ent = useLotesEntrada();
   const sai = useLotesSaida();
+  const graficoRef = useRef<HTMLDivElement>(null);
 
   const balanco = useMemo(() => {
     const m: Record<string, { material: string; entrada: number; saida: number; mtr: number }> = {};
@@ -77,8 +80,30 @@ const DashboardLicencasBalanco = () => {
     { icon: Truck, label: "MTR aprovados", value: mtr.data?.filter((r) => r.fluxo_status === "aprovado").length ?? 0 },
   ];
 
+  const exportarPDF = async () => {
+    const img = await capturarElemento(graficoRef.current);
+    gerarRelatorioPDF({
+      titulo: "Licenças ambientais e balanço de massa",
+      subtitulo: "Licenças e Balanço",
+      filtros: { Período: "Todo o histórico", Escopo: "Todos os registros visíveis ao usuário" },
+      numeros: kpis.map((k) => ({ rotulo: k.label, valor: String(k.value) })),
+      mapaDataUrl: img,
+      imagemTitulo: "Fluxo de massa por material",
+      textoLivre: negativos.length ? { titulo: "Alerta de inconsistência", texto: `Saída maior que a entrada em: ${negativos.map((n) => n.material).join(", ")}.` } : undefined,
+      tabelas: [
+        { titulo: "Balanço por material", linhas: balanco.map((b) => ({ Material: b.material, Entrada: kg(b.entrada), Saída: kg(b.saida), Saldo: kg(b.saldo), "MTR aprovado": kg(b.mtr) })) },
+        { titulo: "Licenças ambientais", linhas: licencas.map((l) => ({ Operador: l.operadores_logisticos?.razao_social ?? "—", Número: l.numero ?? "—", Tipo: l.tipo ?? "—", Validade: new Date(l.validade).toLocaleDateString("pt-BR"), Situação: statusLicenca(l.validade).label })) },
+      ],
+      usuario: localStorage.getItem("sinarv-export-user") ?? undefined,
+      fonteDados: "Lotes, MTR e licenças registrados no SINARV",
+    });
+  };
+
   return (
     <div className="space-y-5">
+      <div className="flex justify-end">
+        <Button variant="outline" size="sm" onClick={exportarPDF}><FileDown className="h-4 w-4" /> Exportar PDF</Button>
+      </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((k) => (
           <Card key={k.label}><CardContent className="pt-4 pb-3 flex items-center gap-3">
@@ -96,7 +121,7 @@ const DashboardLicencasBalanco = () => {
 
       <Card>
         <CardHeader className="pb-2"><CardTitle className="text-base">Fluxo de massa por material</CardTitle></CardHeader>
-        <CardContent className="h-72">
+        <CardContent className="h-72" ref={graficoRef}>
           {balanco.length === 0 ? <p className="text-sm text-muted-foreground">Sem lotes registrados.</p> : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={balanco}>
