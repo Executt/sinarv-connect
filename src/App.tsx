@@ -80,6 +80,7 @@ import AdminWebhooks from "./pages/admin/AdminWebhooks";
 import AdminSEI from "./pages/admin/AdminSEI";
 import AdminNotificacoes from "./pages/admin/AdminNotificacoes";
 import AdminImportacoes from "./pages/admin/AdminImportacoes";
+import AdminOperadores from "./pages/admin/AdminOperadores";
 
 // Admin IA
 import AdminAiModelos from "./pages/admin/AdminAiModelos";
@@ -189,6 +190,7 @@ const App = () => (
               <Route path="banco-dados" element={<AdminBancoDados />} />
               <Route path="logs" element={<AdminLogs />} />
               <Route path="importacoes" element={<AdminImportacoes />} />
+              <Route path="operadores" element={<AdminOperadores />} />
               {/* Identidade & Acesso */}
               <Route path="usuarios" element={<AdminUsuarios />} />
               <Route path="perfis-usuario" element={<AdminPerfisUsuario />} />

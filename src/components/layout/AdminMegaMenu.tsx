@@ -78,6 +78,13 @@ const menuGroups: MenuGroup[] = [
         badge: "novo",
       },
       {
+        label: "Operadores logísticos",
+        to: "/admin/operadores",
+        icon: Database,
+        description: "Cadastro de CNPJs e licenças",
+        badge: "novo",
+      },
+      {
         label: "Parâmetros",
         to: "/admin/parametros",
         icon: Settings,
