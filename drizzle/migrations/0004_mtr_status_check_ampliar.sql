@@ -1,0 +1,2 @@
+ALTER TABLE public.mtr_solicitacoes DROP CONSTRAINT mtr_solicitacoes_status_check;
+ALTER TABLE public.mtr_solicitacoes ADD CONSTRAINT mtr_solicitacoes_status_check CHECK (status = ANY (ARRAY['solicitado','aceito','em_transito','recebido','recusado','divergente','cancelado','Rascunho','Enviado','Em Análise','Aprovado','Bloqueado']));

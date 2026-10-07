@@ -29,6 +29,13 @@
       "when": 1789175238364,
       "tag": "0003_importacoes_oficiais",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791337356716,
+      "tag": "0004_mtr_status_check_ampliar",
+      "breakpoints": true
     }
   ]
 }
