@@ -25,6 +25,8 @@ const num = (v: unknown) => {
   return Number.isFinite(n) ? n : undefined;
 };
 const onlyDigits = (v: unknown) => String(v ?? '').replace(/\D/g, '');
+const fmtCnpj = (d: string) => d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+const cnpjOr = (d: string) => `cnpj.eq.${d},cnpj.eq.${fmtCnpj(d)}`;
 const dateStr = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'data deve ser YYYY-MM-DD');
 
 const LicencaSchema = z.object({
@@ -110,7 +112,7 @@ Deno.serve(async (req) => {
           });
           if (r.emissao > r.validade) throw new Error('emissão posterior à validade');
           const { data: op } = await admin
-            .from('operadores_logisticos').select('id').eq('cnpj', r.cnpj_operador).maybeSingle();
+            .from('operadores_logisticos').select('id').or(cnpjOr(r.cnpj_operador)).limit(1).maybeSingle();
           if (!op) throw new Error(`operador com CNPJ ${r.cnpj_operador} não cadastrado`);
 
           const { data: existente } = await admin
@@ -139,18 +141,18 @@ Deno.serve(async (req) => {
           });
 
           const { data: ger } = await admin
-            .from('geradores_criticos').select('id').eq('cnpj', r.cnpj_gerador).maybeSingle();
+            .from('geradores_criticos').select('id').or(cnpjOr(r.cnpj_gerador)).limit(1).maybeSingle();
           if (!ger) throw new Error(`gerador com CNPJ ${r.cnpj_gerador} não cadastrado`);
 
           let operador_id: string | null = null;
           if (r.cnpj_transportador) {
-            const { data: t } = await admin.from('operadores_logisticos').select('id').eq('cnpj', r.cnpj_transportador).maybeSingle();
+            const { data: t } = await admin.from('operadores_logisticos').select('id').or(cnpjOr(r.cnpj_transportador)).limit(1).maybeSingle();
             if (!t) throw new Error(`transportador com CNPJ ${r.cnpj_transportador} não cadastrado`);
             operador_id = t.id;
           }
           let destinador_id: string | null = null;
           if (r.cnpj_destinador) {
-            const { data: d } = await admin.from('operadores_logisticos').select('id').eq('cnpj', r.cnpj_destinador).maybeSingle();
+            const { data: d } = await admin.from('operadores_logisticos').select('id').or(cnpjOr(r.cnpj_destinador)).limit(1).maybeSingle();
             if (!d) throw new Error(`destinador com CNPJ ${r.cnpj_destinador} não cadastrado`);
             destinador_id = d.id;
           }
