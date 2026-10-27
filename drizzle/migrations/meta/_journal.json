@@ -36,6 +36,13 @@
       "when": 1791337356716,
       "tag": "0004_mtr_status_check_ampliar",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793106241297,
+      "tag": "0005_fiscalizacao_acoes",
+      "breakpoints": true
     }
   ]
 }
