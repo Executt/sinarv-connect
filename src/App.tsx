@@ -27,6 +27,7 @@ import DashboardSustentabilidade from "./pages/DashboardSustentabilidade";
 import DashboardRadarRejeitos from "./pages/DashboardRadarRejeitos";
 import DashboardResiduosCriticos from "./pages/DashboardResiduosCriticos";
 import DashboardMetasPNRS from "./pages/DashboardMetasPNRS";
+import DashboardMetasMunicipio from "./pages/DashboardMetasMunicipio";
 import DashboardLicencasBalanco from "./pages/DashboardLicencasBalanco";
 
 // Module layouts
@@ -128,6 +129,7 @@ const App = () => (
               <Route path="radar-rejeitos" element={<DashboardRadarRejeitos />} />
               <Route path="residuos-criticos" element={<DashboardResiduosCriticos />} />
               <Route path="metas-pnrs" element={<DashboardMetasPNRS />} />
+              <Route path="metas-municipio" element={<DashboardMetasMunicipio />} />
               <Route path="licencas-balanco" element={<DashboardLicencasBalanco />} />
             </Route>
 

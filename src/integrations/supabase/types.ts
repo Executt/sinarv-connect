@@ -1254,6 +1254,57 @@ export type Database = {
         }
         Relationships: []
       }
+      fiscalizacao_acoes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          id: string
+          municipio: string
+          origem: string
+          prazo: string | null
+          prioridade: string
+          responsavel: string | null
+          status: string
+          tipo: string
+          titulo: string
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          municipio: string
+          origem?: string
+          prazo?: string | null
+          prioridade?: string
+          responsavel?: string | null
+          status?: string
+          tipo?: string
+          titulo: string
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          municipio?: string
+          origem?: string
+          prazo?: string | null
+          prioridade?: string
+          responsavel?: string | null
+          status?: string
+          tipo?: string
+          titulo?: string
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       geradores_criticos: {
         Row: {
           ativo: boolean

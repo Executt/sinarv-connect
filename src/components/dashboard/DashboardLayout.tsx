@@ -12,6 +12,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/dashboard/radar-rejeitos": { title: "Radar de Rejeitos", subtitle: "Telemetria em tempo real de cargas perigosas, hospitalares e químicas" },
   "/dashboard/residuos-criticos": { title: "Resíduos Críticos", subtitle: "Gestão de resíduos perigosos e hospitalares (RSS) — geradores, operadores e MTR" },
   "/dashboard/metas-pnrs": { title: "Metas PNRS", subtitle: "Histórico e projeção anual por município até 2030" },
+  "/dashboard/metas-municipio": { title: "Metas por município", subtitle: "Fiscalização, ações pendentes e balanço de massa" },
   "/dashboard/licencas-balanco": { title: "Licenças e Balanço de Massa", subtitle: "Entradas x saídas da cooperativa alinhadas ao MTR e às licenças ambientais" },
 };
 
