@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Pencil, FileText } from "lucide-react";
+import { Plus, Pencil, FileText, Search } from "lucide-react";
 
 type Operador = {
   id: string; razao_social: string; cnpj: string; tipo: string; natureza: string;
@@ -45,6 +45,8 @@ export default function AdminOperadores() {
   const [edit, setEdit] = useState<(typeof vazio & { id?: string }) | null>(null);
   const [licOp, setLicOp] = useState<Operador | null>(null);
   const [lic, setLic] = useState(licVazia);
+  const [consultando, setConsultando] = useState(false);
+  const [infoCnpj, setInfoCnpj] = useState<string | null>(null);
 
   const carregar = async () => {
     const [a, b] = await Promise.all([
@@ -130,8 +132,22 @@ export default function AdminOperadores() {
           {edit && (
             <div className="grid gap-3">
               <div><Label>Razão social *</Label><Input value={edit.razao_social} onChange={(e) => setEdit({ ...edit, razao_social: e.target.value })} /></div>
-              <div><Label>CNPJ *</Label><Input value={edit.cnpj} onChange={(e) => setEdit({ ...edit, cnpj: fmtCnpj(e.target.value) })} placeholder="00.000.000/0000-00" />
-                {edit.cnpj && !cnpjValido(edit.cnpj) && <p className="mt-1 text-xs text-destructive">CNPJ inválido</p>}</div>
+              <div><Label>CNPJ *</Label>
+                <div className="flex gap-2">
+                  <Input value={edit.cnpj} onChange={(e) => setEdit({ ...edit, cnpj: fmtCnpj(e.target.value) })} placeholder="00.000.000/0000-00" />
+                  <Button type="button" variant="outline" disabled={consultando || !cnpjValido(edit.cnpj)} onClick={async () => {
+                    setConsultando(true); setInfoCnpj(null);
+                    const { data, error } = await supabase.functions.invoke("consultar-cnpj", { body: { cnpj: digits(edit.cnpj) } });
+                    setConsultando(false);
+                    if (error || data?.error) return toast.error(data?.error ?? "Não foi possível consultar o CNPJ");
+                    setInfoCnpj(`${data.situacao ?? "?"} · ${data.municipio ?? ""}/${data.uf ?? ""} · ${data.cnae ?? ""} (fonte: ${data.fonte})`);
+                    setEdit((cur) => cur && ({ ...cur, razao_social: data.razao_social || cur.razao_social,
+                      contato_email: cur.contato_email || data.email || "", contato_telefone: cur.contato_telefone || data.telefone || "" }));
+                    toast.success("Dados preenchidos pela Receita Federal");
+                  }}><Search className="mr-1 h-4 w-4" />{consultando ? "Consultando…" : "Consultar"}</Button>
+                </div>
+                {edit.cnpj && !cnpjValido(edit.cnpj) && <p className="mt-1 text-xs text-destructive">CNPJ inválido</p>}
+                {infoCnpj && <p className="mt-1 text-xs text-muted-foreground">{infoCnpj}</p>}</div>
               <div className="grid grid-cols-2 gap-3">
                 <div><Label>Tipo</Label><Select value={edit.tipo} onValueChange={(v) => setEdit({ ...edit, tipo: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
                   <SelectItem value="transportador">Transportador</SelectItem><SelectItem value="destinador">Destinador</SelectItem><SelectItem value="ambos">Ambos</SelectItem></SelectContent></Select></div>
