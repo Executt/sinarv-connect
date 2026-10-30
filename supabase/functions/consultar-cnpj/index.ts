@@ -13,12 +13,12 @@ async function tentar(url: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (!req.headers.get("Authorization")) return json({ error: "Não autenticado" }, 401);
-  let cnpj = "";
-  try { cnpj = String((await req.json()).cnpj ?? "").replace(/\D/g, ""); } catch { /* */ }
+  let cnpj = ""; let fonte = "";
+  try { const b = await req.json(); cnpj = String(b.cnpj ?? "").replace(/\D/g, ""); fonte = String(b.fonte ?? ""); } catch { /* */ }
   if (!/^\d{14}$/.test(cnpj)) return json({ error: "CNPJ deve ter 14 dígitos" }, 400);
 
   // 1) OpenCNPJ  2) Minha Receita (fallback)
-  try {
+  if (fonte !== "minhareceita") try {
     const r = await tentar(`https://api.opencnpj.org/${cnpj}`);
     if (r.data) {
       const d = r.data;
