@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -12,13 +13,17 @@ async function tentar(url: string) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (!req.headers.get("Authorization")) return json({ error: "Não autenticado" }, 401);
-  let cnpj = "";
-  try { cnpj = String((await req.json()).cnpj ?? "").replace(/\D/g, ""); } catch { /* */ }
+  const auth = req.headers.get("Authorization") ?? "";
+  if (!auth.startsWith("Bearer ")) return json({ error: "Não autenticado" }, 401);
+  const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: auth } } });
+  const { data: u, error: ue } = await sb.auth.getUser(auth.slice(7));
+  if (ue || !u?.user) return json({ error: "Sessão inválida" }, 401);
+  let cnpj = ""; let fonte = "";
+  try { const b = await req.json(); cnpj = String(b.cnpj ?? "").replace(/\D/g, ""); fonte = String(b.fonte ?? ""); } catch { /* */ }
   if (!/^\d{14}$/.test(cnpj)) return json({ error: "CNPJ deve ter 14 dígitos" }, 400);
 
   // 1) OpenCNPJ  2) Minha Receita (fallback)
-  try {
+  if (fonte !== "minhareceita") try {
     const r = await tentar(`https://api.opencnpj.org/${cnpj}`);
     if (r.data) {
       const d = r.data;
