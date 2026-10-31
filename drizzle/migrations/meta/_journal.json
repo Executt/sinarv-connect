@@ -57,6 +57,13 @@
       "when": 1793452136195,
       "tag": "0007_compliance_fix_logs",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793452159071,
+      "tag": "0008_agendar_varredura_licencas",
+      "breakpoints": true
     }
   ]
 }
