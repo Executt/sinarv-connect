@@ -43,6 +43,27 @@
       "when": 1793106241297,
       "tag": "0005_fiscalizacao_acoes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793452100592,
+      "tag": "0006_fiscalizacao_processos_compliance",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793452136195,
+      "tag": "0007_compliance_fix_logs",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793452159071,
+      "tag": "0008_agendar_varredura_licencas",
+      "breakpoints": true
     }
   ]
 }

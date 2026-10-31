@@ -1258,15 +1258,23 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          data_notificacao: string | null
           descricao: string | null
+          documento_emitido_em: string | null
+          enquadramento_legal: string | null
+          fase_tramitacao: string
+          hash_documento: string | null
           id: string
           municipio: string
+          numero_processo: string | null
           origem: string
           prazo: string | null
+          prazo_resposta_dias: number | null
           prioridade: string
           responsavel: string | null
           status: string
           tipo: string
+          tipo_documento: string
           titulo: string
           uf: string
           updated_at: string
@@ -1274,15 +1282,23 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          data_notificacao?: string | null
           descricao?: string | null
+          documento_emitido_em?: string | null
+          enquadramento_legal?: string | null
+          fase_tramitacao?: string
+          hash_documento?: string | null
           id?: string
           municipio: string
+          numero_processo?: string | null
           origem?: string
           prazo?: string | null
+          prazo_resposta_dias?: number | null
           prioridade?: string
           responsavel?: string | null
           status?: string
           tipo?: string
+          tipo_documento?: string
           titulo: string
           uf: string
           updated_at?: string
@@ -1290,15 +1306,23 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          data_notificacao?: string | null
           descricao?: string | null
+          documento_emitido_em?: string | null
+          enquadramento_legal?: string | null
+          fase_tramitacao?: string
+          hash_documento?: string | null
           id?: string
           municipio?: string
+          numero_processo?: string | null
           origem?: string
           prazo?: string | null
+          prazo_resposta_dias?: number | null
           prioridade?: string
           responsavel?: string | null
           status?: string
           tipo?: string
+          tipo_documento?: string
           titulo?: string
           uf?: string
           updated_at?: string
@@ -4254,6 +4278,7 @@ export type Database = {
         }
         Returns: string
       }
+      fn_varrer_licencas_compliance: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

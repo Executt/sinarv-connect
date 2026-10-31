@@ -11,7 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Target, Scale, ClipboardCheck, AlertTriangle, Plus } from "lucide-react";
+import { Target, Scale, ClipboardCheck, AlertTriangle, Plus, Gavel, FileText } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { TIPOS_DOCUMENTO, FASES_TRAMITACAO, ENQUADRAMENTOS, dataLimiteResposta, emitirTermo } from "@/lib/fiscalizacao-report";
 
 const META_2030 = 48;
 const kg = (n: number) => `${Math.round(n).toLocaleString("pt-BR")} kg`;
@@ -25,6 +28,7 @@ const DashboardMetasMunicipio = () => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [chave, setChave] = useState<string>("");
+  const [tramitando, setTramitando] = useState<any | null>(null);
   const [form, setForm] = useState({ titulo: "", descricao: "", prioridade: "media", prazo: "", responsavel: "" });
 
   const bench = useQuery({
@@ -101,6 +105,35 @@ const DashboardMetasMunicipio = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["fiscalizacao_acoes"] }),
     onError: (e: any) => toast({ title: "Erro", description: e.message, variant: "destructive" }),
   });
+  const salvarTramite = useMutation({
+    mutationFn: async (a: any) => {
+      const dias = a.prazo_resposta_dias;
+      if (dias != null && (!Number.isInteger(dias) || dias < 1 || dias > 365)) throw new Error("Prazo de resposta deve ser entre 1 e 365 dias");
+      const { error } = await supabase.from("fiscalizacao_acoes").update({
+        numero_processo: a.numero_processo?.trim() || null, tipo_documento: a.tipo_documento,
+        enquadramento_legal: a.enquadramento_legal || null, fase_tramitacao: a.fase_tramitacao,
+        data_notificacao: a.data_notificacao || null, prazo_resposta_dias: dias ?? null,
+        status: ["saneado", "executado"].includes(a.fase_tramitacao) ? "concluida" : a.status === "pendente" && a.fase_tramitacao !== "instaurado" ? "em_andamento" : a.status,
+      }).eq("id", a.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["fiscalizacao_acoes"] }); setTramitando(null); toast({ title: "Tramitação registrada" }); },
+    onError: (e: any) => toast({ title: "Não foi possível salvar", description: e.message, variant: "destructive" }),
+  });
+
+  const emitir = async (a: any) => {
+    if (!dados) return;
+    try {
+      const hash = await emitirTermo(a, {
+        desvio: dados.taxa === null ? "—" : `${dados.taxa.toFixed(1)}%`, meta: `Meta 2030: ${META_2030}%`,
+        pesoAprovado: kg(dados.pesoAprov), foraBalanco: kg(dados.pesoPend), mtrBloqueados: dados.bloqueados.length,
+      }, user?.email ?? "usuário");
+      const { error } = await supabase.from("fiscalizacao_acoes").update({ hash_documento: hash, documento_emitido_em: new Date().toISOString() }).eq("id", a.id);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["fiscalizacao_acoes"] });
+      toast({ title: "Termo emitido", description: `Hash ${hash.slice(0, 16)}…` });
+    } catch (e: any) { toast({ title: "Falha ao emitir", description: e.message, variant: "destructive" }); }
+  };
 
   if (bench.isLoading || mtr.isLoading) return <div className="p-6"><Skeleton className="h-64 w-full" /></div>;
 
@@ -155,22 +188,30 @@ const DashboardMetasMunicipio = () => {
               <Button disabled={form.titulo.trim().length < 3 || criar.isPending} onClick={() => criar.mutate({ ...form, titulo: form.titulo.trim(), origem: "manual" })}><Plus className="mr-1 h-4 w-4" />Registrar</Button>
             </div>
             <Table>
-              <TableHeader><TableRow><TableHead>Ação</TableHead><TableHead>Prioridade</TableHead><TableHead>Prazo</TableHead><TableHead>Responsável</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+              <TableHeader><TableRow><TableHead>Ação</TableHead><TableHead>Processo / fase</TableHead><TableHead>Prioridade</TableHead><TableHead>Prazo</TableHead><TableHead>Status</TableHead><TableHead></TableHead></TableRow></TableHeader>
               <TableBody>
-                {dados.acoesMun.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Nenhuma ação registrada.</TableCell></TableRow>}
-                {dados.acoesMun.map((a) => (
+                {dados.acoesMun.length === 0 && <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Nenhuma ação registrada.</TableCell></TableRow>}
+                {dados.acoesMun.map((a: any) => {
+                  const limite = dataLimiteResposta(a.data_notificacao, a.prazo_resposta_dias);
+                  return (
                   <TableRow key={a.id}>
-                    <TableCell><div className="font-medium">{a.titulo}</div><div className="text-xs text-muted-foreground">{a.descricao}</div></TableCell>
+                    <TableCell><div className="font-medium">{a.titulo}</div><div className="text-xs text-muted-foreground">{a.descricao}</div>{a.responsavel && <div className="text-xs text-muted-foreground">Resp.: {a.responsavel}</div>}</TableCell>
+                    <TableCell><div className="text-sm">{a.numero_processo || "—"}</div><Badge variant="outline">{FASES_TRAMITACAO[a.fase_tramitacao] ?? a.fase_tramitacao}</Badge>
+                      {a.hash_documento && <div className="text-[10px] text-muted-foreground" title={a.hash_documento}>Termo emitido · {a.hash_documento.slice(0, 10)}…</div>}</TableCell>
                     <TableCell><Badge variant={PRIO_VAR[a.prioridade]}>{a.prioridade}</Badge></TableCell>
-                    <TableCell className={a.prazo && a.prazo < hoje && a.status !== "concluida" ? "text-destructive" : ""}>{a.prazo ? new Date(a.prazo + "T00:00").toLocaleDateString("pt-BR") : "—"}</TableCell>
-                    <TableCell>{a.responsavel || "—"}</TableCell>
+                    <TableCell className={a.prazo && a.prazo < hoje && a.status !== "concluida" ? "text-destructive" : ""}>{a.prazo ? new Date(a.prazo + "T00:00").toLocaleDateString("pt-BR") : "—"}
+                      {limite && <div className={`text-xs ${limite < hoje && !["saneado", "executado"].includes(a.fase_tramitacao) ? "text-destructive" : "text-muted-foreground"}`}>Resposta até {new Date(limite + "T00:00").toLocaleDateString("pt-BR")}</div>}</TableCell>
                     <TableCell>
                       <Select value={a.status} onValueChange={(v) => mudarStatus.mutate({ id: a.id, status: v })}>
                         <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
                         <SelectContent>{Object.entries(STATUS_LABEL).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
                       </Select>
                     </TableCell>
-                  </TableRow>))}
+                    <TableCell className="space-y-1">
+                      <Button size="sm" variant="outline" className="w-full" onClick={() => setTramitando({ ...a })}><Gavel className="mr-1 h-3 w-3" />Tramitar</Button>
+                      <Button size="sm" variant="outline" className="w-full" onClick={() => emitir(a)}><FileText className="mr-1 h-3 w-3" />Emitir termo</Button>
+                    </TableCell>
+                  </TableRow>);})}
               </TableBody>
             </Table>
           </CardContent></Card>
@@ -186,6 +227,38 @@ const DashboardMetasMunicipio = () => {
             </TableBody>
           </Table></CardContent></Card>
       </>)}
+
+      <Dialog open={!!tramitando} onOpenChange={(o) => !o && setTramitando(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Tramitação do processo</DialogTitle></DialogHeader>
+          {tramitando && (
+            <div className="space-y-3">
+              <div><Label>Número do processo (SEI / protocolo)</Label>
+                <Input value={tramitando.numero_processo ?? ""} onChange={(e) => setTramitando({ ...tramitando, numero_processo: e.target.value })} maxLength={60} /></div>
+              <div><Label>Tipo de documento</Label>
+                <Select value={tramitando.tipo_documento} onValueChange={(v) => setTramitando({ ...tramitando, tipo_documento: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{Object.entries(TIPOS_DOCUMENTO).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
+                </Select></div>
+              <div><Label>Enquadramento legal</Label>
+                <Select value={tramitando.enquadramento_legal ?? ""} onValueChange={(v) => setTramitando({ ...tramitando, enquadramento_legal: v })}>
+                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>{ENQUADRAMENTOS.map((e) => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
+                </Select></div>
+              <div><Label>Fase</Label>
+                <Select value={tramitando.fase_tramitacao} onValueChange={(v) => setTramitando({ ...tramitando, fase_tramitacao: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>{Object.entries(FASES_TRAMITACAO).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
+                </Select></div>
+              <div className="grid grid-cols-2 gap-2">
+                <div><Label>Data da notificação</Label><Input type="date" value={tramitando.data_notificacao ?? ""} onChange={(e) => setTramitando({ ...tramitando, data_notificacao: e.target.value || null })} /></div>
+                <div><Label>Prazo de resposta (dias)</Label><Input type="number" min={1} max={365} value={tramitando.prazo_resposta_dias ?? ""} onChange={(e) => setTramitando({ ...tramitando, prazo_resposta_dias: e.target.value ? Number(e.target.value) : null })} /></div>
+              </div>
+            </div>
+          )}
+          <DialogFooter><Button disabled={salvarTramite.isPending} onClick={() => tramitando && salvarTramite.mutate(tramitando)}>Salvar</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
