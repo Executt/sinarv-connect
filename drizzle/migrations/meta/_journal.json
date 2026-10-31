@@ -43,6 +43,13 @@
       "when": 1793106241297,
       "tag": "0005_fiscalizacao_acoes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793452100592,
+      "tag": "0006_fiscalizacao_processos_compliance",
+      "breakpoints": true
     }
   ]
 }
