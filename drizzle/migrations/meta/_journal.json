@@ -50,6 +50,13 @@
       "when": 1793452100592,
       "tag": "0006_fiscalizacao_processos_compliance",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793452136195,
+      "tag": "0007_compliance_fix_logs",
+      "breakpoints": true
     }
   ]
 }
