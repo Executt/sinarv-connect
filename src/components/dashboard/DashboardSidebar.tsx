@@ -13,6 +13,7 @@ const menuItems = [
   { title: "Benchmarks", icon: BarChart3, url: "/dashboard/benchmarks" },
   { title: "Lixões", icon: Trash2, url: "/dashboard/lixoes" },
   { title: "Sustentabilidade", icon: Coins, url: "/dashboard/sustentabilidade" },
+  { title: "Simulador financeiro", icon: Coins, url: "/dashboard/simulador-financeiro" },
   { title: "Radar de Rejeitos", icon: Radio, url: "/dashboard/radar-rejeitos" },
 ];
 

@@ -34,3 +34,6 @@
 - [ ] PENDENTE: testar na tela o diálogo de tramitação e a emissão do termo (o teste parou no diálogo)
 - [ ] PENDENTE: apagar a ação de teste criada em Aracaju/SE durante o teste
 - [ ] PENDENTE: testar o bloqueio de despacho com uma cooperativa real
+
+## Simulador financeiro municipal
+- [x] Simulador de custos de manejo, toneladas e arrecadação, com dados de exemplo identificados
