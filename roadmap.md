@@ -25,3 +25,12 @@
 - [x] Carimbo (data/hora, usuário, filtros, fonte) nas exportações CSV
 - [x] Modo escuro: remoção de cores fixas em ModuleShell, Benchmarks e AppSwitcher
 - [x] Testes de exportação (carimbo e escape de CSV)
+
+## Fiscalização formal + compliance automático
+- [x] Processo, enquadramento legal, tipo de documento, fase e prazo de resposta nas ações de fiscalização (com auditoria)
+- [x] Termo de notificação em PDF com hash SHA-256
+- [x] Varredura diária de licenças (bloqueia MTR aberto sem licença na data do transporte; alertas 30/15/0 dias)
+- [x] Bloqueio de despacho de cooperativa acima do estoque de entrada
+- [ ] PENDENTE: testar na tela o diálogo de tramitação e a emissão do termo (o teste parou no diálogo)
+- [ ] PENDENTE: apagar a ação de teste criada em Aracaju/SE durante o teste
+- [ ] PENDENTE: testar o bloqueio de despacho com uma cooperativa real
