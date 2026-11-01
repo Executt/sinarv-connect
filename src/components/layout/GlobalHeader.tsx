@@ -52,6 +52,7 @@ const moduleConfigs: Record<string, ModuleConfig> = {
       { label: "Benchmarks", to: "/dashboard/benchmarks" },
       { label: "Lixões", to: "/dashboard/lixoes", icon: Trash2 },
       { label: "Sustentabilidade", to: "/dashboard/sustentabilidade" },
+      { label: "Simulador financeiro", to: "/dashboard/simulador-financeiro" },
       { label: "Metas PNRS", to: "/dashboard/metas-pnrs" },
       { label: "Metas por município", to: "/dashboard/metas-municipio" },
       { label: "Licenças e Balanço", to: "/dashboard/licencas-balanco" },
