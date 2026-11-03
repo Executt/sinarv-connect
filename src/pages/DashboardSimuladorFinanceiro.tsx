@@ -184,7 +184,7 @@ function Kpi({ titulo, valor, sub, destaque }: { titulo: string; valor: string; 
   return (
     <Card><CardContent className="pt-6">
       <p className="text-xs text-muted-foreground">{titulo}</p>
-      <p className={`text-xl font-bold ${destaque ? "text-destructive" : ""}`}>{valor}</p>
+      <p className={`text-lg xl:text-xl font-bold whitespace-nowrap ${destaque ? "text-destructive" : ""}`}>{valor}</p>
       {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
     </CardContent></Card>
   );
