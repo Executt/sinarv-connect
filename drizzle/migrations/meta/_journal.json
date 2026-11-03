@@ -64,6 +64,13 @@
       "when": 1793452159071,
       "tag": "0008_agendar_varredura_licencas",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793734357213,
+      "tag": "0009_seguranca_restringir_leituras",
+      "breakpoints": true
     }
   ]
 }
