@@ -69,7 +69,7 @@ serve(async (req: Request) => {
     const keyPrefix = apiKey.substring(0, 14);
     const { data: creds } = await supabase
       .from("api_credential")
-      .select("id, industria_id, api_key_hash, status")
+      .select("id, industria_id, api_key_hash, status, scopes, data_expiracao")
       .eq("api_key_prefix", keyPrefix)
       .eq("status", "Ativa");
 
@@ -85,7 +85,23 @@ serve(async (req: Request) => {
       );
     }
 
-    const industriaId = (cred as any).industria_id;
+    const c: any = cred;
+    const deny = (error: string, message: string) =>
+      new Response(JSON.stringify({ error, message }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (c.data_expiracao && new Date(c.data_expiracao).getTime() < Date.now()) {
+      return deny("api_key_expirada", "Chave de API expirada");
+    }
+    const scopes: string[] = Array.isArray(c.scopes) ? c.scopes : [];
+    if (!scopes.some((s) => ["lotes:write", "importar-lotes", "*"].includes(s))) {
+      return deny("escopo_insuficiente", "Chave sem permissão para importar lotes");
+    }
+    const { data: ind } = await supabase.from("industria").select("cnpj").eq("id", c.industria_id).maybeSingle();
+    const dig = (v: string) => (v || "").replace(/\D/g, "");
+    if (!ind || dig((ind as any).cnpj) !== dig(industria_cnpj)) {
+      return deny("cnpj_divergente", "CNPJ informado não pertence à indústria da chave");
+    }
+
+    const industriaId = c.industria_id;
 
     const results: any[] = [];
     const errors: any[] = [];

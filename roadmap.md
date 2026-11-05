@@ -35,5 +35,9 @@
 - [ ] PENDENTE: apagar a ação de teste criada em Aracaju/SE durante o teste
 - [ ] PENDENTE: testar o bloqueio de despacho com uma cooperativa real
 
+## Segurança B2B
+- [x] Chave B2B: valida vencimento, permissão e CNPJ da própria indústria
+- [x] Verificação automática falha quando uma checagem não roda
+
 ## Simulador financeiro municipal
 - [x] Simulador de custos de manejo, toneladas e arrecadação, com dados de exemplo identificados

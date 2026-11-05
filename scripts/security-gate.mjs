@@ -51,7 +51,7 @@ try {
   if (err.stdout) {
     parseAudit(err.stdout.toString());
   } else {
-    warn(`Unable to run npm audit: ${err.message}`);
+    fail(`Unable to run npm audit: ${err.message}`); criticalCount += 1;
   }
 }
 
@@ -60,7 +60,7 @@ function parseAudit(jsonStr) {
   try {
     report = JSON.parse(jsonStr);
   } catch {
-    warn("npm audit output was not valid JSON; skipping.");
+    fail("npm audit output was not valid JSON"); criticalCount += 1;
     return;
   }
   const meta = report.metadata?.vulnerabilities ?? {};
@@ -97,7 +97,7 @@ if (scanFile && existsSync(scanFile)) {
       }
     }
   } catch (err) {
-    warn(`Could not parse ${scanFile}: ${err.message}`);
+    fail(`Could not parse ${scanFile}: ${err.message}`); criticalCount += 1;
   }
 } else {
   warn("SUPABASE_SCAN_FILE not provided or missing — skipping backend scan.");
