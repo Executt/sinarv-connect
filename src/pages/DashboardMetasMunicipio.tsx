@@ -233,26 +233,26 @@ const DashboardMetasMunicipio = () => {
           <DialogHeader><DialogTitle>Tramitação do processo</DialogTitle></DialogHeader>
           {tramitando && (
             <div className="space-y-3">
-              <div><Label>Número do processo (SEI / protocolo)</Label>
-                <Input value={tramitando.numero_processo ?? ""} onChange={(e) => setTramitando({ ...tramitando, numero_processo: e.target.value })} maxLength={60} /></div>
-              <div><Label>Tipo de documento</Label>
+              <div><Label htmlFor="tr-processo">Número do processo (SEI / protocolo)</Label>
+                <Input id="tr-processo" value={tramitando.numero_processo ?? ""} onChange={(e) => setTramitando({ ...tramitando, numero_processo: e.target.value })} maxLength={60} /></div>
+              <div><Label htmlFor="tr-tipo">Tipo de documento</Label>
                 <Select value={tramitando.tipo_documento} onValueChange={(v) => setTramitando({ ...tramitando, tipo_documento: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="tr-tipo"><SelectValue /></SelectTrigger>
                   <SelectContent>{Object.entries(TIPOS_DOCUMENTO).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
                 </Select></div>
-              <div><Label>Enquadramento legal</Label>
+              <div><Label htmlFor="tr-enq">Enquadramento legal</Label>
                 <Select value={tramitando.enquadramento_legal ?? ""} onValueChange={(v) => setTramitando({ ...tramitando, enquadramento_legal: v })}>
-                  <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectTrigger id="tr-enq"><SelectValue placeholder="Selecione" /></SelectTrigger>
                   <SelectContent>{ENQUADRAMENTOS.map((e) => <SelectItem key={e} value={e}>{e}</SelectItem>)}</SelectContent>
                 </Select></div>
-              <div><Label>Fase</Label>
+              <div><Label htmlFor="tr-fase">Fase</Label>
                 <Select value={tramitando.fase_tramitacao} onValueChange={(v) => setTramitando({ ...tramitando, fase_tramitacao: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="tr-fase"><SelectValue /></SelectTrigger>
                   <SelectContent>{Object.entries(FASES_TRAMITACAO).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
                 </Select></div>
               <div className="grid grid-cols-2 gap-2">
-                <div><Label>Data da notificação</Label><Input type="date" value={tramitando.data_notificacao ?? ""} onChange={(e) => setTramitando({ ...tramitando, data_notificacao: e.target.value || null })} /></div>
-                <div><Label>Prazo de resposta (dias)</Label><Input type="number" min={1} max={365} value={tramitando.prazo_resposta_dias ?? ""} onChange={(e) => setTramitando({ ...tramitando, prazo_resposta_dias: e.target.value ? Number(e.target.value) : null })} /></div>
+                <div><Label htmlFor="tr-data">Data da notificação</Label><Input id="tr-data" type="date" value={tramitando.data_notificacao ?? ""} onChange={(e) => setTramitando({ ...tramitando, data_notificacao: e.target.value || null })} /></div>
+                <div><Label htmlFor="tr-prazo">Prazo de resposta (dias)</Label><Input id="tr-prazo" type="number" min={1} max={365} value={tramitando.prazo_resposta_dias ?? ""} onChange={(e) => setTramitando({ ...tramitando, prazo_resposta_dias: e.target.value ? Number(e.target.value) : null })} /></div>
               </div>
             </div>
           )}

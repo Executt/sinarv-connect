@@ -18,7 +18,7 @@ Responda em português, em Markdown, com exatamente estas seções:
 ## Prioridades de fiscalização
 (lista numerada, da mais urgente à menos, cada uma com justificativa baseada nos números)
 ## Limitações dos dados
-Use apenas os dados fornecidos; não invente valores. Seja objetivo (máximo ~400 palavras).`;
+Os dados já vêm filtrados para o município e o período informados; nunca atribua números de outros municípios. Se o balanço ou os MTR vierem vazios, diga isso em Limitações. Use apenas os dados fornecidos; não invente valores. Seja objetivo (máximo ~400 palavras).`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    if (!body?.municipio || !body?.periodo) return json({ error: "Informe município e período." }, 400);
+    if (!body?.municipio?.nome || !body?.municipio?.uf || !Number.isInteger(body?.periodo?.inicio) || !Number.isInteger(body?.periodo?.fim) || body.periodo.inicio > body.periodo.fim) return json({ error: "Informe município e período." }, 400);
     const payload = JSON.stringify(body).slice(0, 60000);
 
     const key = Deno.env.get("LOVABLE_API_KEY");

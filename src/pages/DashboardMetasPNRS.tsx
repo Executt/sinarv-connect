@@ -1,7 +1,8 @@
+import { montarBalancoMunicipio, resumirMtrMunicipio } from "@/lib/analise-ia-contexto";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import AnaliseIAPanel from "@/components/dashboard/AnaliseIAPanel";
-import { useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
+import { useCooperativas, useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
 import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,12 +72,13 @@ const DashboardMetasPNRS = () => {
   const [meta, setMeta] = useState(48);
   const [analiseIA, setAnaliseIA] = useState<{ texto: string; periodo: string } | null>(null);
   const graficoRef = useRef<HTMLDivElement>(null);
+  const coops = useCooperativas();
   const ent = useLotesEntrada();
   const sai = useLotesSaida();
   const mtrQ = useQuery({
     queryKey: ["mtr_ia"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("mtr_solicitacoes").select("*");
+      const { data, error } = await supabase.from("mtr_solicitacoes").select("codigo, quantidade_kg, fluxo_status, created_at, geradores_criticos(municipio, uf)");
       if (error) throw error;
       return (data ?? []) as any[];
     },
@@ -146,19 +148,11 @@ const DashboardMetasPNRS = () => {
   const atingeMeta = projecao2030 != null && projecao2030 >= meta;
   const anosRestantes = ANO_META - new Date().getFullYear();
 
-  const anoDe = (d: any) => (d ? new Date(d).getFullYear() : NaN);
   const montarContexto = (inicio: number, fim: number) => {
     if (!municipioAtual) return null;
-    const noPeriodo = (d: any) => { const a = anoDe(d); return a >= inicio && a <= fim; };
-    const bal: Record<string, { material: string; entrada_kg: number; saida_kg: number }> = {};
-    const g = (k: string) => (bal[k] ??= { material: k, entrada_kg: 0, saida_kg: 0 });
-    (ent.data ?? []).filter((e: any) => noPeriodo(e.data_recebimento ?? e.created_at))
-      .forEach((e: any) => (g(e.tipo_material || "Outros").entrada_kg += Number(e.peso_bruto_kg) || 0));
-    (sai.data ?? []).filter((s: any) => noPeriodo(s.data_despacho ?? s.created_at))
-      .forEach((s: any) => (g(s.tipo_material || "Outros").saida_kg += Number(s.peso_kg ?? s.peso_despachado_kg ?? s.peso_liquido_kg) || 0));
-    const mtr = (mtrQ.data ?? []).filter((m) => noPeriodo(m.created_at));
-    const porStatus: Record<string, number> = {};
-    mtr.forEach((m) => (porStatus[m.fluxo_status ?? "indefinido"] = (porStatus[m.fluxo_status ?? "indefinido"] ?? 0) + 1));
+    const mun = { nome: municipioAtual.nome_municipio, uf: municipioAtual.uf };
+    const balanco = montarBalancoMunicipio({ municipio: mun, inicio, fim, cooperativas: (coops.data ?? []) as any[], entradas: ent.data ?? [], saidas: sai.data ?? [] });
+    const mtr = resumirMtrMunicipio({ municipio: mun, inicio, fim, mtr: mtrQ.data ?? [] });
     return {
       municipio: { ibge: municipioAtual.municipio_ibge, nome: municipioAtual.nome_municipio, uf: municipioAtual.uf },
       periodo: { inicio, fim },
@@ -168,8 +162,9 @@ const DashboardMetasPNRS = () => {
         desvio_aterro_pct: h.taxa_desvio_aterro, eficiencia_coleta_seletiva: h.eficiencia_coleta_seletiva,
       })),
       projecao_2030_pct: projecao2030,
-      balanco: Object.values(bal).map((b) => ({ ...b, saldo_kg: b.entrada_kg - b.saida_kg })),
-      mtr: { total: mtr.length, por_status: porStatus },
+      balanco,
+      mtr,
+      escopo: "Balanço e MTR filtrados por cooperativas e geradores com cidade/UF iguais ao município, no período informado.",
     };
   };
 
