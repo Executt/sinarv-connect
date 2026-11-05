@@ -2,7 +2,7 @@ import { montarBalancoMunicipio, resumirMtrMunicipio } from "@/lib/analise-ia-co
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import AnaliseIAPanel from "@/components/dashboard/AnaliseIAPanel";
-import { useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
+import { useCooperativas, useLotesEntrada, useLotesSaida } from "@/hooks/use-schema-data";
 import { capturarElemento, gerarRelatorioPDF } from "@/lib/lixoes-report";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -72,7 +72,7 @@ const DashboardMetasPNRS = () => {
   const [meta, setMeta] = useState(48);
   const [analiseIA, setAnaliseIA] = useState<{ texto: string; periodo: string } | null>(null);
   const graficoRef = useRef<HTMLDivElement>(null);
-  const coops = useCooperativasView();
+  const coops = useCooperativas();
   const ent = useLotesEntrada();
   const sai = useLotesSaida();
   const mtrQ = useQuery({
@@ -148,7 +148,6 @@ const DashboardMetasPNRS = () => {
   const atingeMeta = projecao2030 != null && projecao2030 >= meta;
   const anosRestantes = ANO_META - new Date().getFullYear();
 
-  const anoDe = (d: any) => (d ? new Date(d).getFullYear() : NaN);
   const montarContexto = (inicio: number, fim: number) => {
     if (!municipioAtual) return null;
     const mun = { nome: municipioAtual.nome_municipio, uf: municipioAtual.uf };
