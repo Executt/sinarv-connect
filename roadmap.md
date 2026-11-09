@@ -31,8 +31,8 @@
 - [x] Termo de notificação em PDF com hash SHA-256
 - [x] Varredura diária de licenças (bloqueia MTR aberto sem licença na data do transporte; alertas 30/15/0 dias)
 - [x] Bloqueio de despacho de cooperativa acima do estoque de entrada
-- [ ] PENDENTE: testar na tela o diálogo de tramitação e a emissão do termo (o teste parou no diálogo)
-- [ ] PENDENTE: apagar a ação de teste criada em Aracaju/SE durante o teste
+- [x] Testado na tela: salvar tramitação e emitir termo (hash gravado)
+- [x] Ação de teste de Aracaju/SE apagada
 - [ ] PENDENTE: testar o bloqueio de despacho com uma cooperativa real
 
 ## Segurança B2B
@@ -41,3 +41,6 @@
 
 ## Simulador financeiro municipal
 - [x] Simulador de custos de manejo, toneladas e arrecadação, com dados de exemplo identificados
+
+## Análise de IA
+- [x] Balanço e MTR da análise filtrados por município e período (teste impede misturar municípios)
