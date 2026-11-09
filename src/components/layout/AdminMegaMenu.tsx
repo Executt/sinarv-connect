@@ -198,6 +198,7 @@ const menuGroups: MenuGroup[] = [
   {
     title: "IA & Agentes",
     items: [
+      { label: "Proxy de IA", to: "/admin/ia/proxy", icon: Network, description: "LiteLLM ou outro gateway", badge: "novo" },
       { label: "Modelos LLM", to: "/admin/ia/modelos", icon: Cpu, description: "Free, pagos e treinados", badge: "novo" },
       { label: "Agentes", to: "/admin/ia/agentes", icon: Bot, description: "Modelo, prompt, base e skills", badge: "novo" },
       { label: "Skills", to: "/admin/ia/skills", icon: Wand2, description: "Catálogo de ferramentas", badge: "novo" },

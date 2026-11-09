@@ -347,6 +347,63 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_proxy_config: {
+        Row: {
+          ativo: boolean
+          base_url: string
+          created_at: string
+          descricao: string | null
+          gerencia_mcp: boolean
+          gerencia_tokens: boolean
+          id: string
+          modelo_padrao: string | null
+          nome: string
+          painel_url: string | null
+          provedor: string
+          secret_name: string | null
+          ultimo_teste_em: string | null
+          ultimo_teste_msg: string | null
+          ultimo_teste_ok: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          base_url: string
+          created_at?: string
+          descricao?: string | null
+          gerencia_mcp?: boolean
+          gerencia_tokens?: boolean
+          id?: string
+          modelo_padrao?: string | null
+          nome: string
+          painel_url?: string | null
+          provedor?: string
+          secret_name?: string | null
+          ultimo_teste_em?: string | null
+          ultimo_teste_msg?: string | null
+          ultimo_teste_ok?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          base_url?: string
+          created_at?: string
+          descricao?: string | null
+          gerencia_mcp?: boolean
+          gerencia_tokens?: boolean
+          id?: string
+          modelo_padrao?: string | null
+          nome?: string
+          painel_url?: string | null
+          provedor?: string
+          secret_name?: string | null
+          ultimo_teste_em?: string | null
+          ultimo_teste_msg?: string | null
+          ultimo_teste_ok?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_skills: {
         Row: {
           categoria: string
