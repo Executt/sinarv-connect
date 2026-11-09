@@ -87,6 +87,7 @@ import AdminOperadores from "./pages/admin/AdminOperadores";
 // Admin IA
 import AdminAiModelos from "./pages/admin/AdminAiModelos";
 import AdminAiMcp from "./pages/admin/AdminAiMcp";
+import AdminAiProxy from "./pages/admin/AdminAiProxy";
 import AdminAiBaseConhecimento from "./pages/admin/AdminAiBaseConhecimento";
 import AdminAiSkills from "./pages/admin/AdminAiSkills";
 import AdminAiAgentes from "./pages/admin/AdminAiAgentes";
@@ -214,6 +215,7 @@ const App = () => (
               {/* IA & Agentes */}
               <Route path="ia/modelos" element={<AdminAiModelos />} />
               <Route path="ia/mcp" element={<AdminAiMcp />} />
+              <Route path="ia/proxy" element={<AdminAiProxy />} />
               <Route path="ia/base-conhecimento" element={<AdminAiBaseConhecimento />} />
               <Route path="ia/skills" element={<AdminAiSkills />} />
               <Route path="ia/agentes" element={<AdminAiAgentes />} />

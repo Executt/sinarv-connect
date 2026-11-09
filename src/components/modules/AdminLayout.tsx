@@ -29,6 +29,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
 
   // IA & Agentes
   "/admin/ia/modelos": { title: "Modelos LLM", subtitle: "Modelos free, pagos e treinados" },
+  "/admin/ia/proxy": { title: "Proxy de IA", subtitle: "LiteLLM ou outro gateway de IA" },
   "/admin/ia/mcp": { title: "Servidores MCP", subtitle: "Model Context Protocol — conectores" },
   "/admin/ia/base-conhecimento": { title: "Base de Conhecimento", subtitle: "Documentos e fontes para RAG" },
   "/admin/ia/skills": { title: "Skills", subtitle: "Catálogo de ferramentas disponíveis aos agentes" },
