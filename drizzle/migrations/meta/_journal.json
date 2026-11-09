@@ -71,6 +71,13 @@
       "when": 1793734357213,
       "tag": "0009_seguranca_restringir_leituras",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794233652011,
+      "tag": "0010_ai_proxy_config",
+      "breakpoints": true
     }
   ]
 }
