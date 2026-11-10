@@ -78,6 +78,13 @@
       "when": 1794233652011,
       "tag": "0010_ai_proxy_config",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794354871289,
+      "tag": "0011_industria_meta_configuravel",
+      "breakpoints": true
     }
   ]
 }
