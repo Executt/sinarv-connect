@@ -1534,6 +1534,11 @@ export type Database = {
           created_at: string
           estado: string
           id: string
+          meta_ano_referencia: number | null
+          meta_anual_kg: number | null
+          meta_atualizada_em: string | null
+          meta_fonte: string | null
+          meta_fonte_url: string | null
           nome: string
           updated_at: string
         }
@@ -1543,6 +1548,11 @@ export type Database = {
           created_at?: string
           estado: string
           id?: string
+          meta_ano_referencia?: number | null
+          meta_anual_kg?: number | null
+          meta_atualizada_em?: string | null
+          meta_fonte?: string | null
+          meta_fonte_url?: string | null
           nome: string
           updated_at?: string
         }
@@ -1552,6 +1562,11 @@ export type Database = {
           created_at?: string
           estado?: string
           id?: string
+          meta_ano_referencia?: number | null
+          meta_anual_kg?: number | null
+          meta_atualizada_em?: string | null
+          meta_fonte?: string | null
+          meta_fonte_url?: string | null
           nome?: string
           updated_at?: string
         }
