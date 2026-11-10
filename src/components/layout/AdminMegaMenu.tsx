@@ -1,7 +1,8 @@
-import { Network,  useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Settings,
+  Network,
   ChevronDown,
   Sliders,
   Database,
